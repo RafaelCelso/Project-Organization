@@ -1,0 +1,171 @@
+.escalas-container {
+  display: flex;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.escalas-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f0f2f5;
+  margin-left: var(--sidebar-width);
+  overflow-y: auto;
+  height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+.calendar-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+/* Customização do calendário */
+.rbc-calendar {
+  font-family: inherit;
+}
+
+.rbc-header {
+  padding: 12px;
+  font-weight: 600;
+  background-color: #f5f5f5;
+  text-transform: capitalize;
+  font-size: 14px;
+}
+
+.rbc-month-view {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.rbc-month-header {
+  background-color: #fff;
+  border-bottom: 2px solid #4CAF50;
+}
+
+.rbc-toolbar {
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.rbc-toolbar-label {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  text-transform: capitalize;
+}
+
+.rbc-today {
+  background-color: #e8f5e9 !important;
+}
+
+.rbc-off-range-bg {
+  background-color: #f8f9fa;
+}
+
+.rbc-date-cell {
+  padding: 4px;
+  font-weight: 500;
+}
+
+.rbc-event {
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 13px;
+}
+
+.rbc-show-more {
+  color: #4CAF50;
+  font-weight: 500;
+}
+
+.rbc-toolbar button {
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.rbc-toolbar button:hover {
+  background-color: #f5f5f5;
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: #4CAF50;
+  color: white;
+  border-color: #4CAF50;
+}
+
+.rbc-month-row {
+  min-height: 100px;
+}
+
+/* Estilo para o mês atual */
+.rbc-month-view .rbc-month-header .rbc-header {
+  border-bottom: none;
+  color: #333;
+}
+
+/* Melhor visibilidade para eventos */
+.rbc-event {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Hover nos dias */
+.rbc-date-cell:hover {
+  background-color: #f5f5f5;
+  cursor: pointer;
+}
+
+/* Melhor visibilidade do dia atual */
+.rbc-today .rbc-date-cell {
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+/* Estilos para o formulário no modal */
+.form-group textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+/* Legenda dos tipos de evento */
+.calendar-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: white;
+  border-radius: 4px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+} 

@@ -1,0 +1,273 @@
+.projeto-detalhes-container {
+  display: flex;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.projeto-detalhes-content {
+  flex: 1;
+  padding: 24px 32px;
+  background-color: #f8fafc;
+  margin-left: var(--sidebar-width);
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.projeto-header {
+  margin-bottom: 32px;
+}
+
+.voltar-btn {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  margin-bottom: 16px;
+  transition: color 0.2s;
+}
+
+.voltar-btn:hover {
+  color: #333;
+}
+
+.projeto-titulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.projeto-titulo h1 {
+  font-size: 32px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.projeto-acoes {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.edit-btn {
+  background-color: #3b82f6;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.edit-btn svg {
+  font-size: 14px;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-em-andamento {
+  background-color: #fff8e1;
+  color: #f57f17;
+}
+
+.projeto-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.projeto-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.projeto-card h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.projeto-card h2 svg {
+  color: #3b82f6;
+}
+
+/* Informações Básicas */
+.info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-label {
+  color: #666;
+  font-weight: 500;
+}
+
+.info-value {
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+/* Equipe */
+.equipe-content {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.membro h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 12px 0;
+}
+
+.membro p {
+  color: #666;
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+/* Progresso */
+.progresso-content {
+  padding: 16px 0;
+}
+
+.progresso-bar-container {
+  position: relative;
+  height: 24px;
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.progresso-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 12px;
+  transition: width 0.3s ease;
+}
+
+.progresso-texto {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Tarefas */
+.tarefas-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  transition: transform 0.2s;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #666;
+}
+
+.stat-item.concluidas .stat-value {
+  color: #22c55e;
+}
+
+.stat-item.em-andamento .stat-value {
+  color: #3b82f6;
+}
+
+.stat-item.pendentes .stat-value {
+  color: #ef4444;
+}
+
+/* Descrição */
+.descricao {
+  grid-column: span 2;
+}
+
+.descricao p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .projeto-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .descricao {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .tarefas-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+} 

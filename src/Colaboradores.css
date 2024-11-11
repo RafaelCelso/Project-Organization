@@ -1,0 +1,239 @@
+/* Importa os estilos base do Projetos.css */
+@import './Projetos.css';
+
+/* Sobrescreve classes específicas se necessário */
+.colaboradores-container {
+  display: flex;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.colaboradores-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f0f2f5;
+  margin-left: var(--sidebar-width);
+  overflow-y: auto;
+  height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+/* Estilos específicos para o grid de colaboradores */
+.colaboradores-grid {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.colaboradores-grid table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.colaboradores-grid th {
+  background-color: #f5f5f5;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #ddd;
+}
+
+.colaboradores-grid td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  color: #666;
+  white-space: nowrap;
+}
+
+.colaboradores-grid tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Ajustes específicos para as colunas */
+.colaboradores-grid th:last-child,
+.colaboradores-grid td:last-child {
+  width: 150px;
+  text-align: center;
+}
+
+/* Botão de novo colaborador */
+.new-colaborador-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.new-colaborador-btn:hover {
+  background-color: #45a049;
+}
+
+/* Botões de ação na tabela */
+.colaboradores-grid .edit-btn,
+.colaboradores-grid .delete-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin: 0 4px;
+  cursor: pointer;
+  border: none;
+}
+
+.colaboradores-grid .edit-btn {
+  background-color: #2196F3;
+  color: white;
+}
+
+.colaboradores-grid .delete-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.colaboradores-grid .edit-btn:hover {
+  background-color: #1976D2;
+}
+
+.colaboradores-grid .delete-btn:hover {
+  background-color: #D32F2F;
+}
+
+/* Status do colaborador */
+.colaboradores-grid td:nth-child(5) {
+  font-weight: 500;
+}
+
+.status-ativo {
+  color: #4CAF50;
+}
+
+.status-inativo {
+  color: #f44336;
+}
+
+.status-ferias {
+  color: #FF9800;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .colaboradores-grid {
+    margin: 20px -20px;
+    border-radius: 0;
+  }
+}
+
+/* Estilos melhorados para a seção de filtros */
+.filtros-section {
+  display: flex;
+  gap: 16px;
+  margin: 24px 0;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  flex-wrap: wrap;
+}
+
+.filtro-grupo {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+.filtro-grupo label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.filtro-input,
+.filtro-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  background-color: #f8f9fa;
+  transition: all 0.2s ease;
+}
+
+.filtro-input:hover,
+.filtro-select:hover {
+  border-color: #2196F3;
+  background-color: #fff;
+}
+
+.filtro-input:focus,
+.filtro-select:focus {
+  border-color: #2196F3;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+  outline: none;
+}
+
+/* Estilos para os ícones de ação */
+.acoes-column {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.icon-button i {
+  font-size: 20px;
+}
+
+.edit-btn {
+  color: #2196F3;
+}
+
+.edit-btn:hover {
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+.delete-btn {
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+/* Responsividade ajustada */
+@media (max-width: 768px) {
+  .filtros-section {
+    flex-direction: column;
+    padding: 16px;
+  }
+  
+  .filtro-grupo {
+    width: 100%;
+  }
+}

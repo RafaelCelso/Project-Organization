@@ -1,0 +1,78 @@
+.sidebar {
+  width: 200px;
+  height: 100vh;
+  background-color: #fff; /* Cor de fundo branca */
+  color: black; /* Cor da fonte preta */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: fixed;
+  left: 0;
+  top: 0;
+  transition: width 0.3s;
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: 60px;
+}
+
+.sidebar-logo {
+  width: 80%;
+  margin: 20px 0;
+}
+
+.toggle-btn {
+  position: fixed;
+  left: 200px; /* Ajuste conforme necessário */
+  top: 10px;
+  background: #333;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: left 0.3s;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.sidebar.collapsed + .toggle-btn {
+  left: 60px; /* Ajuste conforme necessário */
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+
+li {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  box-sizing: border-box;
+  color: black; /* Cor da fonte preta */
+}
+
+li:hover {
+  background-color: #41B9A0; /* Cor do hover */
+  color: white; /* Cor da fonte no hover */
+}
+
+li.active {
+  background-color: #41B9A0; /* Cor do menu ativo */
+  color: white; /* Cor da fonte no menu ativo */
+}
+
+li span {
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
+li svg {
+  color: inherit; /* Herda a cor do texto */
+}
