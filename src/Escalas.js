@@ -8,6 +8,8 @@ import ptBR from 'date-fns/locale/pt-BR';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Sidebar from './Sidebar';
 import './Escalas.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarAlt, faUser, faClock, faStickyNote } from '@fortawesome/free-solid-svg-icons';
 
 const locales = {
   'pt-BR': ptBR,
@@ -191,6 +193,20 @@ function Escalas() {
       <div className="escalas-content">
         <h1 className="page-title">Escalas</h1>
         
+        <div className="cards-container">
+          <div className="card">
+            <h2><FontAwesomeIcon icon={faCalendarAlt} /> Próximos Eventos</h2>
+            <ul>
+              {eventos.map(evento => (
+                <li key={evento.id}>
+                  <span>{evento.title}</span>
+                  <span>{new Date(evento.start).toLocaleDateString('pt-BR')}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
         <div className="calendar-container">
           <Calendar
             localizer={localizer}
@@ -228,7 +244,9 @@ function Escalas() {
               <h2>{formData.id ? 'Editar Evento' : 'Novo Evento'}</h2>
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                  <label htmlFor="colaborador">Colaborador</label>
+                  <label htmlFor="colaborador">
+                    <FontAwesomeIcon icon={faUser} className="form-icon" /> Colaborador
+                  </label>
                   <select
                     id="colaborador"
                     name="colaborador"
@@ -243,7 +261,9 @@ function Escalas() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="tipo">Tipo</label>
+                  <label htmlFor="tipo">
+                    <FontAwesomeIcon icon={faCalendarAlt} className="form-icon" /> Tipo
+                  </label>
                   <select
                     id="tipo"
                     name="tipo"
@@ -258,84 +278,90 @@ function Escalas() {
                   </select>
                 </div>
 
-                <div className="form-row">
-                  <div className="form-group half">
-                    <label htmlFor="start">Data Início</label>
-                    <input
-                      type="date"
-                      id="start"
-                      name="start"
-                      value={formData.start ? format(new Date(formData.start), 'yyyy-MM-dd') : ''}
-                      onChange={(e) => {
-                        if (e.target.value) {
-                          const newDate = new Date(e.target.value + 'T08:00:00');
-                          setFormData({...formData, start: newDate});
-                        } else {
-                          setFormData({...formData, start: null});
-                        }
-                      }}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group half">
-                    <label htmlFor="startTime">Hora Início</label>
-                    <input
-                      type="time"
-                      id="startTime"
-                      name="startTime"
-                      value={formData.start ? format(new Date(formData.start), 'HH:mm') : '08:00'}
-                      onChange={(e) => {
-                        const [hours, minutes] = e.target.value.split(':');
-                        const newDate = new Date(formData.start);
-                        newDate.setHours(parseInt(hours), parseInt(minutes));
+                <div className="form-group">
+                  <label htmlFor="start">
+                    <FontAwesomeIcon icon={faCalendarAlt} className="form-icon" /> Data Início
+                  </label>
+                  <input
+                    type="date"
+                    id="start"
+                    name="start"
+                    value={formData.start ? format(new Date(formData.start), 'yyyy-MM-dd') : ''}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        const newDate = new Date(e.target.value + 'T08:00:00');
                         setFormData({...formData, start: newDate});
-                      }}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group half">
-                    <label htmlFor="end">Data Fim</label>
-                    <input
-                      type="date"
-                      id="end"
-                      name="end"
-                      value={formData.end ? format(new Date(formData.end), 'yyyy-MM-dd') : ''}
-                      onChange={(e) => {
-                        if (e.target.value) {
-                          const newDate = new Date(e.target.value + 'T00:00:00');
-                          setFormData({...formData, end: newDate});
-                        } else {
-                          setFormData({...formData, end: null});
-                        }
-                      }}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group half">
-                    <label htmlFor="endTime">Hora Fim</label>
-                    <input
-                      type="time"
-                      id="endTime"
-                      name="endTime"
-                      value={formData.end ? format(new Date(formData.end), 'HH:mm') : ''}
-                      onChange={(e) => {
-                        const [hours, minutes] = e.target.value.split(':');
-                        const newDate = formData.end ? new Date(formData.end) : new Date();
-                        newDate.setHours(parseInt(hours), parseInt(minutes));
-                        setFormData({...formData, end: newDate});
-                      }}
-                      required
-                    />
-                  </div>
+                      } else {
+                        setFormData({...formData, start: null});
+                      }
+                    }}
+                    required
+                  />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="observacao">Observação</label>
+                  <label htmlFor="end">
+                    <FontAwesomeIcon icon={faCalendarAlt} className="form-icon" /> Data Fim
+                  </label>
+                  <input
+                    type="date"
+                    id="end"
+                    name="end"
+                    value={formData.end ? format(new Date(formData.end), 'yyyy-MM-dd') : ''}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        const newDate = new Date(e.target.value + 'T00:00:00');
+                        setFormData({...formData, end: newDate});
+                      } else {
+                        setFormData({...formData, end: null});
+                      }
+                    }}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="startTime">
+                    <FontAwesomeIcon icon={faClock} className="form-icon" /> Hora Início
+                  </label>
+                  <input
+                    type="time"
+                    id="startTime"
+                    name="startTime"
+                    value={formData.start ? format(new Date(formData.start), 'HH:mm') : '08:00'}
+                    onChange={(e) => {
+                      const [hours, minutes] = e.target.value.split(':');
+                      const newDate = new Date(formData.start);
+                      newDate.setHours(parseInt(hours), parseInt(minutes));
+                      setFormData({...formData, start: newDate});
+                    }}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="endTime">
+                    <FontAwesomeIcon icon={faClock} className="form-icon" /> Hora Fim
+                  </label>
+                  <input
+                    type="time"
+                    id="endTime"
+                    name="endTime"
+                    value={formData.end ? format(new Date(formData.end), 'HH:mm') : ''}
+                    onChange={(e) => {
+                      const [hours, minutes] = e.target.value.split(':');
+                      const newDate = formData.end ? new Date(formData.end) : new Date();
+                      newDate.setHours(parseInt(hours), parseInt(minutes));
+                      setFormData({...formData, end: newDate});
+                    }}
+                    required
+                  />
+                </div>
+
+                <div className="form-group full-width">
+                  <label htmlFor="observacao">
+                    <FontAwesomeIcon icon={faStickyNote} className="form-icon" /> Observação
+                  </label>
                   <textarea
                     id="observacao"
                     name="observacao"

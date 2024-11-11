@@ -146,7 +146,7 @@ function Tarefas() {
   const [comentario, setComentario] = useState('');
   const [comentarios, setComentarios] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [lastTaskId, setLastTaskId] = useState(0);
+  const [lastTaskId, setLastTaskId] = useState(5); // Começa do 5 já que temos tarefas iniciais
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [taskToUpdate, setTaskToUpdate] = useState(null);
   const [filtros, setFiltros] = useState({
@@ -283,7 +283,6 @@ function Tarefas() {
       const sourceColumn = tasks[source.droppableId];
       const taskToMove = sourceColumn[source.index];
       
-      // Abre o modal com o formulário completo
       setFormData({
         ...taskToMove,
         status: destination.droppableId
@@ -293,136 +292,26 @@ function Tarefas() {
       return;
     }
 
-    // Se estiver movendo de "A Definir" diretamente para "Arquivado"
-    if (source.droppableId === 'aDefinir' && destination.droppableId === 'arquivado') {
-      const sourceColumn = tasks[source.droppableId];
-      const destColumn = tasks[destination.droppableId];
-      const [taskToMove] = sourceColumn.splice(source.index, 1);
-
-      // Adiciona apenas a data de arquivamento à tarefa
-      const archivedTask = {
-        ...taskToMove,
-        arquivadoEm: format(new Date(), 'yyyy-MM-dd')
-      };
-
-      destColumn.splice(destination.index, 0, archivedTask);
-
-      const newState = {
-        ...tasks,
-        [source.droppableId]: sourceColumn,
-        [destination.droppableId]: destColumn
-      };
-
-      updateProjectKanban(newState);
-      return;
-    }
-
-    // Lógica para quando a tarefa é movida para a coluna "Arquivado" de outras colunas
-    if (destination.droppableId === 'arquivado') {
-      const sourceColumn = tasks[source.droppableId];
-      const destColumn = tasks[destination.droppableId];
-      const [taskToMove] = sourceColumn.splice(source.index, 1);
-
-      // Adiciona apenas a data de arquivamento à tarefa
-      const archivedTask = {
-        ...taskToMove,
-        arquivadoEm: format(new Date(), 'yyyy-MM-dd')
-      };
-
-      destColumn.splice(destination.index, 0, archivedTask);
-
-      const newState = {
-        ...tasks,
-        [source.droppableId]: sourceColumn,
-        [destination.droppableId]: destColumn
-      };
-
-      updateProjectKanban(newState);
-      return;
-    }
-
-    // Lógica original para outras movimentações
-    const sourceColumn = tasks[source.droppableId];
-    const destColumn = tasks[destination.droppableId];
-
-    if (source.droppableId === destination.droppableId) {
-      const newTasks = Array.from(sourceColumn);
-      const [removed] = newTasks.splice(source.index, 1);
-      newTasks.splice(destination.index, 0, removed);
-
-      const newState = {
-        ...tasks,
-        [source.droppableId]: newTasks,
-      };
-
-      updateProjectKanban(newState);
-    } else {
-      const sourceTasks = Array.from(sourceColumn);
-      const destTasks = Array.from(destColumn);
-      const [removed] = sourceTasks.splice(source.index, 1);
-      destTasks.splice(destination.index, 0, removed);
-
-      const newState = {
-        ...tasks,
-        [source.droppableId]: sourceTasks,
-        [destination.droppableId]: destTasks,
-      };
-
-      updateProjectKanban(newState);
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
+    // Lógica para mover tarefas entre colunas
+    const sourceColumn = Array.isArray(tasks[source.droppableId]) ? tasks[source.droppableId] : [];
+    const destColumn = Array.isArray(tasks[destination.droppableId]) ? tasks[destination.droppableId] : [];
     
-    // Gera o próximo ID
-    const nextId = Math.max(...Object.values(tasks).flat().map(task => task.taskId || 0), 0) + 1;
-    
-    const novaTarefa = {
-      id: formData.id || Date.now().toString(),
-      taskId: formData.id ? formData.taskId : nextId,
-      titulo: formData.titulo || '',
-      content: formData.content || '',
-      status: formData.status || 'aDefinir',
-      imagens: uploadedFiles || [],
-      tags: formData.tags || [],
-      responsavel: formData.responsavel || '',
-      dataInicio: formData.dataInicio || '',
-      dataConclusao: formData.dataConclusao || '',
-      prioridade: formData.prioridade || '',
-      progresso: formData.progresso || 'nao_iniciada',
-      numeroChamado: formData.numeroChamado || ''
+    const [removed] = sourceColumn.splice(source.index, 1);
+    destColumn.splice(destination.index, 0, {
+      ...removed,
+      status: destination.droppableId
+    });
+
+    const newState = {
+      ...tasks,
+      [source.droppableId]: sourceColumn,
+      [destination.droppableId]: destColumn,
     };
 
-    if (formData.id) {
-      // Atualiza a tarefa existente
-      const currentStatus = Object.keys(tasks).find(key => 
-        tasks[key].some(task => task.id === formData.id)
-      );
+    setTasks(newState);
 
-      const newState = { ...tasks };
-
-      // Remove a tarefa da coluna atual
-      if (currentStatus) {
-        newState[currentStatus] = newState[currentStatus].filter(task => task.id !== formData.id);
-      }
-
-      // Adiciona a tarefa atualizada na mesma coluna
-      const targetStatus = currentStatus;
-      if (!newState[targetStatus]) {
-        newState[targetStatus] = [];
-      }
-      newState[targetStatus] = [...newState[targetStatus], novaTarefa];
-
-      updateProjectKanban(newState);
-    } else {
-      // Cria nova tarefa
-      const newState = {
-        ...tasks,
-        [formData.status]: [...(tasks[formData.status] || []), novaTarefa]
-      };
-      
-      // Atualiza o kanban do projeto selecionado
+    // Atualiza o projeto selecionado
+    if (selectedProject) {
       const updatedProjetos = projetos.map(proj => {
         if (proj.id === selectedProject.id) {
           return {
@@ -432,18 +321,73 @@ function Tarefas() {
         }
         return proj;
       });
-      
       setProjetos(updatedProjetos);
-      setTasks(newState);
-      setSelectedProject({
-        ...selectedProject,
-        kanban: newState
+    }
+  };
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    // Incrementa o lastTaskId
+    const newTaskId = lastTaskId + 1;
+    
+    const novaTarefa = {
+      id: `task-${newTaskId}`, // Adiciona um prefixo para garantir que seja string
+      taskId: newTaskId, // Mantém o número do ID para exibição
+      titulo: formData.titulo,
+      content: formData.content,
+      responsavel: formData.responsavel,
+      dataInicio: formData.dataInicio,
+      dataConclusao: formData.dataConclusao,
+      prioridade: formData.prioridade,
+      progresso: formData.progresso || 'nao_iniciada',
+      status: formData.status,
+      tags: formData.tags || [],
+      numeroChamado: formData.numeroChamado,
+    };
+
+    if (formData.id) {
+      // Editar tarefa existente
+      setTasks((prevTasks) => {
+        const updatedTasks = { ...prevTasks };
+        Object.keys(updatedTasks).forEach((key) => {
+          updatedTasks[key] = updatedTasks[key].map((task) =>
+            task.id === formData.id ? novaTarefa : task
+          );
+        });
+        return updatedTasks;
       });
+    } else {
+      // Adicionar nova tarefa
+      setTasks((prevTasks) => ({
+        ...prevTasks,
+        [formData.status]: [...(prevTasks[formData.status] || []), novaTarefa],
+      }));
+      
+      // Atualiza o último ID usado
+      setLastTaskId(newTaskId);
+    }
+
+    // Atualiza o projeto selecionado com as novas tarefas
+    if (selectedProject) {
+      const updatedProjetos = projetos.map(proj => {
+        if (proj.id === selectedProject.id) {
+          return {
+            ...proj,
+            kanban: {
+              ...tasks,
+              [formData.status]: [...(tasks[formData.status] || []), novaTarefa]
+            }
+          };
+        }
+        return proj;
+      });
+      setProjetos(updatedProjetos);
     }
 
     setIsModalOpen(false);
-    clearFormAndImages();
-  };
+    clearFormAndImages(); // Usa a função existente para limpar o formulário
+  }
 
   const handleAddTask = () => {
     setFormData({
@@ -457,10 +401,20 @@ function Tarefas() {
 
   const handleAddTaskToColumn = (status) => {
     setFormData({
+      id: null,
+      taskId: '',
+      titulo: '',
       content: '',
       projeto: '',
       responsavel: '',
-      status: status // Define o status baseado na coluna
+      status: status,
+      dataInicio: '',
+      dataConclusao: '',
+      prioridade: '',
+      progresso: 'nao_iniciada',
+      tags: [],
+      numeroChamado: '',
+      imagens: []
     });
     setIsModalOpen(true);
   };
