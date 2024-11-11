@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEllipsisV, faClipboardList, faUser, faCalendarAlt, faExclamationTriangle, faSpinner, faCheckCircle, faProjectDiagram, faComment, faImage, faDownload, faSearch, faFilter, faTimes, faTag } from '@fortawesome/free-solid-svg-icons';
 import Sidebar from './Sidebar';
 import './Tarefas.css';
 import { format } from 'date-fns';
+import { useLocation } from 'react-router-dom'; // Adicione este import
 
 const initialTasks = {
   todo: [
@@ -64,6 +65,7 @@ const tagColors = [
 ];
 
 function Tarefas() {
+  const location = useLocation();
   const [selectedProject, setSelectedProject] = useState(null);
   const [projetos, setProjetos] = useState([
     { 
@@ -1362,6 +1364,16 @@ function Tarefas() {
       tags: prev.tags.filter(tag => tag.id !== tagId)
     }));
   };
+
+  // Adicione este useEffect
+  useEffect(() => {
+    if (location.state?.selectedProjectId) {
+      const projeto = projetos.find(p => p.id === location.state.selectedProjectId);
+      if (projeto) {
+        handleProjectSelect(projeto);
+      }
+    }
+  }, [location.state]);
 
   return (
     <div className="tarefas-container">

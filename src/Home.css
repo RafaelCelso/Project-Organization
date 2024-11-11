@@ -36,12 +36,17 @@
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card.expanded {
+  background-color: #f8fafc;
 }
 
 .card h2 {
@@ -85,9 +90,344 @@
   gap: 8px;
   font-size: 14px;
   color: #555;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.indicador:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .icon {
   font-size: 18px;
+}
+
+.icon.success {
   color: #4caf50;
+}
+
+.icon.warning {
+  color: #ff9800;
+}
+
+.icon.spin {
+  color: #2196f3;
+}
+
+/* Estilos para a seção de projetos relacionados */
+.projetos-relacionados {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  animation: slideDown 0.3s ease-out;
+}
+
+.projetos-section h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.projetos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.projeto-categoria h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.projeto-categoria h4.success { color: #4caf50; }
+.projeto-categoria h4.warning { color: #ff9800; }
+.projeto-categoria h4.info { color: #2196f3; }
+
+.projeto-cards {
+  display: grid;
+  gap: 16px;
+}
+
+.projeto-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid;
+  transition: transform 0.2s;
+}
+
+.projeto-card:hover {
+  transform: translateY(-2px);
+}
+
+.projeto-card.success { border-left-color: #4caf50; }
+.projeto-card.warning { border-left-color: #ff9800; }
+.projeto-card.info { border-left-color: #2196f3; }
+
+.projeto-card h5 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+}
+
+.projeto-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.projeto-info .tipo {
+  background-color: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.projeto-info .status {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.responsavel {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .projetos-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.projeto-tarefas {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.projeto-tarefas h6 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 12px;
+}
+
+.tarefas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.tarefas-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.tarefas-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.tarefas-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.tarefa-card {
+  background-color: #f9fafb;
+  border-radius: 6px;
+  padding: 12px;
+  border-left: 3px solid;
+}
+
+.tarefa-card.prioridade-alta {
+  border-left-color: #ef4444;
+}
+
+.tarefa-card.prioridade-media {
+  border-left-color: #f59e0b;
+}
+
+.tarefa-card.prioridade-baixa {
+  border-left-color: #10b981;
+}
+
+.tarefa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.tarefa-titulo {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1f2937;
+  flex: 1;
+  margin-right: 8px;
+}
+
+.tarefa-status {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.status-concluido {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-atrasado {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-em-andamento {
+  background-color: #e0f2fe;
+  color: #075985;
+}
+
+.tarefa-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.tarefa-responsavel {
+  color: #6b7280;
+}
+
+.tarefa-prioridade {
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.prioridade-alta {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.prioridade-media {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.prioridade-baixa {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+/* Ajuste no card do projeto para acomodar as tarefas */
+.projeto-card {
+  padding: 20px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.projeto-cards {
+  display: grid;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .tarefas-list {
+    max-height: 150px;
+  }
+}
+
+/* Adicione estes estilos */
+.tarefa-id-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.tarefa-id {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-family: monospace;
+  font-size: 12px;
+  color: #6b7280;
+  background-color: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.id-icon {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+/* Modifique o projeto-card para indicar que é clicável */
+.projeto-card {
+  cursor: pointer;
+  position: relative;
+}
+
+.projeto-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.projeto-card:hover::after {
+  opacity: 1;
+}
+
+/* Ajuste o layout do card para melhor organização */
+.tarefa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.tarefa-titulo {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1f2937;
 } 
