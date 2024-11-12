@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,15 +12,14 @@ import {
   faHashtag
 } from '@fortawesome/free-solid-svg-icons';
 import './Home.css';
+import { db } from './firebaseConfig';
+import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { format } from 'date-fns';
 
 function Home() {
   const navigate = useNavigate();
   const [showProjects, setShowProjects] = useState(false);
-
-  const eventos = [
-    { id: 1, titulo: 'Reunião de Planejamento', data: '2023-10-15' },
-    { id: 2, titulo: 'Workshop de Inovação', data: '2023-10-20' },
-  ];
+  const [eventos, setEventos] = useState([]);
 
   const indicadores = {
     realizadas: 10,
@@ -77,6 +76,38 @@ function Home() {
       { id: 8, nome: 'Projeto H', tipo: 'OL', status: 'Em Andamento', responsavel: 'Lucia Costa' },
     ],
   };
+
+  useEffect(() => {
+    const fetchEventos = async () => {
+      try {
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+
+        const eventosRef = collection(db, 'eventos');
+        const q = query(
+          eventosRef,
+          where('start', '>=', hoje.toISOString()),
+          orderBy('start', 'asc'),
+          limit(5)
+        );
+
+        const querySnapshot = await getDocs(q);
+        const eventosData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          start: new Date(doc.data().start),
+          end: new Date(doc.data().end)
+        }));
+
+        console.log('Próximos eventos carregados:', eventosData);
+        setEventos(eventosData);
+      } catch (error) {
+        console.error('Erro ao buscar eventos:', error);
+      }
+    };
+
+    fetchEventos();
+  }, []);
 
   const handleIndicadorClick = () => {
     setShowProjects(!showProjects);
@@ -150,10 +181,15 @@ function Home() {
             <ul>
               {eventos.map(evento => (
                 <li key={evento.id}>
-                  <span>{evento.titulo}</span>
-                  <span>{new Date(evento.data).toLocaleDateString('pt-BR')}</span>
+                  <span>{evento.title}</span>
+                  <span>{format(new Date(evento.start), 'dd/MM/yyyy')}</span>
                 </li>
               ))}
+              {eventos.length === 0 && (
+                <li className="no-events">
+                  <span>Nenhum evento próximo</span>
+                </li>
+              )}
             </ul>
           </div>
 
