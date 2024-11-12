@@ -10,6 +10,7 @@ import './ProjetoDetalhes.css';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
+import Select from 'react-select';
 
 function ProjetoDetalhes() {
   const { id } = useParams();
@@ -288,17 +289,16 @@ function ProjetoDetalhes() {
                     <FontAwesomeIcon icon={faUser} className="form-icon" /> 
                     Analista Principal
                   </label>
-                  <select
+                  <Select
                     id="analistaPrincipal"
+                    isMulti
+                    options={colaboradoresFB.analistas}
                     value={formData.analistaPrincipal}
-                    onChange={(e) => setFormData({...formData, analistaPrincipal: e.target.value})}
-                    required
-                  >
-                    <option value="">Selecione...</option>
-                    {colaboradoresFB.analistas.map(analista => (
-                      <option key={analista.value} value={analista.label}>{analista.label}</option>
-                    ))}
-                  </select>
+                    onChange={(selected) => setFormData({...formData, analistaPrincipal: selected || []})}
+                    placeholder="Selecione os analistas..."
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -306,16 +306,16 @@ function ProjetoDetalhes() {
                     <FontAwesomeIcon icon={faUsers} className="form-icon" /> 
                     Analista Backup
                   </label>
-                  <select
+                  <Select
                     id="analistaBackup"
+                    isMulti
+                    options={colaboradoresFB.analistas}
                     value={formData.analistaBackup}
-                    onChange={(e) => setFormData({...formData, analistaBackup: e.target.value})}
-                  >
-                    <option value="">Selecione...</option>
-                    {colaboradoresFB.analistas.map(analista => (
-                      <option key={analista.value} value={analista.label}>{analista.label}</option>
-                    ))}
-                  </select>
+                    onChange={(selected) => setFormData({...formData, analistaBackup: selected || []})}
+                    placeholder="Selecione os analistas backup..."
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -323,17 +323,16 @@ function ProjetoDetalhes() {
                     <FontAwesomeIcon icon={faUser} className="form-icon" /> 
                     Desenvolvedor Principal
                   </label>
-                  <select
+                  <Select
                     id="desenvolvedorPrincipal"
+                    isMulti
+                    options={colaboradoresFB.desenvolvedores}
                     value={formData.desenvolvedorPrincipal}
-                    onChange={(e) => setFormData({...formData, desenvolvedorPrincipal: e.target.value})}
-                    required
-                  >
-                    <option value="">Selecione...</option>
-                    {colaboradoresFB.desenvolvedores.map(dev => (
-                      <option key={dev.value} value={dev.label}>{dev.label}</option>
-                    ))}
-                  </select>
+                    onChange={(selected) => setFormData({...formData, desenvolvedorPrincipal: selected || []})}
+                    placeholder="Selecione os desenvolvedores..."
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -341,16 +340,16 @@ function ProjetoDetalhes() {
                     <FontAwesomeIcon icon={faUsers} className="form-icon" /> 
                     Desenvolvedor Backup
                   </label>
-                  <select
+                  <Select
                     id="desenvolvedorBackup"
+                    isMulti
+                    options={colaboradoresFB.desenvolvedores}
                     value={formData.desenvolvedorBackup}
-                    onChange={(e) => setFormData({...formData, desenvolvedorBackup: e.target.value})}
-                  >
-                    <option value="">Selecione...</option>
-                    {colaboradoresFB.desenvolvedores.map(dev => (
-                      <option key={dev.value} value={dev.label}>{dev.label}</option>
-                    ))}
-                  </select>
+                    onChange={(selected) => setFormData({...formData, desenvolvedorBackup: selected || []})}
+                    placeholder="Selecione os desenvolvedores backup..."
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -358,17 +357,16 @@ function ProjetoDetalhes() {
                     <FontAwesomeIcon icon={faUser} className="form-icon" /> 
                     Supervisor Principal
                   </label>
-                  <select
+                  <Select
                     id="supervisorPrincipal"
+                    isMulti
+                    options={colaboradoresFB.supervisores}
                     value={formData.supervisorPrincipal}
-                    onChange={(e) => setFormData({...formData, supervisorPrincipal: e.target.value})}
-                    required
-                  >
-                    <option value="">Selecione...</option>
-                    {colaboradoresFB.supervisores.map(supervisor => (
-                      <option key={supervisor.value} value={supervisor.label}>{supervisor.label}</option>
-                    ))}
-                  </select>
+                    onChange={(selected) => setFormData({...formData, supervisorPrincipal: selected || []})}
+                    placeholder="Selecione os supervisores..."
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -376,16 +374,16 @@ function ProjetoDetalhes() {
                     <FontAwesomeIcon icon={faUsers} className="form-icon" /> 
                     Supervisor Backup
                   </label>
-                  <select
+                  <Select
                     id="supervisorBackup"
+                    isMulti
+                    options={colaboradoresFB.supervisores}
                     value={formData.supervisorBackup}
-                    onChange={(e) => setFormData({...formData, supervisorBackup: e.target.value})}
-                  >
-                    <option value="">Selecione...</option>
-                    {colaboradoresFB.supervisores.map(supervisor => (
-                      <option key={supervisor.value} value={supervisor.label}>{supervisor.label}</option>
-                    ))}
-                  </select>
+                    onChange={(selected) => setFormData({...formData, supervisorBackup: selected || []})}
+                    placeholder="Selecione os supervisores backup..."
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -432,11 +430,7 @@ function ProjetoDetalhes() {
                   <button type="button" className="cancel-btn" onClick={() => setIsModalOpen(false)}>
                     Cancelar
                   </button>
-                  <button 
-                    type="button" 
-                    className="delete-btn"
-                    onClick={handleDelete}
-                  >
+                  <button type="button" className="delete-btn" onClick={handleDelete}>
                     Excluir
                   </button>
                   <button type="submit" className="save-btn">
