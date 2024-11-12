@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import format from 'date-fns/format';
 import parse from 'date-fns/parse';
@@ -10,6 +10,8 @@ import Sidebar from './Sidebar';
 import './Escalas.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faUser, faClock, faStickyNote } from '@fortawesome/free-solid-svg-icons';
+import { addDoc, collection, getDocs, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { db } from './firebaseConfig';
 
 const locales = {
   'pt-BR': ptBR,
@@ -112,50 +114,73 @@ function Escalas() {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const tipoEvento = tiposEvento.find(t => t.id === parseInt(formData.tipo));
     
-    const dataFim = new Date(formData.end);
-    const [horaFim, minutoFim] = format(dataFim, 'HH:mm').split(':');
-    dataFim.setHours(parseInt(horaFim), parseInt(minutoFim), 0, 0);
-
     const dataInicio = new Date(formData.start);
-    const [horaInicio, minutoInicio] = format(dataInicio, 'HH:mm').split(':');
-    dataInicio.setHours(parseInt(horaInicio), parseInt(minutoInicio), 0, 0);
+    const dataFim = new Date(formData.end);
 
-    const novoEvento = {
-      id: formData.id || eventos.length + 1,
+    const colaboradorSelecionado = colaboradores.find(c => c.id === formData.colaborador);
+    
+    const eventoAtualizado = {
       title: formData.colaborador 
-        ? `${colaboradores.find(c => c.id === parseInt(formData.colaborador))?.nome} - ${tipoEvento.nome}`
+        ? `${colaboradorSelecionado?.nome || colaboradorSelecionado?.nomeCompleto} - ${tipoEvento.nome}`
         : tipoEvento.nome,
-      start: dataInicio,
-      end: dataFim,
+      start: dataInicio.toISOString(),
+      end: dataFim.toISOString(),
       colaborador: formData.colaborador,
       tipo: formData.tipo,
-      observacao: formData.observacao,
+      observacao: formData.observacao || '',
       backgroundColor: tipoEvento.cor,
-      allDay: false,
-      showTimeSelect: true,
-      ignoreTimezone: false
+      allDay: false
     };
 
-    if (formData.id) {
-      setEventos(eventos.map(ev => ev.id === formData.id ? novoEvento : ev));
-    } else {
-      setEventos([...eventos, novoEvento]);
-    }
+    try {
+      if (formData.id) {
+        // Atualiza evento existente
+        const eventoRef = doc(db, 'eventos', formData.id);
+        await updateDoc(eventoRef, eventoAtualizado);
+        
+        // Atualiza o estado local
+        setEventos(eventos.map(evento => 
+          evento.id === formData.id 
+            ? { 
+                ...eventoAtualizado, 
+                id: formData.id,
+                start: new Date(eventoAtualizado.start),
+                end: new Date(eventoAtualizado.end)
+              }
+            : evento
+        ));
+      } else {
+        // Cria novo evento
+        const docRef = await addDoc(collection(db, 'eventos'), eventoAtualizado);
+        
+        const eventoComId = { 
+          ...eventoAtualizado, 
+          id: docRef.id,
+          start: new Date(eventoAtualizado.start),
+          end: new Date(eventoAtualizado.end)
+        };
+        
+        setEventos([...eventos, eventoComId]);
+      }
 
-    setIsModalOpen(false);
-    setFormData({
-      id: null,
-      title: '',
-      start: new Date(),
-      end: new Date(),
-      colaborador: '',
-      tipo: '',
-      observacao: ''
-    });
+      setIsModalOpen(false);
+      setFormData({
+        id: null,
+        title: '',
+        start: new Date(),
+        end: new Date(),
+        colaborador: '',
+        tipo: '',
+        observacao: ''
+      });
+    } catch (error) {
+      console.error('Erro ao salvar evento:', error);
+      alert('Erro ao salvar o evento. Por favor, tente novamente.');
+    }
   };
 
   const handleDelete = () => {
@@ -164,19 +189,31 @@ function Escalas() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    setEventos(eventos.filter(evento => evento.id !== eventoToDelete.id));
-    setIsDeleteModalOpen(false);
-    setEventoToDelete(null);
-    setFormData({
-      id: null,
-      title: '',
-      start: new Date(),
-      end: new Date(),
-      colaborador: '',
-      tipo: '',
-      observacao: ''
-    });
+  const confirmDelete = async () => {
+    try {
+      // Deleta o evento do Firebase
+      const eventoRef = doc(db, 'eventos', eventoToDelete.id);
+      await deleteDoc(eventoRef);
+      
+      // Atualiza o estado local removendo o evento
+      setEventos(eventos.filter(evento => evento.id !== eventoToDelete.id));
+      
+      // Limpa os estados do modal
+      setIsDeleteModalOpen(false);
+      setEventoToDelete(null);
+      setFormData({
+        id: null,
+        title: '',
+        start: new Date(),
+        end: new Date(),
+        colaborador: '',
+        tipo: '',
+        observacao: ''
+      });
+    } catch (error) {
+      console.error('Erro ao excluir evento:', error);
+      alert('Erro ao excluir o evento. Por favor, tente novamente.');
+    }
   };
 
   // Função para ajustar a data para o fuso horário local
@@ -186,6 +223,45 @@ function Escalas() {
     localDate.setMinutes(localDate.getMinutes() + localDate.getTimezoneOffset());
     return localDate.toISOString().split('T')[0];
   };
+
+  useEffect(() => {
+    const fetchColaboradores = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'colaboradores'));
+        const colaboradoresData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        console.log('Colaboradores carregados:', colaboradoresData); // Para debug
+        setColaboradores(colaboradoresData);
+      } catch (error) {
+        console.error('Erro ao buscar colaboradores:', error);
+      }
+    };
+
+    fetchColaboradores();
+  }, []);
+
+  useEffect(() => {
+    const fetchEventos = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'eventos'));
+        const eventosData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          // Convertendo as strings ISO para objetos Date
+          start: new Date(doc.data().start),
+          end: new Date(doc.data().end)
+        }));
+        console.log('Eventos carregados:', eventosData); // Para debug
+        setEventos(eventosData);
+      } catch (error) {
+        console.error('Erro ao buscar eventos:', error);
+      }
+    };
+
+    fetchEventos();
+  }, []); // Array vazio significa que será executado apenas uma vez ao montar o componente
 
   return (
     <div className="escalas-container">
@@ -255,7 +331,9 @@ function Escalas() {
                   >
                     <option value="">Selecione...</option>
                     {colaboradores.map(col => (
-                      <option key={col.id} value={col.id}>{col.nome}</option>
+                      <option key={col.id} value={col.id}>
+                        {col.nome || col.nomeCompleto}
+                      </option>
                     ))}
                   </select>
                 </div>
