@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowLeft, faUsers, faBuilding, faInfoCircle, faEdit,
@@ -7,37 +7,79 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Sidebar from './Sidebar';
 import './ProjetoDetalhes.css';
+import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { db } from './firebaseConfig';
+import { collection, getDocs } from 'firebase/firestore';
 
-function ProjetoDetalhes({ projetos, setProjetos }) {
+function ProjetoDetalhes() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [projeto, setProjeto] = useState(null);
   const [formData, setFormData] = useState(null);
-  const [colaboradores] = useState({
-    analistas: [
-      { id: 1, nome: "Ana Silva" },
-      { id: 2, nome: "João Santos" }
-    ],
-    desenvolvedores: [
-      { id: 3, nome: "Pedro Costa" },
-      { id: 4, nome: "Maria Oliveira" }
-    ],
-    supervisores: [
-      { id: 5, nome: "Carlos Souza" },
-      { id: 6, nome: "Patrícia Lima" }
-    ]
+  const [colaboradoresFB, setColaboradoresFB] = useState({
+    analistas: [],
+    desenvolvedores: [],
+    supervisores: []
   });
 
-  // Busca o projeto quando o componente é montado ou quando projetos é atualizado
   useEffect(() => {
-    const projetoAtual = projetos.find(p => p.id === parseInt(id));
-    if (projetoAtual) {
-      setProjeto(projetoAtual);
-      setFormData(projetoAtual);
-    }
-  }, [id, projetos]);
+    const fetchColaboradores = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'colaboradores'));
+        const colaboradoresData = querySnapshot.docs.map(doc => ({
+          value: doc.id,
+          label: doc.data().nome || doc.data().nomeCompleto,
+          cargo: doc.data().cargo
+        }));
+
+        const analistas = colaboradoresData.filter(col => col.cargo === 'Analista');
+        const desenvolvedores = colaboradoresData.filter(col => col.cargo === 'Desenvolvedor');
+        const supervisores = colaboradoresData.filter(col => col.cargo === 'Supervisor');
+
+        setColaboradoresFB({
+          analistas,
+          desenvolvedores,
+          supervisores
+        });
+      } catch (error) {
+        console.error('Erro ao buscar colaboradores:', error);
+      }
+    };
+
+    fetchColaboradores();
+  }, []);
+
+  useEffect(() => {
+    const fetchProjeto = async () => {
+      try {
+        if (location.state?.projeto) {
+          setProjeto(location.state.projeto);
+          setFormData(location.state.projeto);
+          return;
+        }
+
+        const projetoRef = doc(db, 'projetos', id);
+        const projetoDoc = await getDoc(projetoRef);
+        
+        if (projetoDoc.exists()) {
+          const projetoData = { id: projetoDoc.id, ...projetoDoc.data() };
+          setProjeto(projetoData);
+          setFormData(projetoData);
+        } else {
+          console.error('Projeto não encontrado');
+          navigate('/projetos');
+        }
+      } catch (error) {
+        console.error('Erro ao buscar projeto:', error);
+        navigate('/projetos');
+      }
+    };
+
+    fetchProjeto();
+  }, [id, location.state, navigate]);
 
   const handleEdit = () => {
     setIsModalOpen(true);
@@ -48,27 +90,31 @@ function ProjetoDetalhes({ projetos, setProjetos }) {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    const updatedProjetos = projetos.filter(p => p.id !== parseInt(id));
-    setProjetos(updatedProjetos);
-    setIsDeleteModalOpen(false);
-    navigate('/projetos'); // Retorna para a lista de projetos após excluir
+  const confirmDelete = async () => {
+    try {
+      await deleteDoc(doc(db, 'projetos', id));
+      navigate('/projetos');
+    } catch (error) {
+      console.error('Erro ao excluir projeto:', error);
+      alert('Erro ao excluir o projeto. Por favor, tente novamente.');
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Atualiza o projeto na lista de projetos
-    const updatedProjetos = projetos.map(p => 
-      p.id === parseInt(id) ? formData : p
-    );
-    
-    setProjetos(updatedProjetos);
-    setProjeto(formData); // Atualiza o estado local do projeto
-    setIsModalOpen(false);
+    try {
+      const projetoRef = doc(db, 'projetos', id);
+      await updateDoc(projetoRef, formData);
+      setProjeto(formData);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Erro ao atualizar projeto:', error);
+      alert('Erro ao atualizar o projeto. Por favor, tente novamente.');
+    }
   };
 
-  if (!projeto) return null;
+  if (!projeto) return <div>Carregando...</div>;
 
   return (
     <div className="projeto-detalhes-container">
@@ -138,18 +184,30 @@ function ProjetoDetalhes({ projetos, setProjetos }) {
             <div className="equipe-content">
               <div className="membro">
                 <h3>Analistas</h3>
-                <p>Principal: {projeto.analistaPrincipal}</p>
-                <p>Backup: {projeto.analistaBackup}</p>
+                <p>Principal: {Array.isArray(projeto.analistaPrincipal) 
+                  ? projeto.analistaPrincipal.map(a => a.label).join(', ')
+                  : ''}</p>
+                <p>Backup: {Array.isArray(projeto.analistaBackup)
+                  ? projeto.analistaBackup.map(a => a.label).join(', ')
+                  : ''}</p>
               </div>
               <div className="membro">
                 <h3>Desenvolvedores</h3>
-                <p>Principal: {projeto.desenvolvedorPrincipal}</p>
-                <p>Backup: {projeto.desenvolvedorBackup}</p>
+                <p>Principal: {Array.isArray(projeto.desenvolvedorPrincipal)
+                  ? projeto.desenvolvedorPrincipal.map(d => d.label).join(', ')
+                  : ''}</p>
+                <p>Backup: {Array.isArray(projeto.desenvolvedorBackup)
+                  ? projeto.desenvolvedorBackup.map(d => d.label).join(', ')
+                  : ''}</p>
               </div>
               <div className="membro">
                 <h3>Supervisores</h3>
-                <p>Principal: {projeto.supervisorPrincipal}</p>
-                <p>Backup: {projeto.supervisorBackup}</p>
+                <p>Principal: {Array.isArray(projeto.supervisorPrincipal)
+                  ? projeto.supervisorPrincipal.map(s => s.label).join(', ')
+                  : ''}</p>
+                <p>Backup: {Array.isArray(projeto.supervisorBackup)
+                  ? projeto.supervisorBackup.map(s => s.label).join(', ')
+                  : ''}</p>
               </div>
             </div>
           </div>
@@ -237,8 +295,8 @@ function ProjetoDetalhes({ projetos, setProjetos }) {
                     required
                   >
                     <option value="">Selecione...</option>
-                    {colaboradores.analistas.map(analista => (
-                      <option key={analista.id} value={analista.nome}>{analista.nome}</option>
+                    {colaboradoresFB.analistas.map(analista => (
+                      <option key={analista.value} value={analista.label}>{analista.label}</option>
                     ))}
                   </select>
                 </div>
@@ -254,8 +312,8 @@ function ProjetoDetalhes({ projetos, setProjetos }) {
                     onChange={(e) => setFormData({...formData, analistaBackup: e.target.value})}
                   >
                     <option value="">Selecione...</option>
-                    {colaboradores.analistas.map(analista => (
-                      <option key={analista.id} value={analista.nome}>{analista.nome}</option>
+                    {colaboradoresFB.analistas.map(analista => (
+                      <option key={analista.value} value={analista.label}>{analista.label}</option>
                     ))}
                   </select>
                 </div>
@@ -272,8 +330,8 @@ function ProjetoDetalhes({ projetos, setProjetos }) {
                     required
                   >
                     <option value="">Selecione...</option>
-                    {colaboradores.desenvolvedores.map(dev => (
-                      <option key={dev.id} value={dev.nome}>{dev.nome}</option>
+                    {colaboradoresFB.desenvolvedores.map(dev => (
+                      <option key={dev.value} value={dev.label}>{dev.label}</option>
                     ))}
                   </select>
                 </div>
@@ -289,8 +347,8 @@ function ProjetoDetalhes({ projetos, setProjetos }) {
                     onChange={(e) => setFormData({...formData, desenvolvedorBackup: e.target.value})}
                   >
                     <option value="">Selecione...</option>
-                    {colaboradores.desenvolvedores.map(dev => (
-                      <option key={dev.id} value={dev.nome}>{dev.nome}</option>
+                    {colaboradoresFB.desenvolvedores.map(dev => (
+                      <option key={dev.value} value={dev.label}>{dev.label}</option>
                     ))}
                   </select>
                 </div>
@@ -307,8 +365,8 @@ function ProjetoDetalhes({ projetos, setProjetos }) {
                     required
                   >
                     <option value="">Selecione...</option>
-                    {colaboradores.supervisores.map(supervisor => (
-                      <option key={supervisor.id} value={supervisor.nome}>{supervisor.nome}</option>
+                    {colaboradoresFB.supervisores.map(supervisor => (
+                      <option key={supervisor.value} value={supervisor.label}>{supervisor.label}</option>
                     ))}
                   </select>
                 </div>
@@ -324,8 +382,8 @@ function ProjetoDetalhes({ projetos, setProjetos }) {
                     onChange={(e) => setFormData({...formData, supervisorBackup: e.target.value})}
                   >
                     <option value="">Selecione...</option>
-                    {colaboradores.supervisores.map(supervisor => (
-                      <option key={supervisor.id} value={supervisor.nome}>{supervisor.nome}</option>
+                    {colaboradoresFB.supervisores.map(supervisor => (
+                      <option key={supervisor.value} value={supervisor.label}>{supervisor.label}</option>
                     ))}
                   </select>
                 </div>

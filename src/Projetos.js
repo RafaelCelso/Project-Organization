@@ -16,8 +16,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "./Sidebar";
 import "./Projetos.css";
+import { db } from './firebaseConfig';
+import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import Select from 'react-select';
 
-function Projetos({ projetos, setProjetos }) {
+function Projetos() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,37 +29,28 @@ function Projetos({ projetos, setProjetos }) {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
 
+  const [colaboradoresFB, setColaboradoresFB] = useState({
+    analistas: [],
+    desenvolvedores: [],
+    supervisores: []
+  });
+
   const [formData, setFormData] = useState({
     id: null,
     nome: "",
     tipo: "",
-    analistaPrincipal: "",
-    analistaBackup: "",
-    desenvolvedorPrincipal: "",
-    desenvolvedorBackup: "",
+    analistaPrincipal: [],
+    analistaBackup: [],
+    desenvolvedorPrincipal: [],
+    desenvolvedorBackup: [],
     status: "",
     cliente: "",
     contatoCliente: {
       email: "",
       telefone: "",
     },
-    supervisorPrincipal: "",
-    supervisorBackup: "",
-  });
-
-  const [colaboradores] = useState({
-    analistas: [
-      { id: 1, nome: "Ana Silva" },
-      { id: 2, nome: "João Santos" },
-    ],
-    desenvolvedores: [
-      { id: 3, nome: "Pedro Costa" },
-      { id: 4, nome: "Maria Oliveira" },
-    ],
-    supervisores: [
-      { id: 5, nome: "Carlos Souza" },
-      { id: 6, nome: "Patrícia Lima" },
-    ],
+    supervisorPrincipal: [],
+    supervisorBackup: [],
   });
 
   // Adicionar estado para filtros
@@ -70,39 +64,36 @@ function Projetos({ projetos, setProjetos }) {
   });
 
   // Adicionar estado para projetos filtrados
-  const [projetosFiltrados, setProjetosFiltrados] = useState(projetos);
+  const [projetosFiltrados, setProjetosFiltrados] = useState([]);
 
-  // Função para aplicar os filtros
+  // Adicione um estado para projetos
+  const [projetos, setProjetos] = useState([]);
+
+  // Função para aplicar filtros
   const aplicarFiltros = () => {
     let resultado = projetos.filter(projeto => {
       let passouFiltro = true;
 
-      // Filtro por texto (nome do projeto)
       if (filtros.busca) {
         passouFiltro = passouFiltro && projeto.nome.toLowerCase().includes(filtros.busca.toLowerCase());
       }
 
-      // Filtro por tipo
       if (filtros.tipo) {
         passouFiltro = passouFiltro && projeto.tipo === filtros.tipo;
       }
 
-      // Filtro por status
       if (filtros.status) {
         passouFiltro = passouFiltro && projeto.status === filtros.status;
       }
 
-      // Filtro por analista principal
       if (filtros.analistaPrincipal) {
         passouFiltro = passouFiltro && projeto.analistaPrincipal === filtros.analistaPrincipal;
       }
 
-      // Filtro por desenvolvedor principal
       if (filtros.desenvolvedorPrincipal) {
         passouFiltro = passouFiltro && projeto.desenvolvedorPrincipal === filtros.desenvolvedorPrincipal;
       }
 
-      // Filtro por supervisor principal
       if (filtros.supervisorPrincipal) {
         passouFiltro = passouFiltro && projeto.supervisorPrincipal === filtros.supervisorPrincipal;
       }
@@ -113,25 +104,7 @@ function Projetos({ projetos, setProjetos }) {
     setProjetosFiltrados(resultado);
   };
 
-  // Função para limpar os filtros
-  const limparFiltros = () => {
-    setFiltros({
-      busca: '',
-      tipo: '',
-      status: '',
-      analistaPrincipal: '',
-      desenvolvedorPrincipal: '',
-      supervisorPrincipal: ''
-    });
-    setProjetosFiltrados(projetos);
-  };
-
-  // Atualizar os projetos filtrados quando os projetos ou filtros mudarem
-  useEffect(() => {
-    aplicarFiltros();
-  }, [projetos, filtros]);
-
-  // Componente de filtros
+  // Função para renderizar os filtros
   const renderFiltros = () => (
     <div className="filtros-container">
       <div className="filtros-grupo">
@@ -181,7 +154,7 @@ function Projetos({ projetos, setProjetos }) {
             onKeyPress={handleKeyPress}
           >
             <option value="">Todos os analistas</option>
-            {colaboradores.analistas.map(analista => (
+            {colaboradoresFB.analistas.map(analista => (
               <option key={analista.id} value={analista.nome}>{analista.nome}</option>
             ))}
           </select>
@@ -194,7 +167,7 @@ function Projetos({ projetos, setProjetos }) {
             onKeyPress={handleKeyPress}
           >
             <option value="">Todos os desenvolvedores</option>
-            {colaboradores.desenvolvedores.map(dev => (
+            {colaboradoresFB.desenvolvedores.map(dev => (
               <option key={dev.id} value={dev.nome}>{dev.nome}</option>
             ))}
           </select>
@@ -207,7 +180,7 @@ function Projetos({ projetos, setProjetos }) {
             onKeyPress={handleKeyPress}
           >
             <option value="">Todos os supervisores</option>
-            {colaboradores.supervisores.map(supervisor => (
+            {colaboradoresFB.supervisores.map(supervisor => (
               <option key={supervisor.id} value={supervisor.nome}>{supervisor.nome}</option>
             ))}
           </select>
@@ -232,7 +205,20 @@ function Projetos({ projetos, setProjetos }) {
   }, [location]);
 
   const handleCardClick = (projeto) => {
-    navigate(`/projetos/${projeto.id}`);
+    try {
+      if (projeto && projeto.id) {
+        console.log('Navegando para o projeto:', projeto); // Para debug
+        navigate(`/projetos/${projeto.id}`, { 
+          state: { 
+            projeto: projeto 
+          }
+        });
+      } else {
+        console.error('Projeto inválido:', projeto);
+      }
+    } catch (error) {
+      console.error('Erro ao navegar para o projeto:', error);
+    }
   };
 
   const handleOptionsClick = (e, projeto) => {
@@ -248,43 +234,54 @@ function Projetos({ projetos, setProjetos }) {
     setIsDeleteModalOpen(true);
   };
 
-  const handleNewProject = () => {
-    setIsEditing(false);
+  const limparFormulario = () => {
     setFormData({
       id: null,
       nome: "",
       tipo: "",
-      analistaPrincipal: "",
-      analistaBackup: "",
-      desenvolvedorPrincipal: "",
-      desenvolvedorBackup: "",
+      analistaPrincipal: [],
+      analistaBackup: [],
+      desenvolvedorPrincipal: [],
+      desenvolvedorBackup: [],
       status: "",
       cliente: "",
       contatoCliente: {
         email: "",
         telefone: "",
       },
-      supervisorPrincipal: "",
-      supervisorBackup: "",
+      supervisorPrincipal: [],
+      supervisorBackup: [],
     });
+    setIsEditing(false);
+  };
+
+  const handleNewProject = () => {
+    setIsEditing(false);
+    limparFormulario();
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e) => {
+  // Função para salvar projeto
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (isEditing) {
-      // Atualiza o projeto existente
-      setProjetos(
-        projetos.map((projeto) =>
-          projeto.id === formData.id ? formData : projeto
-        )
-      );
-    } else {
-      // Cria novo projeto
-      const novoProjeto = {
-        ...formData,
-        id: projetos.length + 1,
+    try {
+      // Prepara os dados do projeto
+      const projetoData = {
+        nome: formData.nome,
+        tipo: formData.tipo,
+        status: formData.status,
+        cliente: formData.cliente,
+        contatoCliente: {
+          email: formData.contatoCliente.email,
+          telefone: formData.contatoCliente.telefone
+        },
+        analistaPrincipal: formData.analistaPrincipal || [],
+        analistaBackup: formData.analistaBackup || [],
+        desenvolvedorPrincipal: formData.desenvolvedorPrincipal || [],
+        desenvolvedorBackup: formData.desenvolvedorBackup || [],
+        supervisorPrincipal: formData.supervisorPrincipal || [],
+        supervisorBackup: formData.supervisorBackup || [],
         kanban: {
           aDefinir: [],
           todo: [],
@@ -292,31 +289,40 @@ function Projetos({ projetos, setProjetos }) {
           testing: [],
           prontoDeploy: [],
           done: [],
-          arquivado: [],
+          arquivado: []
         },
+        dataCriacao: new Date().toISOString()
       };
-      setProjetos([...projetos, novoProjeto]);
-    }
 
-    setIsModalOpen(false);
-    setIsEditing(false);
-    setFormData({
-      id: null,
-      nome: "",
-      tipo: "",
-      analistaPrincipal: "",
-      analistaBackup: "",
-      desenvolvedorPrincipal: "",
-      desenvolvedorBackup: "",
-      status: "",
-      cliente: "",
-      contatoCliente: {
-        email: "",
-        telefone: "",
-      },
-      supervisorPrincipal: "",
-      supervisorBackup: "",
-    });
+      if (isEditing) {
+        // Atualiza projeto existente
+        const projetoRef = doc(db, 'projetos', formData.id);
+        await updateDoc(projetoRef, projetoData);
+        
+        // Atualiza estado local
+        setProjetos(projetos.map(projeto => 
+          projeto.id === formData.id ? { ...projetoData, id: formData.id } : projeto
+        ));
+        
+        console.log('Projeto atualizado com sucesso!');
+      } else {
+        // Cria novo projeto
+        const docRef = await addDoc(collection(db, 'projetos'), projetoData);
+        const novoProjeto = { ...projetoData, id: docRef.id };
+        
+        // Atualiza estado local
+        setProjetos(prevProjetos => [...prevProjetos, novoProjeto]);
+        
+        console.log('Novo projeto criado com sucesso!');
+      }
+
+      // Fecha o modal e limpa o formulário
+      setIsModalOpen(false);
+      limparFormulario();
+    } catch (error) {
+      console.error('Erro ao salvar projeto:', error);
+      alert('Erro ao salvar o projeto. Por favor, tente novamente.');
+    }
   };
 
   const handleDeleteFromModal = () => {
@@ -325,29 +331,18 @@ function Projetos({ projetos, setProjetos }) {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    setProjetos(
-      projetos.filter((projeto) => projeto.id !== projetoToDelete.id)
-    );
-    setIsDeleteModalOpen(false);
-    setProjetoToDelete(null);
-    setFormData({
-      id: null,
-      nome: "",
-      tipo: "",
-      analistaPrincipal: "",
-      analistaBackup: "",
-      desenvolvedorPrincipal: "",
-      desenvolvedorBackup: "",
-      status: "",
-      cliente: "",
-      contatoCliente: {
-        email: "",
-        telefone: "",
-      },
-      supervisorPrincipal: "",
-      supervisorBackup: "",
-    });
+  // Função para excluir projeto
+  const confirmDelete = async () => {
+    try {
+      await deleteDoc(doc(db, 'projetos', projetoToDelete.id));
+      setProjetos(projetos.filter(projeto => projeto.id !== projetoToDelete.id));
+      setIsDeleteModalOpen(false);
+      setProjetoToDelete(null);
+      limparFormulario();
+    } catch (error) {
+      console.error('Erro ao excluir projeto:', error);
+      alert('Erro ao excluir o projeto. Por favor, tente novamente.');
+    }
   };
 
   // Adicionar a função handleKeyPress
@@ -356,6 +351,76 @@ function Projetos({ projetos, setProjetos }) {
       aplicarFiltros();
     }
   };
+
+  // Função para buscar colaboradores
+  useEffect(() => {
+    const fetchColaboradores = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'colaboradores'));
+        const colaboradoresData = querySnapshot.docs.map(doc => ({
+          value: doc.id,
+          label: doc.data().nome || doc.data().nomeCompleto,
+          cargo: doc.data().cargo
+        }));
+
+        // Filtra colaboradores por cargo
+        const analistas = colaboradoresData.filter(col => col.cargo === 'Analista');
+        const desenvolvedores = colaboradoresData.filter(col => col.cargo === 'Desenvolvedor');
+        const supervisores = colaboradoresData.filter(col => col.cargo === 'Supervisor');
+
+        setColaboradoresFB({
+          analistas,
+          desenvolvedores,
+          supervisores
+        });
+
+        console.log('Colaboradores carregados:', { analistas, desenvolvedores, supervisores }); // Para debug
+      } catch (error) {
+        console.error('Erro ao buscar colaboradores:', error);
+      }
+    };
+
+    fetchColaboradores();
+  }, []); // Array vazio significa que será executado apenas uma vez ao montar o componente
+
+  // Modifique o useEffect que busca os projetos
+  useEffect(() => {
+    const fetchProjetos = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'projetos'));
+        const projetosData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        console.log('Projetos carregados:', projetosData); // Para debug
+        setProjetos(projetosData);
+        setProjetosFiltrados(projetosData); // Atualiza também os projetos filtrados
+      } catch (error) {
+        console.error('Erro ao buscar projetos:', error);
+      }
+    };
+
+    fetchProjetos();
+  }, []); // Array vazio significa que será executado apenas uma vez ao montar o componente
+
+  // Adicione a função limparFiltros
+  const limparFiltros = () => {
+    setFiltros({
+      busca: '',
+      tipo: '',
+      status: '',
+      analistaPrincipal: '',
+      desenvolvedorPrincipal: '',
+      supervisorPrincipal: ''
+    });
+    setProjetosFiltrados(projetos);
+  };
+
+  // Atualize o useEffect para aplicar filtros quando os projetos ou filtros mudarem
+  useEffect(() => {
+    aplicarFiltros();
+  }, [projetos, filtros]);
 
   return (
     <div className="projetos-container">
@@ -371,13 +436,11 @@ function Projetos({ projetos, setProjetos }) {
         {renderFiltros()}
 
         <div className="projects-grid">
-          {projetosFiltrados.map((projeto) => (
+          {projetosFiltrados.map((projeto) => projeto && (
             <div
               key={projeto.id}
-              className={`project-card ${
-                projeto.id === selectedProject?.id ? "selected" : ""
-              }`}
-              onClick={() => handleCardClick(projeto)}
+              className={`project-card ${projeto.id === selectedProject?.id ? "selected" : ""}`}
+              onClick={() => projeto.id && handleCardClick(projeto)}
             >
               <div className="project-card-header">
                 <h3>{projeto.nome}</h3>
@@ -403,24 +466,34 @@ function Projetos({ projetos, setProjetos }) {
                     </div>
                     <div className="info-item">
                       <span className="info-label">Analista:</span>
-                      <span>{projeto.analistaPrincipal}</span>
+                      <span>
+                        {Array.isArray(projeto.analistaPrincipal) 
+                          ? projeto.analistaPrincipal.map(a => a.label).join(', ')
+                          : ''}
+                      </span>
                     </div>
                     <div className="info-item">
                       <span className="info-label">Desenvolvedor:</span>
-                      <span>{projeto.desenvolvedorPrincipal}</span>
+                      <span>
+                        {Array.isArray(projeto.desenvolvedorPrincipal)
+                          ? projeto.desenvolvedorPrincipal.map(d => d.label).join(', ')
+                          : ''}
+                      </span>
                     </div>
                     <div className="info-item">
                       <span className="info-label">Supervisor:</span>
-                      <span>{projeto.supervisorPrincipal}</span>
+                      <span>
+                        {Array.isArray(projeto.supervisorPrincipal)
+                          ? projeto.supervisorPrincipal.map(s => s.label).join(', ')
+                          : ''}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="project-status">
-                <span
-                  className={`status-badge status-${projeto.status.toLowerCase()}`}
-                >
+                <span className={`status-badge status-${projeto.status?.toLowerCase()}`}>
                   {projeto.status}
                 </span>
               </div>
@@ -436,19 +509,14 @@ function Projetos({ projetos, setProjetos }) {
               <form onSubmit={handleSubmit}>
                 <div className="form-group full-width">
                   <label htmlFor="nome">
-                    <FontAwesomeIcon
-                      icon={faProjectDiagram}
-                      className="form-icon"
-                    />
+                    <FontAwesomeIcon icon={faProjectDiagram} className="form-icon" />
                     Nome do Projeto
                   </label>
                   <input
                     type="text"
                     id="nome"
                     value={formData.nome}
-                    onChange={(e) =>
-                      setFormData({ ...formData, nome: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                     required
                   />
                 </div>
@@ -461,9 +529,7 @@ function Projetos({ projetos, setProjetos }) {
                   <select
                     id="tipo"
                     value={formData.tipo}
-                    onChange={(e) =>
-                      setFormData({ ...formData, tipo: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
                     required
                   >
                     <option value="">Selecione...</option>
@@ -482,9 +548,7 @@ function Projetos({ projetos, setProjetos }) {
                   <select
                     id="status"
                     value={formData.status}
-                    onChange={(e) =>
-                      setFormData({ ...formData, status: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                     required
                   >
                     <option value="">Selecione...</option>
@@ -502,9 +566,7 @@ function Projetos({ projetos, setProjetos }) {
                     type="text"
                     id="cliente"
                     value={formData.cliente}
-                    onChange={(e) =>
-                      setFormData({ ...formData, cliente: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, cliente: e.target.value })}
                     required
                   />
                 </div>
@@ -514,24 +576,16 @@ function Projetos({ projetos, setProjetos }) {
                     <FontAwesomeIcon icon={faUser} className="form-icon" />
                     Analista Principal
                   </label>
-                  <select
+                  <Select
                     id="analistaPrincipal"
+                    isMulti
+                    options={colaboradoresFB.analistas}
                     value={formData.analistaPrincipal}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        analistaPrincipal: e.target.value,
-                      })
-                    }
-                    required
-                  >
-                    <option value="">Selecione...</option>
-                    {colaboradores.analistas.map((analista) => (
-                      <option key={analista.id} value={analista.nome}>
-                        {analista.nome}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(selected) => setFormData({...formData, analistaPrincipal: selected || []})}
+                    placeholder="Selecione os analistas..."
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -539,23 +593,16 @@ function Projetos({ projetos, setProjetos }) {
                     <FontAwesomeIcon icon={faUsers} className="form-icon" />
                     Analista Backup
                   </label>
-                  <select
+                  <Select
                     id="analistaBackup"
+                    isMulti
+                    options={colaboradoresFB.analistas}
                     value={formData.analistaBackup}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        analistaBackup: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="">Selecione...</option>
-                    {colaboradores.analistas.map((analista) => (
-                      <option key={analista.id} value={analista.nome}>
-                        {analista.nome}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(selected) => setFormData({...formData, analistaBackup: selected || []})}
+                    placeholder="Selecione os analistas backup..."
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -563,24 +610,16 @@ function Projetos({ projetos, setProjetos }) {
                     <FontAwesomeIcon icon={faUser} className="form-icon" />
                     Desenvolvedor Principal
                   </label>
-                  <select
+                  <Select
                     id="desenvolvedorPrincipal"
+                    isMulti
+                    options={colaboradoresFB.desenvolvedores}
                     value={formData.desenvolvedorPrincipal}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        desenvolvedorPrincipal: e.target.value,
-                      })
-                    }
-                    required
-                  >
-                    <option value="">Selecione...</option>
-                    {colaboradores.desenvolvedores.map((dev) => (
-                      <option key={dev.id} value={dev.nome}>
-                        {dev.nome}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(selected) => setFormData({...formData, desenvolvedorPrincipal: selected || []})}
+                    placeholder="Selecione os desenvolvedores..."
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -588,23 +627,16 @@ function Projetos({ projetos, setProjetos }) {
                     <FontAwesomeIcon icon={faUsers} className="form-icon" />
                     Desenvolvedor Backup
                   </label>
-                  <select
+                  <Select
                     id="desenvolvedorBackup"
+                    isMulti
+                    options={colaboradoresFB.desenvolvedores}
                     value={formData.desenvolvedorBackup}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        desenvolvedorBackup: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="">Selecione...</option>
-                    {colaboradores.desenvolvedores.map((dev) => (
-                      <option key={dev.id} value={dev.nome}>
-                        {dev.nome}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(selected) => setFormData({...formData, desenvolvedorBackup: selected || []})}
+                    placeholder="Selecione os desenvolvedores backup..."
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -612,24 +644,16 @@ function Projetos({ projetos, setProjetos }) {
                     <FontAwesomeIcon icon={faUser} className="form-icon" />
                     Supervisor Principal
                   </label>
-                  <select
+                  <Select
                     id="supervisorPrincipal"
+                    isMulti
+                    options={colaboradoresFB.supervisores}
                     value={formData.supervisorPrincipal}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        supervisorPrincipal: e.target.value,
-                      })
-                    }
-                    required
-                  >
-                    <option value="">Selecione...</option>
-                    {colaboradores.supervisores.map((supervisor) => (
-                      <option key={supervisor.id} value={supervisor.nome}>
-                        {supervisor.nome}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(selected) => setFormData({...formData, supervisorPrincipal: selected || []})}
+                    placeholder="Selecione os supervisores..."
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -637,23 +661,16 @@ function Projetos({ projetos, setProjetos }) {
                     <FontAwesomeIcon icon={faUsers} className="form-icon" />
                     Supervisor Backup
                   </label>
-                  <select
+                  <Select
                     id="supervisorBackup"
+                    isMulti
+                    options={colaboradoresFB.supervisores}
                     value={formData.supervisorBackup}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        supervisorBackup: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="">Selecione...</option>
-                    {colaboradores.supervisores.map((supervisor) => (
-                      <option key={supervisor.id} value={supervisor.nome}>
-                        {supervisor.nome}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(selected) => setFormData({...formData, supervisorBackup: selected || []})}
+                    placeholder="Selecione os supervisores backup..."
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -665,15 +682,13 @@ function Projetos({ projetos, setProjetos }) {
                     type="email"
                     id="emailCliente"
                     value={formData.contatoCliente.email}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        contatoCliente: {
-                          ...formData.contatoCliente,
-                          email: e.target.value,
-                        },
-                      })
-                    }
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      contatoCliente: {
+                        ...formData.contatoCliente,
+                        email: e.target.value,
+                      },
+                    })}
                     required
                   />
                 </div>
@@ -687,33 +702,23 @@ function Projetos({ projetos, setProjetos }) {
                     type="tel"
                     id="telefoneCliente"
                     value={formData.contatoCliente.telefone}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        contatoCliente: {
-                          ...formData.contatoCliente,
-                          telefone: e.target.value,
-                        },
-                      })
-                    }
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      contatoCliente: {
+                        ...formData.contatoCliente,
+                        telefone: e.target.value,
+                      },
+                    })}
                     required
                   />
                 </div>
 
                 <div className="modal-buttons">
-                  <button
-                    type="button"
-                    className="cancel-btn"
-                    onClick={() => setIsModalOpen(false)}
-                  >
+                  <button type="button" className="cancel-btn" onClick={() => setIsModalOpen(false)}>
                     Cancelar
                   </button>
                   {isEditing && (
-                    <button
-                      type="button"
-                      className="delete-btn"
-                      onClick={handleDeleteFromModal}
-                    >
+                    <button type="button" className="delete-btn" onClick={handleDeleteFromModal}>
                       Excluir
                     </button>
                   )}
@@ -731,17 +736,14 @@ function Projetos({ projetos, setProjetos }) {
           <div className="modal-overlay">
             <div className="modal-content delete-modal">
               <h2>Confirmar Exclusão</h2>
-              <p>
-                Tem certeza que deseja excluir o projeto "
-                {projetoToDelete?.nome}"?
-              </p>
+              <p>Tem certeza que deseja excluir o projeto "{projetoToDelete?.nome}"?</p>
               <div className="modal-buttons">
                 <button
                   className="cancel-btn"
                   onClick={() => {
                     setIsDeleteModalOpen(false);
                     setProjetoToDelete(null);
-                    setIsModalOpen(true); // Retorna ao modal de edição
+                    setIsModalOpen(true);
                   }}
                 >
                   Cancelar
