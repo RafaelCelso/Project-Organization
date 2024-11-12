@@ -282,3 +282,26 @@
   white-space: normal !important;
   line-height: 1.4;
 }
+
+.close-modal-btn {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.close-modal-btn:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.modal-content {
+  position: relative;
+  /* ... outros estilos existentes ... */
+}

@@ -1,6 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import './Colaboradores.css';
+import { 
+  collection, 
+  getDocs, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc 
+} from 'firebase/firestore';
+import { db } from './firebaseConfig';
 
 function Colaboradores() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,8 +68,13 @@ function Colaboradores() {
   };
 
   const handleEdit = (colaborador) => {
+    const colaboradorFormatado = {
+      ...colaborador,
+      projeto: Array.isArray(colaborador.projeto) ? colaborador.projeto : []
+    };
+    
     setIsEditing(true);
-    setFormData(colaborador);
+    setFormData(colaboradorFormatado);
     setIsModalOpen(true);
   };
 
@@ -69,27 +83,66 @@ function Colaboradores() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    setColaboradores(colaboradores.filter(col => col.id !== colaboradorToDelete.id));
-    setIsDeleteModalOpen(false);
-    setColaboradorToDelete(null);
+  const confirmDelete = async () => {
+    try {
+      const colaboradorRef = doc(db, 'colaboradores', colaboradorToDelete.id);
+      await deleteDoc(colaboradorRef);
+      
+      setColaboradores(colaboradores.filter(col => col.id !== colaboradorToDelete.id));
+      setIsDeleteModalOpen(false);
+      setColaboradorToDelete(null);
+    } catch (error) {
+      console.error("Erro ao excluir colaborador:", error);
+      // Aqui você pode adicionar uma notificação de erro para o usuário
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (isEditing) {
-      setColaboradores(colaboradores.map(colaborador => 
-        colaborador.id === formData.id ? formData : colaborador
-      ));
-    } else {
-      const novoColaborador = {
-        ...formData,
-        id: colaboradores.length + 1
+    try {
+      const colaboradorData = {
+        nome: formData.nome,
+        cargo: formData.cargo,
+        status: formData.status,
+        projeto: Array.isArray(formData.projeto) ? formData.projeto : [],
+        updatedAt: new Date().toISOString()
       };
-      setColaboradores([...colaboradores, novoColaborador]);
-    }
 
+      if (isEditing && formData.id) {
+        const colaboradorRef = doc(db, 'colaboradores', formData.id);
+        await updateDoc(colaboradorRef, colaboradorData);
+
+        setColaboradores(prevColaboradores => 
+          prevColaboradores.map(colaborador => 
+            colaborador.id === formData.id 
+              ? { ...colaborador, ...colaboradorData }
+              : colaborador
+          )
+        );
+      } else {
+        const colaboradoresRef = collection(db, 'colaboradores');
+        const docRef = await addDoc(colaboradoresRef, {
+          ...colaboradorData,
+          createdAt: new Date().toISOString()
+        });
+
+        const novoColaborador = {
+          id: docRef.id,
+          ...colaboradorData
+        };
+        
+        setColaboradores(prevColaboradores => [...prevColaboradores, novoColaborador]);
+      }
+
+      handleCloseModal();
+    } catch (error) {
+      console.error("Erro ao salvar colaborador:", error);
+      alert("Erro ao salvar colaborador. Por favor, tente novamente.");
+    }
+  };
+
+  const handleCloseModal = () => {
     setIsModalOpen(false);
     setIsEditing(false);
     setFormData({
@@ -120,6 +173,26 @@ function Colaboradores() {
       [name]: value
     }));
   };
+
+  useEffect(() => {
+    const fetchColaboradores = async () => {
+      try {
+        const colaboradoresRef = collection(db, 'colaboradores');
+        const snapshot = await getDocs(colaboradoresRef);
+        const colaboradoresData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          projeto: Array.isArray(doc.data().projeto) ? doc.data().projeto : []
+        }));
+        setColaboradores(colaboradoresData);
+      } catch (error) {
+        console.error("Erro ao carregar colaboradores:", error);
+        alert("Erro ao carregar colaboradores. Por favor, recarregue a página.");
+      }
+    };
+
+    fetchColaboradores();
+  }, []);
 
   return (
     <div className="colaboradores-container">
@@ -247,6 +320,13 @@ function Colaboradores() {
         {isModalOpen && (
           <div className="modal-overlay">
             <div className="modal-content">
+              <button 
+                className="close-modal-btn"
+                onClick={handleCloseModal}
+                type="button"
+              >
+                ×
+              </button>
               <h2>{isEditing ? 'Editar Colaborador' : 'Novo Colaborador'}</h2>
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
@@ -320,7 +400,7 @@ function Colaboradores() {
                 </div>
 
                 <div className="modal-buttons">
-                  <button type="button" className="cancel-btn" onClick={() => setIsModalOpen(false)}>
+                  <button type="button" className="cancel-btn" onClick={handleCloseModal}>
                     Cancelar
                   </button>
                   <button type="submit" className="save-btn">
