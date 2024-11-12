@@ -289,7 +289,7 @@ function Escalas() {
             events={eventos}
             startAccessor="start"
             endAccessor="end"
-            style={{ height: 'calc(100vh - 150px)' }}
+            style={{ height: 'calc(100vh - 75px)' }}
             selectable
             onSelectSlot={handleSelect}
             onSelectEvent={handleEventClick}
