@@ -22,7 +22,7 @@ function Colaboradores() {
     nome: '',
     cargo: '',
     status: '',
-    projeto: ''
+    projeto: []
   });
 
   const [filtros, setFiltros] = useState({
@@ -37,16 +37,25 @@ function Colaboradores() {
       colaborador.nome.toLowerCase().includes(filtros.nome.toLowerCase()) &&
       (filtros.cargo === '' || colaborador.cargo === filtros.cargo) &&
       (filtros.status === '' || colaborador.status === filtros.status) &&
-      (filtros.projeto === '' || colaborador.projeto === filtros.projeto)
+      (filtros.projeto === '' || (Array.isArray(colaborador.projeto) && 
+        colaborador.projeto.includes(filtros.projeto)))
     );
   });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
+    if (name === 'projeto') {
+      const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+      setFormData(prevState => ({
+        ...prevState,
+        [name]: selectedOptions
+      }));
+    } else {
+      setFormData(prevState => ({
+        ...prevState,
+        [name]: value
+      }));
+    }
   };
 
   const handleEdit = (colaborador) => {
@@ -88,7 +97,7 @@ function Colaboradores() {
       nome: '',
       cargo: '',
       status: '',
-      projeto: ''
+      projeto: []
     });
   };
 
@@ -99,7 +108,7 @@ function Colaboradores() {
       nome: '',
       cargo: '',
       status: '',
-      projeto: ''
+      projeto: []
     });
     setIsModalOpen(true);
   };
@@ -205,7 +214,11 @@ function Colaboradores() {
                 <tr key={colaborador.id}>
                   <td>{colaborador.nome}</td>
                   <td>{colaborador.cargo}</td>
-                  <td>{colaborador.projeto}</td>
+                  <td className="projetos-cell">
+                    {Array.isArray(colaborador.projeto) 
+                      ? colaborador.projeto.join(', ') 
+                      : colaborador.projeto}
+                  </td>
                   <td className={`status-${colaborador.status.toLowerCase()}`}>
                     {colaborador.status}
                   </td>
@@ -281,19 +294,29 @@ function Colaboradores() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="projeto">Projeto</label>
-                  <select
-                    id="projeto"
-                    name="projeto"
-                    value={formData.projeto}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">Selecione...</option>
-                    <option value="Projeto A">Projeto A</option>
-                    <option value="Projeto B">Projeto B</option>
-                    <option value="Projeto C">Projeto C</option>
-                  </select>
+                  <label>Projetos</label>
+                  <div className="checkbox-group">
+                    {['Projeto A', 'Projeto B', 'Projeto C'].map((projeto) => (
+                      <label key={projeto} className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          name="projeto"
+                          value={projeto}
+                          checked={formData.projeto.includes(projeto)}
+                          onChange={(e) => {
+                            const { value, checked } = e.target;
+                            setFormData(prev => ({
+                              ...prev,
+                              projeto: checked 
+                                ? [...prev.projeto, value]
+                                : prev.projeto.filter(p => p !== value)
+                            }));
+                          }}
+                        />
+                        {projeto}
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="modal-buttons">
