@@ -140,14 +140,6 @@ function Tarefas() {
     { id: 4, texto: 'Urgente', cor: '#fb8c00' }
   ]);
 
-  // Adicione a lista de responsáveis (você pode pegar isso do seu backend depois)
-  const responsaveis = [
-    { id: 1, nome: "Ana Silva" },
-    { id: 2, nome: "João Santos" },
-    { id: 3, nome: "Maria Oliveira" },
-    { id: 4, nome: "Pedro Costa" }
-  ];
-
   // Adicione estes estados
   const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
@@ -171,6 +163,18 @@ function Tarefas() {
     desenvolvedor: ''
   });
   const [projetosFiltrados, setProjetosFiltrados] = useState([]);
+
+  // Primeiro, adicione um novo estado para controlar as guias do modal
+  const [activeTab, setActiveTab] = useState('detalhes');
+
+  // Adicione um estado para armazenar o log da tarefa
+  const [taskLog, setTaskLog] = useState([]);
+
+  // Adicione este estado no início do componente
+  const [responsaveis, setResponsaveis] = useState([]);
+
+  // Adicione um estado para controlar a validação
+  const [showValidation, setShowValidation] = useState(false);
 
   const handleAddComment = () => {
     if (comentario.trim()) {
@@ -262,35 +266,29 @@ function Tarefas() {
 
     if (!destination) return;
 
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    ) return;
-
-    // Se estiver movendo de "A Definir" para outra coluna (exceto Arquivado)
-    if (source.droppableId === 'aDefinir' && 
-        destination.droppableId !== 'aDefinir' && 
-        destination.droppableId !== 'arquivado') {
-      const sourceColumn = tasks[source.droppableId];
-      const taskToMove = sourceColumn[source.index];
-      
-      setFormData({
-        ...taskToMove,
-        status: destination.droppableId
-      });
-      setTaskToUpdate(taskToMove);
-      setIsConfirmModalOpen(true);
-      return;
-    }
+    if (source.droppableId === destination.droppableId &&
+        source.index === destination.index) return;
 
     // Lógica para mover tarefas entre colunas
     const sourceColumn = Array.isArray(tasks[source.droppableId]) ? tasks[source.droppableId] : [];
     const destColumn = Array.isArray(tasks[destination.droppableId]) ? tasks[destination.droppableId] : [];
     
+    // Pega a tarefa que está sendo movida
+    const taskToMove = sourceColumn[source.index];
+    
     const [removed] = sourceColumn.splice(source.index, 1);
     destColumn.splice(destination.index, 0, {
       ...removed,
-      status: destination.droppableId
+      status: destination.droppableId,
+      log: [
+        ...(taskToMove.log || []),
+        {
+          tipo: 'movimentacao',
+          data: new Date().toISOString(),
+          usuario: 'Usuário Atual', // Substitua pelo usuário logado
+          detalhes: `Movida de ${source.droppableId} para ${destination.droppableId}`
+        }
+      ]
     });
 
     const newState = {
@@ -316,69 +314,81 @@ function Tarefas() {
     }
   };
 
-  function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Incrementa o lastTaskId
-    const newTaskId = lastTaskId + 1;
     
-    const novaTarefa = {
-      id: `task-${newTaskId}`, // Adiciona um prefixo para garantir que seja string
-      taskId: newTaskId, // Mantém o número do ID para exibição
-      titulo: formData.titulo,
-      content: formData.content,
-      responsavel: formData.responsavel,
-      dataInicio: formData.dataInicio,
-      dataConclusao: formData.dataConclusao,
-      prioridade: formData.prioridade,
-      progresso: formData.progresso || 'nao_iniciada',
-      status: formData.status,
-      tags: formData.tags || [],
-      numeroChamado: formData.numeroChamado,
-    };
+    // Ativa a validação visual
+    setShowValidation(true);
+    
+    if (!formData.titulo.trim()) {
+      return;
+    }
 
-    if (formData.id) {
-      // Editar tarefa existente
-      setTasks((prevTasks) => {
-        const updatedTasks = { ...prevTasks };
-        Object.keys(updatedTasks).forEach((key) => {
-          updatedTasks[key] = updatedTasks[key].map((task) =>
-            task.id === formData.id ? novaTarefa : task
-          );
-        });
-        return updatedTasks;
-      });
-    } else {
-      // Adicionar nova tarefa
-      setTasks((prevTasks) => ({
-        ...prevTasks,
-        [formData.status]: [...(prevTasks[formData.status] || []), novaTarefa],
-      }));
+    try {
+      const novaTarefa = {
+        ...formData,
+        log: [
+          ...taskLog,
+          {
+            tipo: isEditing ? 'edicao' : 'criacao',
+            data: new Date().toISOString(),
+            usuario: 'Usuário Atual',
+            detalhes: isEditing ? 'Tarefa editada' : 'Tarefa criada'
+          }
+        ]
+      };
+
+      // Incrementa o lastTaskId
+      const newTaskId = lastTaskId + 1;
       
-      // Atualiza o último ID usado
-      setLastTaskId(newTaskId);
-    }
+      if (formData.id) {
+        // Editar tarefa existente
+        setTasks((prevTasks) => {
+          const updatedTasks = { ...prevTasks };
+          Object.keys(updatedTasks).forEach((key) => {
+            updatedTasks[key] = updatedTasks[key].map((task) =>
+              task.id === formData.id ? novaTarefa : task
+            );
+          });
+          return updatedTasks;
+        });
+      } else {
+        // Adicionar nova tarefa
+        setTasks((prevTasks) => ({
+          ...prevTasks,
+          [formData.status]: [...(prevTasks[formData.status] || []), novaTarefa],
+        }));
+        
+        // Atualiza o último ID usado
+        setLastTaskId(newTaskId);
+      }
 
-    // Atualiza o projeto selecionado com as novas tarefas
-    if (selectedProject) {
-      const updatedProjetos = projetos.map(proj => {
-        if (proj.id === selectedProject.id) {
-          return {
-            ...proj,
-            kanban: {
-              ...tasks,
-              [formData.status]: [...(tasks[formData.status] || []), novaTarefa]
-            }
-          };
-        }
-        return proj;
-      });
-      setProjetos(updatedProjetos);
-    }
+      // Atualiza o projeto selecionado com as novas tarefas
+      if (selectedProject) {
+        const updatedProjetos = projetos.map(proj => {
+          if (proj.id === selectedProject.id) {
+            return {
+              ...proj,
+              kanban: {
+                ...tasks,
+                [formData.status]: [...(tasks[formData.status] || []), novaTarefa]
+              }
+            };
+          }
+          return proj;
+        });
+        setProjetos(updatedProjetos);
+      }
 
-    setIsModalOpen(false);
-    clearFormAndImages(); // Usa a função existente para limpar o formulário
-  }
+      // Se salvou com sucesso, limpa o formulário e reseta a validação
+      setIsModalOpen(false);
+      clearFormAndImages();
+      setShowValidation(false);
+    } catch (error) {
+      console.error('Erro ao salvar tarefa:', error);
+      alert('Erro ao salvar tarefa. Por favor, tente novamente.');
+    }
+  };
 
   const handleAddTask = () => {
     setFormData({
@@ -621,6 +631,10 @@ function Tarefas() {
       numeroChamado: ''
     });
     setUploadedFiles([]); // Limpa as imagens
+    setActiveTab('detalhes'); // Volta para a aba de detalhes
+    setTaskLog([]); // Limpa o log
+    setIsEditing(false); // Reseta o modo de edição
+    setShowValidation(false); // Reseta a validação
   };
 
   const handleEdit = (task) => {
@@ -1695,6 +1709,76 @@ function Tarefas() {
     );
   };
 
+  // Modifique o useEffect que carrega os responsáveis
+  useEffect(() => {
+    const loadResponsaveis = async () => {
+      try {
+        const projetosRef = collection(db, 'projetos');
+        const snapshot = await getDocs(projetosRef);
+        const responsaveisSet = new Set();
+
+        snapshot.docs.forEach(doc => {
+          const projetoData = doc.data();
+          
+          // Adiciona apenas analistas e desenvolvedores
+          projetoData.analistaPrincipal?.forEach(analista => {
+            responsaveisSet.add(JSON.stringify({ 
+              id: analista.value, 
+              nome: analista.label,
+              cargo: 'Analista'
+            }));
+          });
+          projetoData.analistaBackup?.forEach(analista => {
+            responsaveisSet.add(JSON.stringify({ 
+              id: analista.value, 
+              nome: analista.label,
+              cargo: 'Analista'
+            }));
+          });
+
+          projetoData.desenvolvedorPrincipal?.forEach(dev => {
+            responsaveisSet.add(JSON.stringify({ 
+              id: dev.value, 
+              nome: dev.label,
+              cargo: 'Desenvolvedor'
+            }));
+          });
+          projetoData.desenvolvedorBackup?.forEach(dev => {
+            responsaveisSet.add(JSON.stringify({ 
+              id: dev.value, 
+              nome: dev.label,
+              cargo: 'Desenvolvedor'
+            }));
+          });
+        });
+
+        const responsaveisList = Array.from(responsaveisSet)
+          .map(json => JSON.parse(json))
+          .filter(resp => ['Analista', 'Desenvolvedor'].includes(resp.cargo));
+
+        setResponsaveis(responsaveisList);
+
+        // Se houver um projeto selecionado, pré-seleciona o analista principal
+        if (selectedProject?.analistaPrincipal?.[0]) {
+          setFormData(prev => ({
+            ...prev,
+            responsavel: selectedProject.analistaPrincipal[0].value
+          }));
+        }
+      } catch (error) {
+        console.error('Erro ao carregar responsáveis:', error);
+      }
+    };
+
+    loadResponsaveis();
+  }, [selectedProject]);
+
+  // Atualize a função que fecha o modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    clearFormAndImages(); // Usa a função existente para limpar o formulário
+  };
+
   return (
     <div className="tarefas-container">
       <Sidebar />
@@ -2020,14 +2104,19 @@ function Tarefas() {
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="titulo">Título</label>
+                      <label htmlFor="titulo">
+                        Título <span className="required">*</span>
+                      </label>
                       <input
                         type="text"
                         id="titulo"
                         value={formData.titulo}
                         onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                        required
                         placeholder="Digite um título para a tarefa"
+                        className={showValidation && !formData.titulo.trim() ? 'input-error' : ''}
                       />
+
                     </div>
                   </div>
 
@@ -2035,18 +2124,32 @@ function Tarefas() {
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="responsavel">Responsável</label>
-                      <select
+                      <Select
+                        isMulti
                         id="responsavel"
-                        value={formData.responsavel}
-                        onChange={(e) => setFormData({ ...formData, responsavel: e.target.value })}
-                      >
-                        <option value="">Selecione...</option>
-                        {responsaveis.map((resp) => (
-                          <option key={resp.id} value={resp.nome}>
-                            {resp.nome}
-                          </option>
-                        ))}
-                      </select>
+                        value={responsaveis.filter(resp => 
+                          formData.responsavel?.includes(resp.id)
+                        ).map(resp => ({
+                          value: resp.id,
+                          label: `${resp.nome} (${resp.cargo})`
+                        }))}
+                        onChange={(selectedOptions) => {
+                          setFormData({
+                            ...formData,
+                            responsavel: selectedOptions.map(option => option.value)
+                          });
+                        }}
+                        options={responsaveis
+                          .filter(resp => ['Analista', 'Desenvolvedor'].includes(resp.cargo))
+                          .map(resp => ({
+                            value: resp.id,
+                            label: `${resp.nome} (${resp.cargo})`
+                          }))}
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                        placeholder="Selecione os responsáveis..."
+                        noOptionsMessage={() => "Nenhum responsável encontrado"}
+                      />
                     </div>
 
                     <div className="form-group">
@@ -2251,10 +2354,11 @@ function Tarefas() {
                 </div>
 
                 <div className="modal-buttons">
-                  <button type="button" className="cancel-btn" onClick={() => {
-                    setIsModalOpen(false);
-                    clearFormAndImages();
-                  }}>
+                  <button 
+                    type="button" 
+                    className="cancel-btn" 
+                    onClick={handleCloseModal} // Use a função handleCloseModal
+                  >
                     Cancelar
                   </button>
                   <button type="submit" className="save-btn">
@@ -2542,7 +2646,7 @@ function Tarefas() {
           <div className="modal-overlay">
             <div className="modal-content">
               <h2>Completar Informações</h2>
-              <p>Para mover esta tarefa para outra etapa, é necessário preencher informações adicionais.</p>
+              <p>Para mover esta tarefa para outra etapa, é necessrio preencher informações adicionais.</p>
               <p>Deseja preencher essas informações agora?</p>
               <div className="modal-buttons">
                 <button className="cancel-btn" onClick={() => setIsConfirmModalOpen(false)}>
