@@ -522,42 +522,8 @@ function Tarefas() {
   };
 
   const handleEditFromView = () => {
-    const isADefinirTask = selectedTask.status === 'aDefinir';
-    
-    if (isADefinirTask) {
-      setFormData({
-        id: selectedTask.id,
-        taskId: selectedTask.taskId,
-        titulo: selectedTask.titulo,
-        content: selectedTask.content,
-        status: 'aDefinir',
-        imagens: selectedTask.imagens || [],
-        tags: selectedTask.tags || [],
-        numeroChamado: selectedTask.numeroChamado || ''
-      });
-    } else {
-      setFormData({
-        ...selectedTask,
-        tags: selectedTask.tags || [],
-        numeroChamado: selectedTask.numeroChamado || ''
-      });
-    }
-
-    // Carrega as imagens existentes
-    if (selectedTask.imagens && selectedTask.imagens.length > 0) {
-      setUploadedFiles(selectedTask.imagens.map(imagem => ({
-        id: imagem.id || Date.now(),
-        url: imagem.url,
-        name: imagem.name,
-        type: imagem.type
-      })));
-    } else {
-      setUploadedFiles([]);
-    }
-
+    handleEdit(selectedTask);
     setIsViewModalOpen(false);
-    setIsEditing(true);
-    setIsModalOpen(true);
   };
 
   const handleDeleteTask = () => {
@@ -646,17 +612,27 @@ function Tarefas() {
 
   const handleEdit = (task) => {
     setIsEditing(true);
+    
+    // Converte os responsáveis da tarefa em objetos compatíveis com o React Select
+    const responsaveisSelecionados = Array.isArray(task.responsavel) 
+      ? task.responsavel.map(nome => {
+          const resp = responsaveis.find(r => r.nome === nome);
+          return resp ? resp.id : null;
+        }).filter(id => id !== null)
+      : [];
+
     setFormData({
       ...formData,
       id: task.id,
       titulo: task.titulo,
       content: task.content,
-      responsavel: task.responsavel,
+      responsavel: responsaveisSelecionados, // Usa os IDs dos responsáveis
       dataInicio: task.dataInicio || '',
       dataConclusao: task.dataConclusao || '',
       prioridade: task.prioridade || '',
       progresso: task.progresso || 'nao_iniciada',
-      status: task.status || 'todo'
+      status: task.status || 'todo',
+      numeroChamado: task.numeroChamado || ''
     });
 
     // Carrega as imagens existentes
@@ -2547,68 +2523,96 @@ function Tarefas() {
         {/* Modal de Visualização */}
         {isViewModalOpen && selectedTask && (
           <div className="modal-overlay">
-            <div className="modal-content view-modal">
-              <div className="view-modal-header">
-                <h2>{selectedTask.titulo}</h2>
-                {selectedTask.numeroChamado && (
-                  <div className="task-chamado modal">
-                    <span className="chamado-label">Chamado:</span>
-                    <span className="chamado-number">{selectedTask.numeroChamado}</span>
+            <div className="modal-content">
+              <div className="task-details">
+                <div className="task-header">
+                  <h2>{selectedTask.titulo}</h2>
+                  {selectedTask.numeroChamado && (
+                    <span className="task-chamado">Chamado: {selectedTask.numeroChamado}</span>
+                  )}
+                </div>
+
+                <div className="task-info-grid">
+                  <div className="info-item">
+                    <label>Responsáveis</label>
+                    <span>{Array.isArray(selectedTask.responsavel) ? 
+                      selectedTask.responsavel.join(', ') : 
+                      selectedTask.responsavel || 'Não atribuído'}
+                    </span>
+                  </div>
+
+                  <div className="info-item">
+                    <label>Status</label>
+                    <span className={`status-badge status-${selectedTask.status}`}>
+                      {selectedTask.status}
+                    </span>
+                  </div>
+
+                  <div className="info-item">
+                    <label>Prioridade</label>
+                    <span className={`priority-badge priority-${selectedTask.prioridade}`}>
+                      {selectedTask.prioridade || 'Não definida'}
+                    </span>
+                  </div>
+
+                  <div className="info-item">
+                    <label>Data Início</label>
+                    <span>{selectedTask.dataInicio || 'Não definida'}</span>
+                  </div>
+
+                  <div className="info-item">
+                    <label>Data Conclusão</label>
+                    <span>{selectedTask.dataConclusao || 'Não definida'}</span>
+                  </div>
+
+                  <div className="info-item">
+                    <label>Progresso</label>
+                    <span>{selectedTask.progresso || 'Não iniciada'}</span>
+                  </div>
+                </div>
+
+                {selectedTask.content && (
+                  <div className="task-description">
+                    <label>Descrição</label>
+                    <p>{selectedTask.content}</p>
                   </div>
                 )}
-                <div className="task-badges">
-                  <span className={`priority-badge priority-${formData.prioridade}`}>
-                    {formData.prioridade ? formData.prioridade.charAt(0).toUpperCase() + formData.prioridade.slice(1) : 'Sem prioridade'}
-                  </span>
-                  <span className={`progress-badge progress-${formData.progresso}`}>
-                    {formData.progresso === 'nao_iniciada' ? 'Não iniciada' :
-                     formData.progresso === 'em_andamento' ? 'Em andamento' :
-                     'Concluída'}
-                  </span>
-                </div>
-              </div>
 
-              <div className="view-modal-content">
-                <div className="info-section">
-                  <h3>Detalhes</h3>
-                  <p>{selectedTask.content}</p>
-                </div>
+                {selectedTask.tags && selectedTask.tags.length > 0 && (
+                  <div className="task-tags">
+                    <label>Tags</label>
+                    <div className="tags-container">
+                      {selectedTask.tags.map(tag => (
+                        <span 
+                          key={tag.id} 
+                          className="tag" 
+                          style={{ backgroundColor: tag.cor }}
+                        >
+                          {tag.texto}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-                {/* Seção de imagens */}
                 {selectedTask.imagens && selectedTask.imagens.length > 0 && (
-                  <div className="info-section">
-                    <h3>Imagens</h3>
-                    <div className="task-images-grid">
-                      {selectedTask.imagens.map(imagem => (
-                        <div key={imagem.id} className="task-image-item">
+                  <div className="task-images">
+                    <label>Imagens</label>
+                    <div className="images-grid">
+                      {selectedTask.imagens.map((imagem, index) => (
+                        <div key={index} className="image-item">
                           <img src={imagem.url} alt={imagem.name} />
                           <button 
-                            className="download-image-btn"
+                            className="download-btn"
                             onClick={() => handleDownloadImage(imagem.url, imagem.name)}
-                            title="Fazer download"
                           >
-                            <FontAwesomeIcon icon={faDownload} />
+                            <i className="material-icons">download</i>
                           </button>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
-
-                <div className="info-grid">
-                  <div className="info-item">
-                    <label>Responsável</label>
-                    <span>{selectedTask.responsavel}</span>
-                  </div>
-                  <div className="info-item">
-                    <label>Data de Início</label>
-                    <span>{formData.dataInicio ? new Date(formData.dataInicio).toLocaleDateString() : 'Não definida'}</span>
-                  </div>
-                  <div className="info-item">
-                    <label>Data de Conclusão</label>
-                    <span>{formData.dataConclusao ? new Date(formData.dataConclusao).toLocaleDateString() : 'Não definida'}</span>
-                  </div>
-                </div>
 
                 {/* Seção de Comentários */}
                 <div className="comments-section">
@@ -2618,7 +2622,8 @@ function Tarefas() {
                       className="add-comment-btn"
                       onClick={() => setShowCommentInput(!showCommentInput)}
                     >
-                      <FontAwesomeIcon icon={faComment} /> Comentar
+                      <i className="material-icons">comment</i>
+                      Comentar
                     </button>
                   </div>
 
@@ -2632,7 +2637,7 @@ function Tarefas() {
                       />
                       <div className="comment-actions">
                         <button 
-                          className="cancel-btn"
+                          className="comment-cancel-btn"
                           onClick={() => {
                             setShowCommentInput(false);
                             setComentario('');
@@ -2641,10 +2646,10 @@ function Tarefas() {
                           Cancelar
                         </button>
                         <button 
-                          className="save-btn"
+                          className="comment-submit-btn"
                           onClick={handleAddComment}
                         >
-                          Comentar
+                          Enviar
                         </button>
                       </div>
                     </div>
@@ -2656,7 +2661,7 @@ function Tarefas() {
                         <div className="comment-header">
                           <span className="comment-user">{comment.usuario}</span>
                           <span className="comment-date">
-                            {format(comment.data, "dd/MM/yyyy 'às' HH:mm")}
+                            {format(new Date(comment.data), "dd/MM/yyyy 'às' HH:mm")}
                           </span>
                         </div>
                         <p className="comment-text">{comment.texto}</p>
@@ -2667,15 +2672,31 @@ function Tarefas() {
               </div>
 
               <div className="modal-buttons">
-                <button type="button" className="cancel-btn" onClick={() => setIsViewModalOpen(false)}>
+                <button 
+                  type="button" 
+                  className="cancel-btn" 
+                  onClick={() => setIsViewModalOpen(false)}
+                >
                   Fechar
                 </button>
-                <button type="button" className="delete-btn" onClick={handleDeleteTask}>
-                  Excluir
-                </button>
-                <button type="button" className="edit-btn" onClick={handleEditFromView}>
-                  Editar
-                </button>
+                {selectedTask.status !== 'arquivado' && (
+                  <>
+                    <button 
+                      type="button" 
+                      className="delete-btn" 
+                      onClick={handleDeleteTask}
+                    >
+                      Excluir
+                    </button>
+                    <button 
+                      type="button" 
+                      className="edit-btn" 
+                      onClick={handleEditFromView}
+                    >
+                      Editar
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
