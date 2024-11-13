@@ -627,13 +627,14 @@ function Tarefas() {
       id: task.id,
       titulo: task.titulo,
       content: task.content,
-      responsavel: responsaveisSelecionados, // Usa os IDs dos responsáveis
+      responsavel: responsaveisSelecionados,
       dataInicio: task.dataInicio || '',
       dataConclusao: task.dataConclusao || '',
       prioridade: task.prioridade || '',
       progresso: task.progresso || 'nao_iniciada',
       status: task.status || 'todo',
-      numeroChamado: task.numeroChamado || ''
+      numeroChamado: task.numeroChamado || '',
+      tags: task.tags || [] // Adiciona as tags existentes ao formData
     });
 
     // Carrega as imagens existentes
