@@ -7,7 +7,7 @@ import './Tarefas.css';
 import { format } from 'date-fns';
 import { useLocation } from 'react-router-dom'; // Adicione este import
 import { db } from './firebaseConfig'; // Ao invés de '../firebase'
-import { collection, getDocs, addDoc, query, where, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, deleteDoc, doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import Select from 'react-select';
 
 const initialTasks = {
@@ -261,7 +261,7 @@ function Tarefas() {
     });
   };
 
-  const onDragEnd = (result) => {
+  const onDragEnd = async (result) => {
     const { source, destination } = result;
 
     if (!destination) return;
@@ -269,55 +269,52 @@ function Tarefas() {
     if (source.droppableId === destination.droppableId &&
         source.index === destination.index) return;
 
-    // Lógica para mover tarefas entre colunas
-    const sourceColumn = Array.isArray(tasks[source.droppableId]) ? tasks[source.droppableId] : [];
-    const destColumn = Array.isArray(tasks[destination.droppableId]) ? tasks[destination.droppableId] : [];
-    
-    // Pega a tarefa que está sendo movida
-    const taskToMove = sourceColumn[source.index];
-    
-    const [removed] = sourceColumn.splice(source.index, 1);
-    destColumn.splice(destination.index, 0, {
-      ...removed,
-      status: destination.droppableId,
-      log: [
-        ...(taskToMove.log || []),
-        {
-          tipo: 'movimentacao',
-          data: new Date().toISOString(),
-          usuario: 'Usuário Atual', // Substitua pelo usuário logado
-          detalhes: `Movida de ${source.droppableId} para ${destination.droppableId}`
-        }
-      ]
-    });
-
-    const newState = {
-      ...tasks,
-      [source.droppableId]: sourceColumn,
-      [destination.droppableId]: destColumn,
-    };
-
-    setTasks(newState);
-
-    // Atualiza o projeto selecionado
-    if (selectedProject) {
-      const updatedProjetos = projetos.map(proj => {
-        if (proj.id === selectedProject.id) {
-          return {
-            ...proj,
-            kanban: newState
-          };
-        }
-        return proj;
+    try {
+      // Lógica para mover tarefas entre colunas
+      const sourceColumn = Array.isArray(tasks[source.droppableId]) ? tasks[source.droppableId] : [];
+      const destColumn = Array.isArray(tasks[destination.droppableId]) ? tasks[destination.droppableId] : [];
+      
+      const taskToMove = sourceColumn[source.index];
+      
+      const [removed] = sourceColumn.splice(source.index, 1);
+      destColumn.splice(destination.index, 0, {
+        ...removed,
+        status: destination.droppableId,
+        log: [
+          ...(removed.log || []),
+          {
+            tipo: 'movimentacao',
+            data: new Date().toISOString(),
+            usuario: 'Usuário Atual',
+            detalhes: `Movida de ${source.droppableId} para ${destination.droppableId}`
+          }
+        ]
       });
-      setProjetos(updatedProjetos);
+
+      const newState = {
+        ...tasks,
+        [source.droppableId]: sourceColumn,
+        [destination.droppableId]: destColumn,
+      };
+
+      // Atualiza o Firebase
+      const projetoRef = doc(db, 'projetosTarefas', selectedProject.id);
+      await updateDoc(projetoRef, {
+        kanban: newState
+      });
+
+      // Atualiza o estado local
+      setTasks(newState);
+
+    } catch (error) {
+      console.error('Erro ao mover tarefa:', error);
+      alert('Erro ao mover tarefa. Por favor, tente novamente.');
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Ativa a validação visual
     setShowValidation(true);
     
     if (!formData.titulo.trim()) {
@@ -325,10 +322,25 @@ function Tarefas() {
     }
 
     try {
+      // Prepara os dados da tarefa
       const novaTarefa = {
-        ...formData,
+        id: formData.id || `task-${Date.now()}`,
+        taskId: lastTaskId + 1,
+        titulo: formData.titulo,
+        content: formData.content || '',
+        // Pega o nome dos responsáveis em vez do ID
+        responsavel: formData.responsavel ? responsaveis
+          .filter(resp => formData.responsavel.includes(resp.id))
+          .map(resp => resp.nome) : [],
+        dataInicio: formData.dataInicio || '',
+        dataConclusao: formData.dataConclusao || '',
+        prioridade: formData.prioridade || '',
+        progresso: formData.progresso || 'nao_iniciada',
+        status: formData.status || 'aDefinir',
+        numeroChamado: formData.numeroChamado || '',
+        projetoId: selectedProject.id,
+        nome: formData.titulo,
         log: [
-          ...taskLog,
           {
             tipo: isEditing ? 'edicao' : 'criacao',
             data: new Date().toISOString(),
@@ -338,52 +350,47 @@ function Tarefas() {
         ]
       };
 
-      // Incrementa o lastTaskId
-      const newTaskId = lastTaskId + 1;
-      
-      if (formData.id) {
-        // Editar tarefa existente
-        setTasks((prevTasks) => {
-          const updatedTasks = { ...prevTasks };
-          Object.keys(updatedTasks).forEach((key) => {
-            updatedTasks[key] = updatedTasks[key].map((task) =>
-              task.id === formData.id ? novaTarefa : task
-            );
-          });
-          return updatedTasks;
+      // Referência para o documento do projeto
+      const projetoRef = doc(db, 'projetosTarefas', selectedProject.id);
+
+      if (isEditing) {
+        // Atualiza a tarefa existente no Firebase
+        const novoKanban = {
+          ...tasks,
+          [formData.status]: tasks[formData.status].map(task =>
+            task.id === formData.id ? novaTarefa : task
+          )
+        };
+
+        await updateDoc(projetoRef, {
+          kanban: novoKanban
         });
+
+        // Atualiza o estado local
+        setTasks(novoKanban);
+
       } else {
-        // Adicionar nova tarefa
-        setTasks((prevTasks) => ({
-          ...prevTasks,
-          [formData.status]: [...(prevTasks[formData.status] || []), novaTarefa],
-        }));
-        
-        // Atualiza o último ID usado
-        setLastTaskId(newTaskId);
-      }
+        // Adiciona nova tarefa
+        const novoKanban = {
+          ...tasks,
+          [formData.status]: [...(tasks[formData.status] || []), novaTarefa]
+        };
 
-      // Atualiza o projeto selecionado com as novas tarefas
-      if (selectedProject) {
-        const updatedProjetos = projetos.map(proj => {
-          if (proj.id === selectedProject.id) {
-            return {
-              ...proj,
-              kanban: {
-                ...tasks,
-                [formData.status]: [...(tasks[formData.status] || []), novaTarefa]
-              }
-            };
-          }
-          return proj;
+        // Atualiza o documento no Firebase
+        await updateDoc(projetoRef, {
+          kanban: novoKanban
         });
-        setProjetos(updatedProjetos);
+
+        // Atualiza o estado local
+        setTasks(novoKanban);
+        setLastTaskId(lastTaskId + 1);
       }
 
-      // Se salvou com sucesso, limpa o formulário e reseta a validação
+      // Fecha o modal e limpa o formulário
       setIsModalOpen(false);
       clearFormAndImages();
       setShowValidation(false);
+
     } catch (error) {
       console.error('Erro ao salvar tarefa:', error);
       alert('Erro ao salvar tarefa. Por favor, tente novamente.');
@@ -1778,6 +1785,63 @@ function Tarefas() {
     setIsModalOpen(false);
     clearFormAndImages(); // Usa a função existente para limpar o formulário
   };
+
+  // Modifique o useEffect que carrega as tarefas iniciais
+  useEffect(() => {
+    const loadTarefas = async () => {
+      if (!selectedProject?.id) return;
+
+      try {
+        const projetoRef = doc(db, 'projetosTarefas', selectedProject.id);
+        const projetoDoc = await getDoc(projetoRef);
+
+        if (projetoDoc.exists()) {
+          const kanbanData = projetoDoc.data().kanban || {
+            aDefinir: [],
+            todo: [],
+            inProgress: [],
+            testing: [],
+            prontoDeploy: [],
+            done: [],
+            arquivado: []
+          };
+
+          // Garante que todas as colunas existam
+          const kanbanCompleto = {
+            aDefinir: [],
+            todo: [],
+            inProgress: [],
+            testing: [],
+            prontoDeploy: [],
+            done: [],
+            arquivado: [],
+            ...kanbanData
+          };
+
+          setTasks(kanbanCompleto);
+        } else {
+          // Se o documento não existir, cria um novo com a estrutura básica
+          const kanbanInicial = {
+            aDefinir: [],
+            todo: [],
+            inProgress: [],
+            testing: [],
+            prontoDeploy: [],
+            done: [],
+            arquivado: []
+          };
+
+          await setDoc(projetoRef, { kanban: kanbanInicial });
+          setTasks(kanbanInicial);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar tarefas:', error);
+        alert('Erro ao carregar tarefas. Por favor, recarregue a página.');
+      }
+    };
+
+    loadTarefas();
+  }, [selectedProject?.id]);
 
   return (
     <div className="tarefas-container">
