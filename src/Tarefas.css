@@ -3002,6 +3002,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-top: 0px;
 }
 
 .limpar-filtros-btn:hover {
