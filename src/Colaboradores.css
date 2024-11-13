@@ -137,53 +137,135 @@
 /* Estilos melhorados para a seção de filtros */
 .filtros-section {
   display: flex;
+  flex-direction: column;
   gap: 16px;
   margin: 24px 0;
   padding: 20px;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  flex-wrap: wrap;
+}
+
+.filtros-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.filtros-linha {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Primeira linha - Nome */
+.filtro-nome {
+  width: 100%;
+}
+
+/* Segunda linha - Demais filtros */
+.filtros-linha:nth-child(2) .filtro-grupo {
+  flex: 1;
+  min-width: 150px;
 }
 
 .filtro-grupo {
-  flex: 1;
-  min-width: 200px;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .filtro-grupo label {
-  display: block;
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 6px;
+  font-size: 14px;
+  color: #333;
   font-weight: 500;
 }
 
-.filtro-input,
-.filtro-select {
+.busca-input-container {
+  position: relative;
   width: 100%;
-  padding: 10px 12px;
+}
+
+.busca-input-container input {
+  width: 100%;
+  padding: 8px 16px 8px 40px;
   border: 1px solid #e0e0e0;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 14px;
-  color: #333;
-  background-color: #f8f9fa;
-  transition: all 0.2s ease;
+  background-color: white;
+  height: 38px;
 }
 
-.filtro-input:hover,
-.filtro-select:hover {
-  border-color: #2196F3;
-  background-color: #fff;
+.busca-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 20px;
 }
 
-.filtro-input:focus,
-.filtro-select:focus {
-  border-color: #2196F3;
-  background-color: #fff;
-  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
-  outline: none;
+.limpar-filtros-btn {
+  align-self: flex-end;
+  height: 38px;
+  padding: 8px 16px;
+  background-color: transparent;
+  color: #f44336;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.limpar-filtros-btn:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+/* Ajustes no React Select */
+.react-select__control {
+  border-color: #e0e0e0 !important;
+  border-radius: 4px !important;
+  min-height: 38px !important;
+  background-color: white !important;
+}
+
+.react-select__placeholder {
+  color: #666 !important;
+}
+
+/* Ajuste responsivo */
+@media (max-width: 1200px) {
+  .filtros-linha:nth-child(2) {
+    flex-wrap: wrap;
+  }
+
+  .filtros-linha:nth-child(2) .filtro-grupo {
+    width: calc(33.33% - 11px);
+    flex: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .filtros-linha:nth-child(2) .filtro-grupo {
+    width: calc(50% - 8px);
+  }
+
+  .limpar-filtros-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .filtros-linha:nth-child(2) .filtro-grupo {
+    width: 100%;
+  }
 }
 
 /* Estilos para os ícones de ação */
@@ -224,18 +306,6 @@
 
 .delete-btn:hover {
   background-color: rgba(244, 67, 54, 0.1);
-}
-
-/* Responsividade ajustada */
-@media (max-width: 768px) {
-  .filtros-section {
-    flex-direction: column;
-    padding: 16px;
-  }
-  
-  .filtro-grupo {
-    width: 100%;
-  }
 }
 
 /* Remova os estilos anteriores do select-multiple e adicione os novos estilos para checkboxes */
@@ -392,4 +462,43 @@
 
 .filtro-grupo .react-select__placeholder {
   color: #666 !important;
+}
+
+.limpar-filtros-btn {
+  height: 38px;
+  margin-top: 16px;
+  padding: 8px 16px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.limpar-filtros-btn i {
+  font-size: 18px;
+}
+
+.limpar-filtros-btn:hover {
+  background-color: #d32f2f;
+}
+
+.limpar-filtros-btn:active {
+  background-color: #c62828;
+}
+
+/* Ajuste responsivo */
+@media (max-width: 768px) {
+  .limpar-filtros-btn {
+    width: 100%;
+    margin-left: 0;
+    height: 42px;
+  }
 }

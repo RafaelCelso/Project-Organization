@@ -230,6 +230,15 @@ function Colaboradores() {
     }));
   };
 
+  const handleLimparFiltros = () => {
+    setFiltros({
+      nome: '',
+      cargo: '',
+      status: '',
+      projeto: ''
+    });
+  };
+
   useEffect(() => {
     const fetchColaboradores = async () => {
       try {
@@ -329,73 +338,81 @@ function Colaboradores() {
         </div>
 
         <div className="filtros-section">
-          <div className="filtro-grupo">
-            <label htmlFor="filtro-nome">Nome</label>
-            <input
-              id="filtro-nome"
-              type="text"
-              placeholder="Buscar por nome..."
-              name="nome"
-              value={filtros.nome}
-              onChange={handleFiltroChange}
-              className="filtro-input"
-            />
-          </div>
-          
-          <div className="filtro-grupo">
-            <label htmlFor="filtro-cargo">Cargo</label>
-            <Select
-              id="filtro-cargo"
-              name="cargo"
-              value={OPCOES_CARGO.find(opt => opt.value === filtros.cargo)}
-              onChange={handleFiltroCargoChange}
-              options={OPCOES_CARGO}
-              className="react-select-container"
-              classNamePrefix="react-select"
-              placeholder="Selecione um cargo..."
-              isClearable
-            />
+          <div className="filtros-container">
+            <div className="filtros-linha">
+              <div className="filtro-grupo filtro-nome">
+                <label>Nome</label>
+                <div className="busca-input-container">
+                  <i className="material-icons busca-icon">search</i>
+                  <input
+                    type="text"
+                    placeholder="Buscar por nome..."
+                    name="nome"
+                    value={filtros.nome}
+                    onChange={handleFiltroChange}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="filtros-linha">
+              <div className="filtro-grupo">
+                <label>Cargo</label>
+                <Select
+                  value={OPCOES_CARGO.find(opt => opt.value === filtros.cargo)}
+                  onChange={handleFiltroCargoChange}
+                  options={OPCOES_CARGO}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  placeholder="Selecione"
+                  isClearable
+                />
+              </div>
+
+              <div className="filtro-grupo">
+                <label>Status</label>
+                <Select
+                  value={OPCOES_STATUS.find(opt => opt.value === filtros.status)}
+                  onChange={handleFiltroStatusChange}
+                  options={OPCOES_STATUS}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  placeholder="Selecione"
+                  isClearable
+                />
+              </div>
+
+              <div className="filtro-grupo">
+                <label>Projeto</label>
+                <Select
+                  value={projetos
+                    .filter(p => p.nome === filtros.projeto)
+                    .map(p => ({ value: p.nome, label: p.nome }))[0]}
+                  onChange={handleFiltroProjetoChange}
+                  options={[
+                    ...projetos
+                      .map(projeto => ({
+                        value: projeto.nome,
+                        label: projeto.nome
+                      }))
+                      .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR', { sensitivity: 'base' }))
+                  ]}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  placeholder="Selecione"
+                  isClearable
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="filtro-grupo">
-            <label htmlFor="filtro-status">Status</label>
-            <Select
-              id="filtro-status"
-              name="status"
-              value={OPCOES_STATUS.find(opt => opt.value === filtros.status)}
-              onChange={handleFiltroStatusChange}
-              options={OPCOES_STATUS}
-              className="react-select-container"
-              classNamePrefix="react-select"
-              placeholder="Selecione um status..."
-              isClearable
-            />
-          </div>
-
-          <div className="filtro-grupo">
-            <label htmlFor="filtro-projeto">Projeto</label>
-            <Select
-              id="filtro-projeto"
-              name="projeto"
-              value={projetos
-                .filter(p => p.nome === filtros.projeto)
-                .map(p => ({ value: p.nome, label: p.nome }))[0]}
-              onChange={handleFiltroProjetoChange}
-              options={[
-                { value: '', label: 'Todos os projetos' },
-                ...projetos
-                  .map(projeto => ({
-                    value: projeto.nome,
-                    label: projeto.nome
-                  }))
-                  .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR', { sensitivity: 'base' }))
-              ]}
-              className="react-select-container"
-              classNamePrefix="react-select"
-              placeholder="Selecione um projeto..."
-              isClearable
-            />
-          </div>
+          <button 
+            className="limpar-filtros-btn"
+            onClick={handleLimparFiltros}
+          >
+            <i className="material-icons">clear</i>
+            Limpar Filtros
+          </button>
         </div>
 
         <div className="colaboradores-grid">
