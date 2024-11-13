@@ -1196,13 +1196,12 @@ function Tarefas() {
   const limparFiltros = () => {
     setFiltros({
       busca: '',
-      tipoBusca: 'nome',
+      tipoBusca: 'nome', // Mantém o tipo de busca como 'nome' por padrão
       prioridade: '',
       dataInicio: '',
       dataFim: '',
       tag: ''
     });
-    setTarefasFiltradas(null);
   };
 
   // Adicionar função para lidar com o pressionamento de tecla
@@ -1216,44 +1215,51 @@ function Tarefas() {
   const renderFiltros = () => (
     <div className="filtros-section">
       <div className="filtros-container">
-        {/* Primeira linha - Projeto */}
+        {/* Primeira linha - Busca */}
         <div className="filtros-linha">
           <div className="filtro-grupo">
-            <label>Projeto</label>
-            <div className="busca-input-container">
-              <i className="material-icons busca-icon">search</i>
-              <input
-                type="text"
-                placeholder="Buscar por nome do projeto..."
-                value={filtros.busca}
-                onChange={(e) => setFiltros({...filtros, busca: e.target.value})}
-                onKeyPress={handleKeyPress}
+            <label>Buscar por</label>
+            <div className="busca-container">
+              <Select
+                value={{ 
+                  value: filtros.tipoBusca, 
+                  label: filtros.tipoBusca === 'nome' ? 'Nome' : 
+                         filtros.tipoBusca === 'id' ? 'ID' : 'Chamado'
+                }}
+                onChange={(option) => setFiltros({
+                  ...filtros, 
+                  tipoBusca: option ? option.value : 'nome'
+                })}
+                options={[
+                  { value: 'nome', label: 'Nome' },
+                  { value: 'id', label: 'ID' },
+                  { value: 'chamado', label: 'Chamado' }
+                ]}
+                className="react-select-container tipo-busca"
+                classNamePrefix="react-select"
+                placeholder="Selecione"
+                isSearchable={false}
               />
+              <div className="busca-input-container">
+                <i className="material-icons busca-icon">search</i>
+                <input
+                  type="text"
+                  placeholder={`Buscar por ${
+                    filtros.tipoBusca === 'nome' ? 'nome' : 
+                    filtros.tipoBusca === 'id' ? 'ID' : 
+                    'número do chamado'
+                  }...`}
+                  value={filtros.busca}
+                  onChange={(e) => setFiltros({...filtros, busca: e.target.value})}
+                  onKeyPress={handleKeyPress}
+                />
+              </div>
             </div>
           </div>
         </div>
 
         {/* Segunda linha - Demais filtros */}
         <div className="filtros-linha">
-          <div className="filtro-grupo">
-            <label>Tipo de Busca</label>
-            <Select
-              value={[
-                { value: filtros.tipoBusca, label: filtros.tipoBusca === 'nome' ? 'Nome' : 
-                                                   filtros.tipoBusca === 'id' ? 'ID' : 'Chamado' }
-              ].filter(option => option.value !== '')}
-              onChange={(option) => setFiltros({...filtros, tipoBusca: option ? option.value : 'nome'})}
-              options={[
-                { value: 'nome', label: 'Nome' },
-                { value: 'id', label: 'ID' },
-                { value: 'chamado', label: 'Chamado' }
-              ]}
-              className="react-select-container"
-              classNamePrefix="react-select"
-              placeholder="Selecione"
-            />
-          </div>
-
           <div className="filtro-grupo">
             <label>Período</label>
             <div className="filtro-datas">

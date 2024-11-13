@@ -3213,3 +3213,31 @@
 .form-group .react-select__placeholder {
   color: #6b7280;
 }
+
+/* Adicione estes estilos para o novo layout de busca */
+.busca-container {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.tipo-busca {
+  width: 120px !important;
+  min-width: 120px !important;
+}
+
+.busca-input-container {
+  flex: 1;
+  position: relative;
+}
+
+/* Ajuste responsivo */
+@media (max-width: 768px) {
+  .busca-container {
+    flex-direction: column;
+  }
+
+  .tipo-busca {
+    width: 100% !important;
+  }
+}
