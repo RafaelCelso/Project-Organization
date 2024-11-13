@@ -6,6 +6,8 @@ import Sidebar from './Sidebar';
 import './Tarefas.css';
 import { format } from 'date-fns';
 import { useLocation } from 'react-router-dom'; // Adicione este import
+import { db } from './firebaseConfig'; // Ao invés de '../firebase'
+import { collection, getDocs, addDoc, query, where, deleteDoc, doc } from 'firebase/firestore';
 
 const initialTasks = {
   todo: [
@@ -67,45 +69,7 @@ const tagColors = [
 function Tarefas() {
   const location = useLocation();
   const [selectedProject, setSelectedProject] = useState(null);
-  const [projetos, setProjetos] = useState([
-    { 
-      id: 1, 
-      nome: 'Projeto A', 
-      tipo: 'SAC',
-      analista: 'Ana Silva',
-      desenvolvedor: 'Pedro Costa',
-      kanban: {
-        todo: [
-          { 
-            id: '1', 
-            titulo: 'Implementar Login',
-            content: 'Implementar nova feature de login com autenticação', 
-            responsavel: 'João Santos',
-            dataInicio: '2024-02-20',
-            dataConclusao: '2024-02-25',
-            prioridade: 'alta',
-            progresso: 'nao_iniciada'
-          }
-        ],
-        inProgress: [],
-        testing: [],
-        done: []
-      }
-    },
-    { 
-      id: 2, 
-      nome: 'Projeto B', 
-      tipo: 'OL',
-      analista: 'João Santos',
-      desenvolvedor: 'Maria Oliveira',
-      kanban: {
-        todo: [],
-        inProgress: [],
-        testing: [],
-        done: []
-      }
-    },
-  ]);
+  const [projetos, setProjetos] = useState([]);
 
   const [tasks, setTasks] = useState({
     aDefinir: [],
@@ -182,6 +146,21 @@ function Tarefas() {
     { id: 3, nome: "Maria Oliveira" },
     { id: 4, nome: "Pedro Costa" }
   ];
+
+  // Adicione estes estados
+  const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
+  const [isDeleteProjectModalOpen, setIsDeleteProjectModalOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState(null);
+
+  // Adicione estes estados
+  const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
+  const [selectedProjectToAdd, setSelectedProjectToAdd] = useState(null);
+
+  // Adicione esta lista de projetos disponíveis (você pode pegar do backend depois)
+  const [availableProjects, setAvailableProjects] = useState([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
+  const [loadError, setLoadError] = useState(null);
 
   const handleAddComment = () => {
     if (comentario.trim()) {
@@ -1375,12 +1354,201 @@ function Tarefas() {
     }
   }, [location.state]);
 
+  // Adicione esta função para editar projeto
+  const handleEditProject = (e, projeto) => {
+    e.stopPropagation(); // Impede que o card seja selecionado ao clicar no botão de editar
+    setEditingProject({
+      ...projeto
+    });
+    setIsEditProjectModalOpen(true);
+  };
+
+  // Adicione esta função para salvar as alterações do projeto
+  const handleSaveProject = (e) => {
+    e.preventDefault();
+    
+    const updatedProjetos = projetos.map(proj => 
+      proj.id === editingProject.id ? editingProject : proj
+    );
+    
+    setProjetos(updatedProjetos);
+    
+    // Se o projeto sendo editado é o selecionado, atualiza ele também
+    if (selectedProject?.id === editingProject.id) {
+      setSelectedProject(editingProject);
+    }
+    
+    setIsEditProjectModalOpen(false);
+    setEditingProject(null);
+  };
+
+  // Adicione estas funções para lidar com a exclusão
+  const handleDeleteProject = () => {
+    setProjectToDelete(editingProject);
+    setIsEditProjectModalOpen(false);
+    setIsDeleteProjectModalOpen(true);
+  };
+
+  const confirmDeleteProject = async () => {
+    try {
+      // Remove o projeto do Firebase
+      const projetoRef = doc(db, 'projetosTarefas', projectToDelete.id);
+      await deleteDoc(projetoRef);
+      
+      // Atualiza o estado local
+      const updatedProjetos = projetos.filter(proj => proj.id !== projectToDelete.id);
+      setProjetos(updatedProjetos);
+      
+      // Se o projeto excluído era o selecionado, limpa a seleção
+      if (selectedProject?.id === projectToDelete.id) {
+        setSelectedProject(null);
+        setTasks({
+          aDefinir: [],
+          todo: [],
+          inProgress: [],
+          testing: [],
+          prontoDeploy: [],
+          done: [],
+          arquivado: []
+        });
+      }
+      
+      setIsDeleteProjectModalOpen(false);
+      setProjectToDelete(null);
+      setEditingProject(null);
+    } catch (error) {
+      console.error('Erro ao excluir projeto:', error);
+      // Aqui você pode adicionar uma notificação de erro para o usurio
+    }
+  };
+
+  // Modifique a função handleAddProject
+  const handleAddProject = async () => {
+    if (selectedProjectToAdd) {
+      try {
+        const projetosRef = collection(db, 'projetosTarefas');
+        
+        // Cria o objeto do projeto com valores padrão para campos que podem estar indefinidos
+        const newProject = {
+          projetoId: selectedProjectToAdd.id, // ID do projeto original
+          nome: selectedProjectToAdd.nome || '',
+          tipo: selectedProjectToAdd.tipo || 'SAC',
+          analista: selectedProjectToAdd.analista || '',
+          desenvolvedor: selectedProjectToAdd.desenvolvedor || '',
+          status: selectedProjectToAdd.status || 'Em Andamento',
+          dataInicio: selectedProjectToAdd.dataInicio || new Date().toISOString().split('T')[0],
+          dataConclusao: selectedProjectToAdd.dataConclusao || '',
+          descricao: selectedProjectToAdd.descricao || '',
+          prioridade: selectedProjectToAdd.prioridade || 'media',
+          kanban: {
+            aDefinir: [],
+            todo: [],
+            inProgress: [],
+            testing: [],
+            prontoDeploy: [],
+            done: [],
+            arquivado: []
+          }
+        };
+        
+        // Adiciona o projeto ao Firebase
+        const docRef = await addDoc(projetosRef, newProject);
+        
+        // Atualiza o estado local com o novo projeto
+        setProjetos(prev => [...prev, { ...newProject, id: docRef.id }]);
+        
+        setIsAddProjectModalOpen(false);
+        setSelectedProjectToAdd(null);
+      } catch (error) {
+        console.error('Erro ao adicionar projeto:', error);
+        // Aqui você pode adicionar uma notificação de erro para o usuário
+      }
+    }
+  };
+
+  // Modifique a função fetchAvailableProjects
+  const fetchAvailableProjects = async () => {
+    setIsLoadingProjects(true);
+    setLoadError(null);
+    
+    try {
+      // Busca todos os projetos da coleção principal
+      const projetosRef = collection(db, 'projetos');
+      const snapshot = await getDocs(projetosRef);
+      const todosProjetos = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          nome: data.nome,
+          tipo: data.tipo,
+          analista: data.analistaPrincipal?.[0]?.label || 'Não definido', // Acessa o primeiro item do array
+          desenvolvedor: data.desenvolvedorPrincipal?.[0]?.label || 'Não definido', // Acessa o primeiro item do array
+          status: data.status,
+          dataInicio: data.dataInicio,
+          dataConclusao: data.dataConclusao,
+          descricao: data.descricao
+        };
+      });
+      
+      // Busca os IDs dos projetos já adicionados
+      const projetosAdicionadosRef = collection(db, 'projetosTarefas');
+      const projetosAdicionadosSnapshot = await getDocs(projetosAdicionadosRef);
+      const idsAdicionados = projetosAdicionadosSnapshot.docs.map(doc => doc.data().projetoId);
+      
+      // Filtra para mostrar apenas os projetos não adicionados
+      const projetosDisponiveis = todosProjetos.filter(
+        projeto => !idsAdicionados.includes(projeto.id)
+      );
+      
+      setAvailableProjects(projetosDisponiveis);
+    } catch (error) {
+      console.error('Erro ao carregar projetos:', error);
+      setLoadError('Erro ao carregar a lista de projetos. Tente novamente.');
+    } finally {
+      setIsLoadingProjects(false);
+    }
+  };
+
+  // Modifique a função que abre o modal para buscar os projetos
+  const handleOpenAddProjectModal = () => {
+    setIsAddProjectModalOpen(true);
+    fetchAvailableProjects();
+  };
+
+  // Adicione esta função para carregar os projetos adicionados
+  const loadAddedProjects = async () => {
+    try {
+      const projetosRef = collection(db, 'projetosTarefas');
+      const snapshot = await getDocs(projetosRef);
+      
+      const projetosCarregados = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      setProjetos(projetosCarregados);
+    } catch (error) {
+      console.error('Erro ao carregar projetos:', error);
+    }
+  };
+
+  // Adicione este useEffect para carregar os projetos ao montar o componente
+  useEffect(() => {
+    loadAddedProjects();
+  }, []);
+
   return (
     <div className="tarefas-container">
       <Sidebar />
       <div className="tarefas-content">
         <div className="header-with-button">
           <h1 className="page-title">Tarefas</h1>
+          <button 
+            className="add-project-btn"
+            onClick={handleOpenAddProjectModal}
+          >
+            <FontAwesomeIcon icon={faPlus} /> Adicionar Projeto
+          </button>
         </div>
 
         {/* Cards de Projetos */}
@@ -1393,7 +1561,15 @@ function Tarefas() {
             >
               <div className="project-card-header">
                 <h3>{projeto.nome}</h3>
-                <span className="project-type">{projeto.tipo}</span>
+                <div className="project-header-actions">
+                  <span className="project-type">{projeto.tipo}</span>
+                  <button 
+                    className="edit-project-btn"
+                    onClick={(e) => handleEditProject(e, projeto)}
+                  >
+                    <FontAwesomeIcon icon={faEllipsisV} />
+                  </button>
+                </div>
               </div>
               <div className="project-card-content">
                 <div className="project-info">
@@ -2247,6 +2423,216 @@ function Tarefas() {
                   onClick={confirmDeleteStage}
                 >
                   Confirmar Exclusão
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Edição de Projeto */}
+        {isEditProjectModalOpen && editingProject && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2>Editar Projeto</h2>
+              <form onSubmit={handleSaveProject}>
+                <div className="form-group">
+                  <label htmlFor="projectName">Nome do Projeto</label>
+                  <input
+                    type="text"
+                    id="projectName"
+                    value={editingProject.nome}
+                    onChange={(e) => setEditingProject({
+                      ...editingProject,
+                      nome: e.target.value
+                    })}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="projectType">Tipo</label>
+                  <select
+                    id="projectType"
+                    value={editingProject.tipo}
+                    onChange={(e) => setEditingProject({
+                      ...editingProject,
+                      tipo: e.target.value
+                    })}
+                    required
+                  >
+                    <option value="SAC">SAC</option>
+                    <option value="OL">OL</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="projectAnalyst">Analista</label>
+                  <select
+                    id="projectAnalyst"
+                    value={editingProject.analista}
+                    onChange={(e) => setEditingProject({
+                      ...editingProject,
+                      analista: e.target.value
+                    })}
+                    required
+                  >
+                    {responsaveis.map(resp => (
+                      <option key={resp.id} value={resp.nome}>
+                        {resp.nome}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="projectDev">Desenvolvedor</label>
+                  <select
+                    id="projectDev"
+                    value={editingProject.desenvolvedor}
+                    onChange={(e) => setEditingProject({
+                      ...editingProject,
+                      desenvolvedor: e.target.value
+                    })}
+                    required
+                  >
+                    {responsaveis.map(resp => (
+                      <option key={resp.id} value={resp.nome}>
+                        {resp.nome}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="modal-buttons">
+                  <button 
+                    type="button" 
+                    className="delete-btn"
+                    onClick={handleDeleteProject}
+                  >
+                    Excluir Projeto
+                  </button>
+                  <div className="modal-buttons-right">
+                    <button 
+                      type="button" 
+                      className="cancel-btn"
+                      onClick={() => {
+                        setIsEditProjectModalOpen(false);
+                        setEditingProject(null);
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                    <button type="submit" className="save-btn">
+                      Salvar
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Confirmação de Exclusão do Projeto */}
+        {isDeleteProjectModalOpen && projectToDelete && (
+          <div className="modal-overlay">
+            <div className="modal-content delete-modal">
+              <h2>Confirmar Exclusão</h2>
+              <p>Tem certeza que deseja excluir o projeto "{projectToDelete.nome}"?</p>
+              <div className="info-section">
+                <p><strong>Tipo:</strong> {projectToDelete.tipo}</p>
+                <p><strong>Analista:</strong> {projectToDelete.analista}</p>
+                <p><strong>Desenvolvedor:</strong> {projectToDelete.desenvolvedor}</p>
+                <p><strong>Total de Tarefas:</strong> {getTotalTasks(projectToDelete)}</p>
+                <p className="warning-text">Esta ação não pode ser desfeita.</p>
+              </div>
+              <div className="modal-buttons">
+                <button 
+                  className="cancel-btn" 
+                  onClick={() => {
+                    setIsDeleteProjectModalOpen(false);
+                    setProjectToDelete(null);
+                    setIsEditProjectModalOpen(true); // Retorna ao modal de edição
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  className="delete-btn"
+                  onClick={confirmDeleteProject}
+                >
+                  Confirmar Exclusão
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Adicionar Projeto */}
+        {isAddProjectModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2>Adicionar Projeto</h2>
+              
+              <div className="available-projects-list">
+                {isLoadingProjects ? (
+                  <div className="loading-projects">
+                    <FontAwesomeIcon icon={faSpinner} spin />
+                    <span>Carregando projetos...</span>
+                  </div>
+                ) : loadError ? (
+                  <div className="error-message">
+                    <FontAwesomeIcon icon={faExclamationTriangle} />
+                    <span>{loadError}</span>
+                    <button 
+                      className="retry-btn"
+                      onClick={fetchAvailableProjects}
+                    >
+                      Tentar Novamente
+                    </button>
+                  </div>
+                ) : availableProjects.length === 0 ? (
+                  <p className="no-projects-message">
+                    Não há projetos disponíveis para adicionar.
+                  </p>
+                ) : (
+                  availableProjects.map(project => (
+                    <div 
+                      key={project.id}
+                      className={`available-project-card ${selectedProjectToAdd?.id === project.id ? 'selected' : ''}`}
+                      onClick={() => setSelectedProjectToAdd(project)}
+                    >
+                      <div className="project-card-header">
+                        <h3>{project.nome}</h3>
+                        <span className="project-type">{project.tipo}</span>
+                      </div>
+                      <div className="project-info">
+                        <span>Analista: {project.analista}</span>
+                        <span>Desenvolvedor: {project.desenvolvedor}</span>
+                        <span>Status: {project.status}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="modal-buttons">
+                <button 
+                  type="button" 
+                  className="cancel-btn"
+                  onClick={() => {
+                    setIsAddProjectModalOpen(false);
+                    setSelectedProjectToAdd(null);
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="button" 
+                  className="save-btn"
+                  onClick={handleAddProject}
+                  disabled={!selectedProjectToAdd || isLoadingProjects}
+                >
+                  Adicionar
                 </button>
               </div>
             </div>
