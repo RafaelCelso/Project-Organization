@@ -1193,91 +1193,112 @@ function Tarefas() {
 
   // Renderização dos filtros
   const renderFiltros = () => (
-    <div className="filtros-container">
-      <div className="filtros-grupo">
-        <div className="filtro-busca">
-          <select
-            value={filtros.tipoBusca}
-            onChange={(e) => setFiltros({...filtros, tipoBusca: e.target.value})}
-            className="filtro-tipo-busca"
-            onKeyPress={handleKeyPress}
-          >
-            <option value="nome">Nome</option>
-            <option value="id">ID</option>
-            <option value="chamado">Chamado</option>
-          </select>
-          <div className="busca-input-container">
-            <FontAwesomeIcon icon={faSearch} className="busca-icon" />
-            <input
-              type="text"
-              placeholder={`Buscar por ${
-                filtros.tipoBusca === 'nome' ? 'nome' : 
-                filtros.tipoBusca === 'id' ? 'ID' : 
-                'número do chamado'
-              }...`}
-              value={filtros.busca}
-              onChange={(e) => setFiltros({...filtros, busca: e.target.value})}
-              onKeyPress={handleKeyPress}
-            />
+    <div className="filtros-section">
+      <div className="filtros-container">
+        {/* Primeira linha - Projeto */}
+        <div className="filtros-linha">
+          <div className="filtro-grupo">
+            <label>Projeto</label>
+            <div className="busca-input-container">
+              <i className="material-icons busca-icon">search</i>
+              <input
+                type="text"
+                placeholder="Buscar por nome do projeto..."
+                value={filtros.busca}
+                onChange={(e) => setFiltros({...filtros, busca: e.target.value})}
+                onKeyPress={handleKeyPress}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="filtro-datas">
-          <label>Período:</label>
-          <input
-            type="date"
-            value={filtros.dataInicio}
-            onChange={(e) => setFiltros({...filtros, dataInicio: e.target.value})}
-            onKeyPress={handleKeyPress}
-            placeholder="Data Início"
-          />
-          <input
-            type="date"
-            value={filtros.dataFim}
-            onChange={(e) => setFiltros({...filtros, dataFim: e.target.value})}
-            onKeyPress={handleKeyPress}
-            placeholder="Data Fim"
-          />
-        </div>
+        {/* Segunda linha - Demais filtros */}
+        <div className="filtros-linha">
+          <div className="filtro-grupo">
+            <label>Tipo de Busca</label>
+            <Select
+              value={[
+                { value: filtros.tipoBusca, label: filtros.tipoBusca === 'nome' ? 'Nome' : 
+                                                   filtros.tipoBusca === 'id' ? 'ID' : 'Chamado' }
+              ].filter(option => option.value !== '')}
+              onChange={(option) => setFiltros({...filtros, tipoBusca: option ? option.value : 'nome'})}
+              options={[
+                { value: 'nome', label: 'Nome' },
+                { value: 'id', label: 'ID' },
+                { value: 'chamado', label: 'Chamado' }
+              ]}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              placeholder="Selecione"
+            />
+          </div>
 
-        <div className="filtro-prioridade">
-          <select
-            value={filtros.prioridade}
-            onChange={(e) => setFiltros({...filtros, prioridade: e.target.value})}
-            onKeyPress={handleKeyPress}
-          >
-            <option value="">Todas as prioridades</option>
-            <option value="baixa">Baixa</option>
-            <option value="media">Média</option>
-            <option value="alta">Alta</option>
-            <option value="urgente">Urgente</option>
-          </select>
-        </div>
+          <div className="filtro-grupo">
+            <label>Período</label>
+            <div className="filtro-datas">
+              <input
+                type="date"
+                value={filtros.dataInicio}
+                onChange={(e) => setFiltros({...filtros, dataInicio: e.target.value})}
+                placeholder="Data Início"
+              />
+              <input
+                type="date"
+                value={filtros.dataFim}
+                onChange={(e) => setFiltros({...filtros, dataFim: e.target.value})}
+                placeholder="Data Fim"
+              />
+            </div>
+          </div>
 
-        <div className="filtro-tag">
-          <select
-            value={filtros.tag}
-            onChange={(e) => setFiltros({...filtros, tag: e.target.value})}
-            onKeyPress={handleKeyPress}
-          >
-            <option value="">Todas as tags</option>
-            {availableTags.map(tag => (
-              <option key={tag.id} value={tag.id}>
-                {tag.texto}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div className="filtro-grupo">
+            <label>Prioridade</label>
+            <Select
+              value={[
+                { value: filtros.prioridade, label: filtros.prioridade ? 
+                  filtros.prioridade.charAt(0).toUpperCase() + filtros.prioridade.slice(1) : '' }
+              ].filter(option => option.value !== '')}
+              onChange={(option) => setFiltros({...filtros, prioridade: option ? option.value : ''})}
+              options={[
+                { value: 'baixa', label: 'Baixa' },
+                { value: 'media', label: 'Média' },
+                { value: 'alta', label: 'Alta' },
+                { value: 'urgente', label: 'Urgente' }
+              ]}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              placeholder="Selecione"
+              isClearable
+            />
+          </div>
 
-        <div className="filtros-acoes">
-          <button className="filtrar-btn" onClick={aplicarFiltros}>
-            <FontAwesomeIcon icon={faFilter} /> Filtrar
-          </button>
-          <button className="limpar-filtros-btn" onClick={limparFiltros}>
-            <FontAwesomeIcon icon={faTimes} /> Limpar
-          </button>
+          <div className="filtro-grupo">
+            <label>Tag</label>
+            <Select
+              value={[
+                { value: filtros.tag, label: availableTags.find(t => t.id === parseInt(filtros.tag))?.texto || '' }
+              ].filter(option => option.value !== '')}
+              onChange={(option) => setFiltros({...filtros, tag: option ? option.value : ''})}
+              options={availableTags.map(tag => ({
+                value: tag.id.toString(),
+                label: tag.texto
+              }))}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              placeholder="Selecione"
+              isClearable
+            />
+          </div>
         </div>
       </div>
+
+      <button 
+        className="limpar-filtros-btn"
+        onClick={limparFiltros}
+      >
+        <i className="material-icons">clear</i>
+        Limpar Filtros
+      </button>
     </div>
   );
 
