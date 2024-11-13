@@ -3190,7 +3190,7 @@
 }
 
 .task-header {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid #e5e7eb;
 }
@@ -3202,42 +3202,88 @@
 }
 
 .task-chamado {
+  display: block;
   font-size: 14px;
   color: #6b7280;
 }
 
-.task-info-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+/* Tags agora ficam fora do header */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 24px;
 }
 
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.info-item label {
-  font-size: 12px;
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.info-item span {
-  font-size: 14px;
-  color: #1f2937;
-}
-
-.status-badge {
-  display: inline-block;
+.tag {
   padding: 4px 12px;
   border-radius: 16px;
-  font-size: 14px;
+  font-size: 12px;
+  color: white;
   font-weight: 500;
 }
 
+/* Adicione os estilos para os cards de informação */
+.task-info-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.info-card {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.info-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.info-card-header i {
+  font-size: 20px;
+  color: #6b7280;
+}
+
+.info-card-header h3 {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+  margin: 0;
+}
+
+.info-card-content {
+  font-size: 16px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* Ajuste responsivo para os cards */
+@media (max-width: 1024px) {
+  .task-info-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .task-info-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mantenha os estilos existentes para badges */
+.status-badge,
 .priority-badge {
   display: inline-block;
   padding: 4px 12px;
@@ -3246,118 +3292,106 @@
   font-weight: 500;
 }
 
-.priority-alta {
-  background-color: #fee2e2;
-  color: #dc2626;
+/* Ajuste no layout geral do modal */
+.modal-content {
+  max-width: 900px;
+  width: 90%;
+  margin: 20px auto;
 }
 
-.priority-media {
-  background-color: #fef3c7;
-  color: #d97706;
+/* Atualize os estilos da descrição e comentários */
+.task-description-section,
+.comments-section {
+  margin-top: 32px;
+  padding: 24px;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
 }
 
-.priority-baixa {
-  background-color: #e0f2f1;
-  color: #0d9488;
-}
-
-.task-description {
-  margin-bottom: 24px;
-}
-
-.task-description label {
-  display: block;
-  font-size: 14px;
-  color: #6b7280;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
-.task-description p {
-  font-size: 14px;
-  color: #1f2937;
-  line-height: 1.5;
-}
-
-.task-tags {
-  margin-bottom: 24px;
-}
-
-.task-tags label {
-  display: block;
-  font-size: 14px;
-  color: #6b7280;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
-.tags-container {
+.section-header {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-.tag {
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 12px;
+.section-header i {
+  font-size: 24px;
   color: white;
 }
 
-.task-images {
-  margin-bottom: 24px;
-}
-
-.task-images label {
-  display: block;
-  font-size: 14px;
-  color: #6b7280;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
-.images-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px;
-}
-
-.image-item {
-  position: relative;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.image-item img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-}
-
-.download-btn {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  background-color: rgba(255, 255, 255, 0.9);
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.download-btn:hover {
-  background-color: white;
-  transform: scale(1.1);
-}
-
-.download-btn i {
+.section-header h3 {
   font-size: 18px;
-  color: #2196F3;
+  color: #374151;
+  font-weight: 600;
+  margin: 0;
+}
+
+.description-content {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.description-content p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap; /* Permite quebra de linha e respeita espaços */
+  word-wrap: break-word; /* Quebra palavras longas */
+  overflow-wrap: break-word; /* Suporte adicional para quebra de palavras */
+}
+
+/* Ajuste nos comentários */
+.comments-section .section-header {
+  justify-content: space-between;
+}
+
+.add-comment-btn {
+  margin-left: auto;
+}
+
+.comment-item {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 12px;
+}
+
+.comment-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Ajuste no container de comentários */
+.comments-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Estilização da barra de rolagem dos comentários */
+.comments-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.comments-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.comments-list::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 4px;
+}
+
+.comments-list::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
 }
 
 /* Atualize os estilos dos botões de comentário */
@@ -3378,6 +3412,9 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .comment-cancel-btn:hover {
@@ -3394,8 +3431,30 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .comment-submit-btn:hover {
   background-color: #2563eb;
+}
+
+/* Ajuste no textarea do comentário */
+.comment-input-container textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 80px;
+  margin-bottom: 0; /* Remove a margem inferior pois já temos margin-top nos botões */
+  transition: border-color 0.2s ease;
+}
+
+.comment-input-container textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }

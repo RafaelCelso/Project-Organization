@@ -328,7 +328,6 @@ function Tarefas() {
         taskId: lastTaskId + 1,
         titulo: formData.titulo,
         content: formData.content || '',
-        // Pega o nome dos responsáveis em vez do ID
         responsavel: formData.responsavel ? responsaveis
           .filter(resp => formData.responsavel.includes(resp.id))
           .map(resp => resp.nome) : [],
@@ -340,6 +339,8 @@ function Tarefas() {
         numeroChamado: formData.numeroChamado || '',
         projetoId: selectedProject.id,
         nome: formData.titulo,
+        tags: formData.tags || [], // Adiciona as tags à tarefa
+        imagens: uploadedFiles || [], // Garante que as imagens também sejam salvas
         log: [
           {
             tipo: isEditing ? 'edicao' : 'criacao',
@@ -1108,13 +1109,13 @@ function Tarefas() {
     );
   };
 
-  // Modal de confirmação para mover para outra etapa
+  // Modal de confirmaço para mover para outra etapa
   const handleConfirmMove = () => {
     setIsConfirmModalOpen(false);
     setIsModalOpen(true);
   };
 
-  // Função para aplicar os filtros
+  // Atualize a função aplicarFiltros
   const aplicarFiltros = () => {
     let resultado = {};
     
@@ -1125,11 +1126,11 @@ function Tarefas() {
         // Filtro por texto (nome, ID ou chamado)
         if (filtros.busca) {
           if (filtros.tipoBusca === 'nome') {
-            passouFiltro = tarefa.titulo.toLowerCase().includes(filtros.busca.toLowerCase());
+            passouFiltro = passouFiltro && tarefa.titulo.toLowerCase().includes(filtros.busca.toLowerCase());
           } else if (filtros.tipoBusca === 'id') {
-            passouFiltro = tarefa.taskId?.toString().includes(filtros.busca);
+            passouFiltro = passouFiltro && tarefa.taskId?.toString().includes(filtros.busca);
           } else if (filtros.tipoBusca === 'chamado') {
-            passouFiltro = tarefa.numeroChamado?.toString().toLowerCase().includes(filtros.busca.toLowerCase());
+            passouFiltro = passouFiltro && tarefa.numeroChamado?.toString().toLowerCase().includes(filtros.busca.toLowerCase());
           }
         }
 
@@ -1148,11 +1149,7 @@ function Tarefas() {
 
         // Filtro por prioridade
         if (filtros.prioridade) {
-          if (coluna === 'aDefinir') {
-            passouFiltro = false;
-          } else {
-            passouFiltro = passouFiltro && tarefa.prioridade === filtros.prioridade;
-          }
+          passouFiltro = passouFiltro && tarefa.prioridade === filtros.prioridade;
         }
 
         // Filtro por tag
@@ -1343,7 +1340,7 @@ function Tarefas() {
         const novaTagObj = {
           id: Date.now(),
           texto: novaTag.trim(),
-          cor: corSelecionada // Usa a cor selecionada pelo usuário
+          cor: corSelecionada
         };
         
         setAvailableTags(prev => [...prev, novaTagObj]);
@@ -2532,99 +2529,114 @@ function Tarefas() {
                   )}
                 </div>
 
-                <div className="task-info-grid">
-                  <div className="info-item">
-                    <label>Responsáveis</label>
-                    <span>{Array.isArray(selectedTask.responsavel) ? 
-                      selectedTask.responsavel.join(', ') : 
-                      selectedTask.responsavel || 'Não atribuído'}
-                    </span>
+                {selectedTask.tags && selectedTask.tags.length > 0 && (
+                  <div className="tags-container">
+                    {selectedTask.tags.map(tag => (
+                      <span 
+                        key={tag.id} 
+                        className="tag" 
+                        style={{ backgroundColor: tag.cor }}
+                      >
+                        {tag.texto}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="task-info-cards">
+                  <div className="info-card">
+                    <div className="info-card-header">
+                      <i className="material-icons">person</i>
+                      <h3>Responsáveis</h3>
+                    </div>
+                    <div className="info-card-content">
+                      {Array.isArray(selectedTask.responsavel) ? 
+                        selectedTask.responsavel.join(', ') : 
+                        selectedTask.responsavel || 'Não atribuído'}
+                    </div>
                   </div>
 
-                  <div className="info-item">
-                    <label>Status</label>
-                    <span className={`status-badge status-${selectedTask.status}`}>
-                      {selectedTask.status}
-                    </span>
+                  <div className="info-card">
+                    <div className="info-card-header">
+                      <i className="material-icons">flag</i>
+                      <h3>Status</h3>
+                    </div>
+                    <div className="info-card-content">
+                      <span className={`status-badge status-${selectedTask.status}`}>
+                        {selectedTask.status}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="info-item">
-                    <label>Prioridade</label>
-                    <span className={`priority-badge priority-${selectedTask.prioridade}`}>
-                      {selectedTask.prioridade || 'Não definida'}
-                    </span>
+                  <div className="info-card">
+                    <div className="info-card-header">
+                      <i className="material-icons">priority_high</i>
+                      <h3>Prioridade</h3>
+                    </div>
+                    <div className="info-card-content">
+                      <span className={`priority-badge priority-${selectedTask.prioridade}`}>
+                        {selectedTask.prioridade || 'Não definida'}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="info-item">
-                    <label>Data Início</label>
-                    <span>{selectedTask.dataInicio || 'Não definida'}</span>
+                  <div className="info-card">
+                    <div className="info-card-header">
+                      <i className="material-icons">event</i>
+                      <h3>Data Início</h3>
+                    </div>
+                    <div className="info-card-content">
+                      {selectedTask.dataInicio || 'Não definida'}
+                    </div>
                   </div>
 
-                  <div className="info-item">
-                    <label>Data Conclusão</label>
-                    <span>{selectedTask.dataConclusao || 'Não definida'}</span>
+                  <div className="info-card">
+                    <div className="info-card-header">
+                      <i className="material-icons">event_available</i>
+                      <h3>Data Conclusão</h3>
+                    </div>
+                    <div className="info-card-content">
+                      {selectedTask.dataConclusao || 'Não definida'}
+                    </div>
                   </div>
 
-                  <div className="info-item">
-                    <label>Progresso</label>
-                    <span>{selectedTask.progresso || 'Não iniciada'}</span>
+                  <div className="info-card">
+                    <div className="info-card-header">
+                      <i className="material-icons">trending_up</i>
+                      <h3>Progresso</h3>
+                    </div>
+                    <div className="info-card-content">
+                      {selectedTask.progresso || 'Não iniciada'}
+                    </div>
                   </div>
                 </div>
 
                 {selectedTask.content && (
-                  <div className="task-description">
-                    <label>Descrição</label>
-                    <p>{selectedTask.content}</p>
-                  </div>
-                )}
-
-                {selectedTask.tags && selectedTask.tags.length > 0 && (
-                  <div className="task-tags">
-                    <label>Tags</label>
-                    <div className="tags-container">
-                      {selectedTask.tags.map(tag => (
-                        <span 
-                          key={tag.id} 
-                          className="tag" 
-                          style={{ backgroundColor: tag.cor }}
-                        >
-                          {tag.texto}
-                        </span>
-                      ))}
+                  <div className="task-description-section">
+                    <div className="section-header">
+                      <i className="material-icons">description</i>
+                      <h3>Descrição</h3>
                     </div>
-                  </div>
-                )}
-
-                {selectedTask.imagens && selectedTask.imagens.length > 0 && (
-                  <div className="task-images">
-                    <label>Imagens</label>
-                    <div className="images-grid">
-                      {selectedTask.imagens.map((imagem, index) => (
-                        <div key={index} className="image-item">
-                          <img src={imagem.url} alt={imagem.name} />
-                          <button 
-                            className="download-btn"
-                            onClick={() => handleDownloadImage(imagem.url, imagem.name)}
-                          >
-                            <i className="material-icons">download</i>
-                          </button>
-                        </div>
-                      ))}
+                    <div className="description-content">
+                      <p>{selectedTask.content}</p>
                     </div>
                   </div>
                 )}
 
                 {/* Seção de Comentários */}
                 <div className="comments-section">
-                  <div className="comments-header">
+                  <div className="section-header">
+                    <i className="material-icons">chat</i>
                     <h3>Comentários</h3>
-                    <button 
-                      className="add-comment-btn"
-                      onClick={() => setShowCommentInput(!showCommentInput)}
-                    >
-                      <i className="material-icons">comment</i>
-                      Comentar
-                    </button>
+                    {selectedTask.status !== 'arquivado' && (
+                      <button 
+                        className="add-comment-btn"
+                        onClick={() => setShowCommentInput(!showCommentInput)}
+                      >
+                        <i className="material-icons">add_comment</i>
+                        Comentar
+                      </button>
+                    )}
                   </div>
 
                   {showCommentInput && (
@@ -2686,7 +2698,7 @@ function Tarefas() {
                       className="delete-btn" 
                       onClick={handleDeleteTask}
                     >
-                      Excluir
+                      Arquivar
                     </button>
                     <button 
                       type="button" 
@@ -2706,8 +2718,8 @@ function Tarefas() {
         {isDeleteTaskModalOpen && taskToDelete && (
           <div className="modal-overlay">
             <div className="modal-content delete-modal">
-              <h2>Confirmar Exclusão</h2>
-              <p>Tem certeza que deseja excluir a tarefa "{taskToDelete.titulo}"?</p>
+              <h2>Confirmar Arquivamento</h2>
+              <p>Tem certeza que deseja arquivar a tarefa "{taskToDelete.titulo}"?</p>
               <div className="info-section">
                 <p><strong>Responsável:</strong> {taskToDelete.responsavel}</p>
               </div>
@@ -2725,7 +2737,7 @@ function Tarefas() {
                   className="delete-btn"
                   onClick={confirmDeleteTask}
                 >
-                  Confirmar Exclusão
+                  Confirmar Arquivamento
                 </button>
               </div>
             </div>
