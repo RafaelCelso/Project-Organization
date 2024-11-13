@@ -7,7 +7,9 @@ import {
   addDoc, 
   updateDoc, 
   deleteDoc, 
-  doc 
+  doc, 
+  query, 
+  where 
 } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import Select from 'react-select';
@@ -129,41 +131,46 @@ function Colaboradores() {
     e.preventDefault();
     
     try {
-      const colaboradorData = {
-        nome: formData.nome,
-        cargo: formData.cargo,
-        status: formData.status,
-        projeto: Array.isArray(formData.projeto) ? formData.projeto : [],
-        updatedAt: new Date().toISOString()
-      };
-
-      if (isEditing && formData.id) {
-        const colaboradorRef = doc(db, 'colaboradores', formData.id);
-        await updateDoc(colaboradorRef, colaboradorData);
-
-        setColaboradores(prevColaboradores => 
-          prevColaboradores.map(colaborador => 
-            colaborador.id === formData.id 
-              ? { ...colaborador, ...colaboradorData }
-              : colaborador
-          )
+      // Para cada projeto selecionado, precisamos atualizar o documento do projeto
+      for (const projetoNome of formData.projeto) {
+        const projetoQuery = query(
+          collection(db, 'projetos'),
+          where('nome', '==', projetoNome)
         );
-      } else {
-        const colaboradoresRef = collection(db, 'colaboradores');
-        const docRef = await addDoc(colaboradoresRef, {
-          ...colaboradorData,
-          createdAt: new Date().toISOString()
-        });
-
-        const novoColaborador = {
-          id: docRef.id,
-          ...colaboradorData
-        };
         
-        setColaboradores(prevColaboradores => [...prevColaboradores, novoColaborador]);
+        const projetoSnapshot = await getDocs(projetoQuery);
+        
+        if (!projetoSnapshot.empty) {
+          const projetoDoc = projetoSnapshot.docs[0];
+          const projetoRef = doc(db, 'projetos', projetoDoc.id);
+          
+          const updateData = {};
+          
+          // Determinar qual campo atualizar com base no cargo
+          const colaboradorData = {
+            value: formData.id || crypto.randomUUID(), // Gerar ID se for novo
+            label: formData.nome
+          };
+          
+          switch (formData.cargo) {
+            case 'Analista':
+              updateData.analistaPrincipal = [colaboradorData];
+              break;
+            case 'Desenvolvedor':
+              updateData.desenvolvedorPrincipal = [colaboradorData];
+              break;
+            case 'Supervisor':
+              updateData.supervisorPrincipal = [colaboradorData];
+              break;
+          }
+          
+          await updateDoc(projetoRef, updateData);
+        }
       }
 
       handleCloseModal();
+      // Recarregar os colaboradores para atualizar a lista
+      window.location.reload();
     } catch (error) {
       console.error("Erro ao salvar colaborador:", error);
       alert("Erro ao salvar colaborador. Por favor, tente novamente.");
@@ -226,14 +233,60 @@ function Colaboradores() {
   useEffect(() => {
     const fetchColaboradores = async () => {
       try {
-        const colaboradoresRef = collection(db, 'colaboradores');
-        const snapshot = await getDocs(colaboradoresRef);
-        const colaboradoresData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          projeto: Array.isArray(doc.data().projeto) ? doc.data().projeto : []
-        }));
-        setColaboradores(colaboradoresData);
+        const projetosRef = collection(db, 'projetos');
+        const snapshot = await getDocs(projetosRef);
+        
+        const colaboradoresData = [];
+        
+        snapshot.docs.forEach(doc => {
+          const projetoData = doc.data();
+          const projetoNome = projetoData.nome || doc.id;
+
+          // Adicionar analista principal se existir
+          if (projetoData.analistaPrincipal?.[0]) {
+            colaboradoresData.push({
+              id: projetoData.analistaPrincipal[0].value,
+              nome: projetoData.analistaPrincipal[0].label,
+              cargo: "Analista",
+              projeto: [projetoNome],
+              status: "Ativo"
+            });
+          }
+
+          // Adicionar desenvolvedor principal se existir
+          if (projetoData.desenvolvedorPrincipal?.[0]) {
+            colaboradoresData.push({
+              id: projetoData.desenvolvedorPrincipal[0].value,
+              nome: projetoData.desenvolvedorPrincipal[0].label,
+              cargo: "Desenvolvedor",
+              projeto: [projetoNome],
+              status: "Ativo"
+            });
+          }
+
+          // Adicionar supervisor principal se existir
+          if (projetoData.supervisorPrincipal?.[0]) {
+            colaboradoresData.push({
+              id: projetoData.supervisorPrincipal[0].value,
+              nome: projetoData.supervisorPrincipal[0].label,
+              cargo: "Supervisor",
+              projeto: [projetoNome],
+              status: "Ativo"
+            });
+          }
+        });
+
+        // Consolidar colaboradores que aparecem em múltiplos projetos
+        const colaboradoresConsolidados = colaboradoresData.reduce((acc, curr) => {
+          const existingColab = acc.find(c => c.id === curr.id);
+          if (existingColab) {
+            existingColab.projeto = [...new Set([...existingColab.projeto, ...curr.projeto])];
+            return acc;
+          }
+          return [...acc, curr];
+        }, []);
+
+        setColaboradores(colaboradoresConsolidados);
       } catch (error) {
         console.error("Erro ao carregar colaboradores:", error);
         alert("Erro ao carregar colaboradores. Por favor, recarregue a página.");
