@@ -330,11 +330,14 @@ function Escalas() {
                     onChange={(e) => setFormData({...formData, colaborador: e.target.value})}
                   >
                     <option value="">Selecione...</option>
-                    {colaboradores.map(col => (
-                      <option key={col.id} value={col.id}>
-                        {col.nome || col.nomeCompleto}
-                      </option>
-                    ))}
+                    {colaboradores
+                      .filter(col => col.cargo === 'Analista' || col.cargo === 'Desenvolvedor')
+                      .sort((a, b) => (a.nome || a.nomeCompleto).localeCompare(b.nome || b.nomeCompleto))
+                      .map(col => (
+                        <option key={col.id} value={col.id}>
+                          {col.nome || col.nomeCompleto} - {col.cargo}
+                        </option>
+                      ))}
                   </select>
                 </div>
 
