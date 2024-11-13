@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEllipsisV, faClipboardList, faUser, faCalendarAlt, faExclamationTriangle, faSpinner, faCheckCircle, faProjectDiagram, faComment, faImage, faDownload, faSearch, faFilter, faTimes, faTag } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEllipsisV, faClipboardList, faUser, faCalendarAlt, faExclamationTriangle, faSpinner, faCheckCircle, faProjectDiagram, faComment, faImage, faDownload, faSearch, faFilter, faTimes, faTag, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Sidebar from './Sidebar';
 import './Tarefas.css';
 import { format } from 'date-fns';
@@ -2434,100 +2434,85 @@ function Tarefas() {
           <div className="modal-overlay">
             <div className="modal-content">
               <h2>Editar Projeto</h2>
-              <form onSubmit={handleSaveProject}>
-                <div className="form-group">
-                  <label htmlFor="projectName">Nome do Projeto</label>
-                  <input
-                    type="text"
-                    id="projectName"
-                    value={editingProject.nome}
-                    onChange={(e) => setEditingProject({
-                      ...editingProject,
-                      nome: e.target.value
-                    })}
-                    required
-                  />
+              
+              <div className="project-details-header">
+                <div className="project-main-info">
+                  <h3>{editingProject.nome}</h3>
+                  <span className="project-type-badge">{editingProject.tipo}</span>
                 </div>
-
-                <div className="form-group">
-                  <label htmlFor="projectType">Tipo</label>
-                  <select
-                    id="projectType"
-                    value={editingProject.tipo}
-                    onChange={(e) => setEditingProject({
-                      ...editingProject,
-                      tipo: e.target.value
-                    })}
-                    required
-                  >
-                    <option value="SAC">SAC</option>
-                    <option value="OL">OL</option>
-                  </select>
+                <div className="project-status">
+                  <span className="status-badge">{editingProject.status || 'Em Andamento'}</span>
                 </div>
+              </div>
 
-                <div className="form-group">
-                  <label htmlFor="projectAnalyst">Analista</label>
-                  <select
-                    id="projectAnalyst"
-                    value={editingProject.analista}
-                    onChange={(e) => setEditingProject({
-                      ...editingProject,
-                      analista: e.target.value
-                    })}
-                    required
-                  >
-                    {responsaveis.map(resp => (
-                      <option key={resp.id} value={resp.nome}>
-                        {resp.nome}
-                      </option>
-                    ))}
-                  </select>
+              <div className="project-details-grid">
+                <div className="detail-item">
+                  <label>Analista</label>
+                  <span>{editingProject.analista}</span>
                 </div>
-
-                <div className="form-group">
-                  <label htmlFor="projectDev">Desenvolvedor</label>
-                  <select
-                    id="projectDev"
-                    value={editingProject.desenvolvedor}
-                    onChange={(e) => setEditingProject({
-                      ...editingProject,
-                      desenvolvedor: e.target.value
-                    })}
-                    required
-                  >
-                    {responsaveis.map(resp => (
-                      <option key={resp.id} value={resp.nome}>
-                        {resp.nome}
-                      </option>
-                    ))}
-                  </select>
+                <div className="detail-item">
+                  <label>Desenvolvedor</label>
+                  <span>{editingProject.desenvolvedor}</span>
                 </div>
+                <div className="detail-item">
+                  <label>Total de Tarefas</label>
+                  <span>{getTotalTasks(editingProject)}</span>
+                </div>
+                <div className="detail-item">
+                  <label>Cliente</label>
+                  <span>{editingProject.cliente || 'Não definido'}</span>
+                </div>
+              </div>
 
-                <div className="modal-buttons">
-                  <button 
-                    type="button" 
-                    className="delete-btn"
-                    onClick={handleDeleteProject}
-                  >
-                    Excluir Projeto
-                  </button>
-                  <div className="modal-buttons-right">
-                    <button 
-                      type="button" 
-                      className="cancel-btn"
-                      onClick={() => {
-                        setIsEditProjectModalOpen(false);
-                        setEditingProject(null);
-                      }}
-                    >
-                      Cancelar
-                    </button>
-                    <button type="submit" className="save-btn">
-                      Salvar
-                    </button>
+              <div className="kanban-summary">
+                <h4>Distribuição de Tarefas</h4>
+                <div className="kanban-stats">
+                  <div className="stat-item">
+                    <label>A Definir</label>
+                    <span>{editingProject.kanban?.aDefinir?.length || 0}</span>
+                  </div>
+                  <div className="stat-item">
+                    <label>Em Andamento</label>
+                    <span>{editingProject.kanban?.inProgress?.length || 0}</span>
+                  </div>
+                  <div className="stat-item">
+                    <label>Concluídas</label>
+                    <span>{editingProject.kanban?.done?.length || 0}</span>
                   </div>
                 </div>
-              </form>
+              </div>
+
+              <div className="modal-buttons">
+                <button 
+                  type="button" 
+                  className="delete-btn"
+                  onClick={handleDeleteProject}
+                >
+                  <FontAwesomeIcon icon={faTrash} /> Excluir Projeto
+                </button>
+                <div className="modal-buttons-right">
+                  <button 
+                    type="button" 
+                    className="cancel-btn"
+                    onClick={() => {
+                      setIsEditProjectModalOpen(false);
+                      setEditingProject(null);
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    type="button" 
+                    className="save-btn"
+                    onClick={() => {
+                      setIsEditProjectModalOpen(false);
+                      setEditingProject(null);
+                    }}
+                  >
+                    Fechar
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

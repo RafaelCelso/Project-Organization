@@ -354,10 +354,11 @@
 .project-type {
   background-color: #e3f2fd;
   color: #1976d2;
-  padding: 4px 8px;
+  padding: 4px 12px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .project-card-content {
@@ -2447,4 +2448,167 @@
 .save-btn:disabled:hover {
   background: #9ca3af;
   transform: none;
+}
+
+/* Adicione estes estilos */
+.project-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.project-main-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.project-main-info h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.project-type-badge {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-badge {
+  background-color: #f0fdf4;
+  color: #166534;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.project-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.detail-item {
+  background-color: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.detail-item label {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.detail-item span {
+  font-size: 16px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.kanban-summary {
+  background-color: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 32px;
+}
+
+.kanban-summary h4 {
+  font-size: 16px;
+  color: #374151;
+  margin: 0 0 16px 0;
+}
+
+.kanban-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.stat-item {
+  background-color: white;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+}
+
+.stat-item label {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.stat-item span {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Ajuste nos botões */
+.delete-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ef4444;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+  background-color: #dc2626;
+}
+
+.delete-btn svg {
+  font-size: 16px;
+}
+
+.project-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.project-type {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.edit-project-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  min-width: 32px;
 }
