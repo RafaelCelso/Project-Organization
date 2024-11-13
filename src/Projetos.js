@@ -87,15 +87,21 @@ function Projetos() {
       }
 
       if (filtros.analistaPrincipal) {
-        passouFiltro = passouFiltro && projeto.analistaPrincipal === filtros.analistaPrincipal;
+        passouFiltro = passouFiltro && projeto.analistaPrincipal?.some(
+          analista => analista.label === filtros.analistaPrincipal
+        );
       }
 
       if (filtros.desenvolvedorPrincipal) {
-        passouFiltro = passouFiltro && projeto.desenvolvedorPrincipal === filtros.desenvolvedorPrincipal;
+        passouFiltro = passouFiltro && projeto.desenvolvedorPrincipal?.some(
+          dev => dev.label === filtros.desenvolvedorPrincipal
+        );
       }
 
       if (filtros.supervisorPrincipal) {
-        passouFiltro = passouFiltro && projeto.supervisorPrincipal === filtros.supervisorPrincipal;
+        passouFiltro = passouFiltro && projeto.supervisorPrincipal?.some(
+          supervisor => supervisor.label === filtros.supervisorPrincipal
+        );
       }
 
       return passouFiltro;
@@ -122,68 +128,109 @@ function Projetos() {
         </div>
 
         <div className="filtro-select">
-          <select
-            value={filtros.tipo}
-            onChange={(e) => setFiltros({...filtros, tipo: e.target.value})}
-            onKeyPress={handleKeyPress}
-          >
-            <option value="">Todos os tipos</option>
-            <option value="SAC">SAC</option>
-            <option value="OL">OL</option>
-            <option value="PSP">PSP</option>
-            <option value="Interno">Interno</option>
-          </select>
+          <Select
+            value={[
+              { value: filtros.tipo, label: filtros.tipo || 'Todos os tipos' }
+            ].filter(option => option.value !== '')}
+            onChange={(option) => setFiltros({...filtros, tipo: option ? option.value : ''})}
+            options={[
+              { value: '', label: 'Todos os tipos' },
+              ...Array.from(new Set(projetos.map(p => p.tipo)))
+                .filter(Boolean)
+                .map(tipo => ({ value: tipo, label: tipo }))
+                .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+            ]}
+            className="react-select-container"
+            classNamePrefix="react-select"
+            placeholder="Selecione o tipo..."
+            isClearable
+          />
         </div>
 
         <div className="filtro-select">
-          <select
-            value={filtros.status}
-            onChange={(e) => setFiltros({...filtros, status: e.target.value})}
-            onKeyPress={handleKeyPress}
-          >
-            <option value="">Todos os status</option>
-            <option value="Ativo">Ativo</option>
-            <option value="Inativo">Inativo</option>
-          </select>
+          <Select
+            value={[
+              { value: filtros.status, label: filtros.status || 'Todos os status' }
+            ].filter(option => option.value !== '')}
+            onChange={(option) => setFiltros({...filtros, status: option ? option.value : ''})}
+            options={[
+              { value: '', label: 'Todos os status' },
+              ...Array.from(new Set(projetos.map(p => p.status)))
+                .filter(Boolean)
+                .map(status => ({ value: status, label: status }))
+                .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+            ]}
+            className="react-select-container"
+            classNamePrefix="react-select"
+            placeholder="Selecione o status..."
+            isClearable
+          />
         </div>
 
         <div className="filtro-select">
-          <select
-            value={filtros.analistaPrincipal}
-            onChange={(e) => setFiltros({...filtros, analistaPrincipal: e.target.value})}
-            onKeyPress={handleKeyPress}
-          >
-            <option value="">Todos os analistas</option>
-            {colaboradoresFB.analistas.map(analista => (
-              <option key={analista.id} value={analista.nome}>{analista.nome}</option>
-            ))}
-          </select>
+          <Select
+            value={[
+              { value: filtros.analistaPrincipal, label: filtros.analistaPrincipal || 'Todos os analistas' }
+            ].filter(option => option.value !== '')}
+            onChange={(option) => setFiltros({...filtros, analistaPrincipal: option ? option.value : ''})}
+            options={[
+              { value: '', label: 'Todos os analistas' },
+              ...Array.from(new Set(projetos.flatMap(p => 
+                p.analistaPrincipal?.map(a => a.label) || []
+              )))
+                .filter(Boolean)
+                .map(analista => ({ value: analista, label: analista }))
+                .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+            ]}
+            className="react-select-container"
+            classNamePrefix="react-select"
+            placeholder="Selecione o analista..."
+            isClearable
+          />
         </div>
 
         <div className="filtro-select">
-          <select
-            value={filtros.desenvolvedorPrincipal}
-            onChange={(e) => setFiltros({...filtros, desenvolvedorPrincipal: e.target.value})}
-            onKeyPress={handleKeyPress}
-          >
-            <option value="">Todos os desenvolvedores</option>
-            {colaboradoresFB.desenvolvedores.map(dev => (
-              <option key={dev.id} value={dev.nome}>{dev.nome}</option>
-            ))}
-          </select>
+          <Select
+            value={[
+              { value: filtros.desenvolvedorPrincipal, label: filtros.desenvolvedorPrincipal || 'Todos os desenvolvedores' }
+            ].filter(option => option.value !== '')}
+            onChange={(option) => setFiltros({...filtros, desenvolvedorPrincipal: option ? option.value : ''})}
+            options={[
+              { value: '', label: 'Todos os desenvolvedores' },
+              ...Array.from(new Set(projetos.flatMap(p => 
+                p.desenvolvedorPrincipal?.map(d => d.label) || []
+              )))
+                .filter(Boolean)
+                .map(dev => ({ value: dev, label: dev }))
+                .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+            ]}
+            className="react-select-container"
+            classNamePrefix="react-select"
+            placeholder="Selecione o desenvolvedor..."
+            isClearable
+          />
         </div>
 
         <div className="filtro-select">
-          <select
-            value={filtros.supervisorPrincipal}
-            onChange={(e) => setFiltros({...filtros, supervisorPrincipal: e.target.value})}
-            onKeyPress={handleKeyPress}
-          >
-            <option value="">Todos os supervisores</option>
-            {colaboradoresFB.supervisores.map(supervisor => (
-              <option key={supervisor.id} value={supervisor.nome}>{supervisor.nome}</option>
-            ))}
-          </select>
+          <Select
+            value={[
+              { value: filtros.supervisorPrincipal, label: filtros.supervisorPrincipal || 'Todos os supervisores' }
+            ].filter(option => option.value !== '')}
+            onChange={(option) => setFiltros({...filtros, supervisorPrincipal: option ? option.value : ''})}
+            options={[
+              { value: '', label: 'Todos os supervisores' },
+              ...Array.from(new Set(projetos.flatMap(p => 
+                p.supervisorPrincipal?.map(s => s.label) || []
+              )))
+                .filter(Boolean)
+                .map(supervisor => ({ value: supervisor, label: supervisor }))
+                .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+            ]}
+            className="react-select-container"
+            classNamePrefix="react-select"
+            placeholder="Selecione o supervisor..."
+            isClearable
+          />
         </div>
 
         <div className="filtros-acoes">
