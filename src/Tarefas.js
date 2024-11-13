@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import { useLocation } from 'react-router-dom'; // Adicione este import
 import { db } from './firebaseConfig'; // Ao invés de '../firebase'
 import { collection, getDocs, addDoc, query, where, deleteDoc, doc } from 'firebase/firestore';
+import Select from 'react-select';
 
 const initialTasks = {
   todo: [
@@ -161,6 +162,15 @@ function Tarefas() {
   const [availableProjects, setAvailableProjects] = useState([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
   const [loadError, setLoadError] = useState(null);
+
+  // Adicione estes estados
+  const [filtrosProjetos, setFiltrosProjetos] = useState({
+    busca: '',
+    tipo: '',
+    analista: '',
+    desenvolvedor: ''
+  });
+  const [projetosFiltrados, setProjetosFiltrados] = useState([]);
 
   const handleAddComment = () => {
     if (comentario.trim()) {
@@ -928,7 +938,6 @@ function Tarefas() {
               onChange={(e) => setFormData({...formData, prioridade: e.target.value})}
               required
             >
-              <option value="">Selecione...</option>
               <option value="baixa">Baixa</option>
               <option value="media">Média</option>
               <option value="alta">Alta</option>
@@ -1537,6 +1546,134 @@ function Tarefas() {
     loadAddedProjects();
   }, []);
 
+  // Adicione esta função para aplicar os filtros
+  const aplicarFiltrosProjetos = () => {
+    let resultado = projetos.filter(projeto => {
+      let passouFiltro = true;
+
+      if (filtrosProjetos.busca) {
+        passouFiltro = passouFiltro && projeto.nome.toLowerCase().includes(filtrosProjetos.busca.toLowerCase());
+      }
+
+      if (filtrosProjetos.tipo) {
+        passouFiltro = passouFiltro && projeto.tipo === filtrosProjetos.tipo;
+      }
+
+      if (filtrosProjetos.analista) {
+        passouFiltro = passouFiltro && projeto.analista?.toLowerCase().includes(filtrosProjetos.analista.toLowerCase());
+      }
+
+      if (filtrosProjetos.desenvolvedor) {
+        passouFiltro = passouFiltro && projeto.desenvolvedor?.toLowerCase().includes(filtrosProjetos.desenvolvedor.toLowerCase());
+      }
+
+      return passouFiltro;
+    });
+
+    setProjetosFiltrados(resultado);
+  };
+
+  // Adicione este useEffect para atualizar os filtros
+  useEffect(() => {
+    aplicarFiltrosProjetos();
+  }, [projetos, filtrosProjetos]);
+
+  // Adicione esta função para limpar os filtros
+  const limparFiltrosProjetos = () => {
+    setFiltrosProjetos({
+      busca: '',
+      tipo: '',
+      analista: '',
+      desenvolvedor: ''
+    });
+    setProjetosFiltrados(projetos);
+  };
+
+  // Modifique o renderFiltrosProjetos para usar React Select
+  const renderFiltrosProjetos = () => {
+    // Crie as opções para os selects de analista e desenvolvedor
+    const analistaOptions = Array.from(new Set(projetos.map(p => p.analista)))
+      .filter(Boolean)
+      .map(analista => ({ value: analista, label: analista }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'));
+
+    const desenvolvedorOptions = Array.from(new Set(projetos.map(p => p.desenvolvedor)))
+      .filter(Boolean)
+      .map(desenvolvedor => ({ value: desenvolvedor, label: desenvolvedor }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'));
+
+    return (
+      <div className="filtros-container">
+        <div className="filtros-grupo">
+          <div className="filtro-busca">
+            <div className="busca-input-container">
+              <FontAwesomeIcon icon={faSearch} className="busca-icon" />
+              <input
+                type="text"
+                placeholder="Buscar projeto..."
+                value={filtrosProjetos.busca}
+                onChange={(e) => setFiltrosProjetos({...filtrosProjetos, busca: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <div className="filtro-select">
+            <select
+              value={filtrosProjetos.tipo}
+              onChange={(e) => setFiltrosProjetos({...filtrosProjetos, tipo: e.target.value})}
+            >
+              <option value="">Todos os tipos</option>
+              <option value="SAC">SAC</option>
+              <option value="OL">OL</option>
+            </select>
+          </div>
+
+          <div className="filtro-select">
+            <Select
+              isClearable
+              placeholder="Filtrar por analista..."
+              value={filtrosProjetos.analista ? { value: filtrosProjetos.analista, label: filtrosProjetos.analista } : null}
+              onChange={(selected) => setFiltrosProjetos({
+                ...filtrosProjetos, 
+                analista: selected ? selected.value : ''
+              })}
+              options={[
+                { value: '', label: 'Todos os analistas' },
+                ...analistaOptions
+              ]}
+              className="react-select-container"
+              classNamePrefix="react-select"
+            />
+          </div>
+
+          <div className="filtro-select">
+            <Select
+              isClearable
+              placeholder="Filtrar por desenvolvedor..."
+              value={filtrosProjetos.desenvolvedor ? { value: filtrosProjetos.desenvolvedor, label: filtrosProjetos.desenvolvedor } : null}
+              onChange={(selected) => setFiltrosProjetos({
+                ...filtrosProjetos, 
+                desenvolvedor: selected ? selected.value : ''
+              })}
+              options={[
+                { value: '', label: 'Todos os desenvolvedores' },
+                ...desenvolvedorOptions
+              ]}
+              className="react-select-container"
+              classNamePrefix="react-select"
+            />
+          </div>
+
+          <div className="filtros-acoes">
+            <button className="limpar-filtros-btn" onClick={limparFiltrosProjetos}>
+              <FontAwesomeIcon icon={faTimes} /> Limpar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="tarefas-container">
       <Sidebar />
@@ -1551,9 +1688,10 @@ function Tarefas() {
           </button>
         </div>
 
-        {/* Cards de Projetos */}
+        {renderFiltrosProjetos()}
+
         <div className="project-cards">
-          {projetos.map(projeto => (
+          {(projetosFiltrados.length > 0 ? projetosFiltrados : projetos).map(projeto => (
             <div 
               key={projeto.id} 
               className={`project-card ${selectedProject?.id === projeto.id ? 'selected' : ''}`}
@@ -1920,7 +2058,6 @@ function Tarefas() {
                         value={formData.prioridade}
                         onChange={(e) => setFormData({ ...formData, prioridade: e.target.value })}
                       >
-                        <option value="">Selecione...</option>
                         <option value="baixa">Baixa</option>
                         <option value="media">Média</option>
                         <option value="alta">Alta</option>

@@ -9,9 +9,9 @@ const firebaseConfig = {
   projectId: "sin-project-9ce12",
   storageBucket: "sin-project-9ce12.firebasestorage.app",
   messagingSenderId: "261120131163",
-  appId: "1:261120131163:web:efe78b8b28fe61a255bf7e"
+  appId: "1:261120131163:web:efe78b8b28fe61a255bf7e",
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app); 
+export const db = getFirestore(app);
