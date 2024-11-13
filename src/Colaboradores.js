@@ -10,6 +10,7 @@ import {
   doc 
 } from 'firebase/firestore';
 import { db } from './firebaseConfig';
+import Select from 'react-select';
 
 function Colaboradores() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,23 +42,42 @@ function Colaboradores() {
     projeto: ''
   });
 
-  const colaboradoresFiltrados = colaboradores.filter(colaborador => {
-    return (
-      colaborador.nome.toLowerCase().includes(filtros.nome.toLowerCase()) &&
-      (filtros.cargo === '' || colaborador.cargo === filtros.cargo) &&
-      (filtros.status === '' || colaborador.status === filtros.status) &&
-      (filtros.projeto === '' || (Array.isArray(colaborador.projeto) && 
-        colaborador.projeto.includes(filtros.projeto)))
-    );
-  });
+  const [projetos, setProjetos] = useState([]);
+
+  const OPCOES_CARGO = [
+    { value: '', label: 'Todos os cargos' },
+    { value: 'Supervisor', label: 'Supervisor' },
+    { value: 'Analista', label: 'Analista' },
+    { value: 'Desenvolvedor', label: 'Desenvolvedor' }
+  ];
+
+  const OPCOES_STATUS = [
+    { value: '', label: 'Todos os status' },
+    { value: 'Ativo', label: 'Ativo' },
+    { value: 'Inativo', label: 'Inativo' },
+    { value: 'Férias', label: 'Férias' }
+  ];
+
+  const colaboradoresFiltrados = colaboradores
+    .filter(colaborador => {
+      return (
+        colaborador.nome.toLowerCase().includes(filtros.nome.toLowerCase()) &&
+        (filtros.cargo === '' || colaborador.cargo === filtros.cargo) &&
+        (filtros.status === '' || colaborador.status === filtros.status) &&
+        (filtros.projeto === '' || (Array.isArray(colaborador.projeto) && 
+          colaborador.projeto.includes(filtros.projeto)))
+      );
+    })
+    .sort((a, b) => {
+      return a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' });
+    });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'projeto') {
-      const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
       setFormData(prevState => ({
         ...prevState,
-        [name]: selectedOptions
+        [name]: value
       }));
     } else {
       setFormData(prevState => ({
@@ -65,6 +85,14 @@ function Colaboradores() {
         [name]: value
       }));
     }
+  };
+
+  const handleProjetoChange = (selectedOptions) => {
+    const selectedValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    setFormData(prevState => ({
+      ...prevState,
+      projeto: selectedValues
+    }));
   };
 
   const handleEdit = (colaborador) => {
@@ -174,6 +202,27 @@ function Colaboradores() {
     }));
   };
 
+  const handleFiltroProjetoChange = (selectedOption) => {
+    setFiltros(prev => ({
+      ...prev,
+      projeto: selectedOption ? selectedOption.value : ''
+    }));
+  };
+
+  const handleFiltroCargoChange = (selectedOption) => {
+    setFiltros(prev => ({
+      ...prev,
+      cargo: selectedOption ? selectedOption.value : ''
+    }));
+  };
+
+  const handleFiltroStatusChange = (selectedOption) => {
+    setFiltros(prev => ({
+      ...prev,
+      status: selectedOption ? selectedOption.value : ''
+    }));
+  };
+
   useEffect(() => {
     const fetchColaboradores = async () => {
       try {
@@ -192,6 +241,24 @@ function Colaboradores() {
     };
 
     fetchColaboradores();
+  }, []);
+
+  useEffect(() => {
+    const fetchProjetos = async () => {
+      try {
+        const projetosRef = collection(db, 'projetos');
+        const snapshot = await getDocs(projetosRef);
+        const projetosData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          nome: doc.data().nome
+        }));
+        setProjetos(projetosData);
+      } catch (error) {
+        console.error("Erro ao carregar projetos:", error);
+      }
+    };
+
+    fetchProjetos();
   }, []);
 
   return (
@@ -224,50 +291,57 @@ function Colaboradores() {
           
           <div className="filtro-grupo">
             <label htmlFor="filtro-cargo">Cargo</label>
-            <select
+            <Select
               id="filtro-cargo"
               name="cargo"
-              value={filtros.cargo}
-              onChange={handleFiltroChange}
-              className="filtro-select"
-            >
-              <option value="">Todos os cargos</option>
-              <option value="Supervisor">Supervisor</option>
-              <option value="Analista">Analista</option>
-              <option value="Desenvolvedor">Desenvolvedor</option>
-            </select>
+              value={OPCOES_CARGO.find(opt => opt.value === filtros.cargo)}
+              onChange={handleFiltroCargoChange}
+              options={OPCOES_CARGO}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              placeholder="Selecione um cargo..."
+              isClearable
+            />
           </div>
 
           <div className="filtro-grupo">
             <label htmlFor="filtro-status">Status</label>
-            <select
+            <Select
               id="filtro-status"
               name="status"
-              value={filtros.status}
-              onChange={handleFiltroChange}
-              className="filtro-select"
-            >
-              <option value="">Todos os status</option>
-              <option value="Ativo">Ativo</option>
-              <option value="Inativo">Inativo</option>
-              <option value="Férias">Férias</option>
-            </select>
+              value={OPCOES_STATUS.find(opt => opt.value === filtros.status)}
+              onChange={handleFiltroStatusChange}
+              options={OPCOES_STATUS}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              placeholder="Selecione um status..."
+              isClearable
+            />
           </div>
 
           <div className="filtro-grupo">
             <label htmlFor="filtro-projeto">Projeto</label>
-            <select
+            <Select
               id="filtro-projeto"
               name="projeto"
-              value={filtros.projeto}
-              onChange={handleFiltroChange}
-              className="filtro-select"
-            >
-              <option value="">Todos os projetos</option>
-              <option value="Projeto A">Projeto A</option>
-              <option value="Projeto B">Projeto B</option>
-              <option value="Projeto C">Projeto C</option>
-            </select>
+              value={projetos
+                .filter(p => p.nome === filtros.projeto)
+                .map(p => ({ value: p.nome, label: p.nome }))[0]}
+              onChange={handleFiltroProjetoChange}
+              options={[
+                { value: '', label: 'Todos os projetos' },
+                ...projetos
+                  .map(projeto => ({
+                    value: projeto.nome,
+                    label: projeto.nome
+                  }))
+                  .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR', { sensitivity: 'base' }))
+              ]}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              placeholder="Selecione um projeto..."
+              isClearable
+            />
           </div>
         </div>
 
@@ -374,29 +448,27 @@ function Colaboradores() {
                 </div>
 
                 <div className="form-group">
-                  <label>Projetos</label>
-                  <div className="checkbox-group">
-                    {['Projeto A', 'Projeto B', 'Projeto C'].map((projeto) => (
-                      <label key={projeto} className="checkbox-label">
-                        <input
-                          type="checkbox"
-                          name="projeto"
-                          value={projeto}
-                          checked={formData.projeto.includes(projeto)}
-                          onChange={(e) => {
-                            const { value, checked } = e.target;
-                            setFormData(prev => ({
-                              ...prev,
-                              projeto: checked 
-                                ? [...prev.projeto, value]
-                                : prev.projeto.filter(p => p !== value)
-                            }));
-                          }}
-                        />
-                        {projeto}
-                      </label>
-                    ))}
-                  </div>
+                  <label htmlFor="projeto">Projetos</label>
+                  <Select
+                    isMulti
+                    name="projeto"
+                    options={projetos
+                      .map(projeto => ({
+                        value: projeto.nome,
+                        label: projeto.nome
+                      }))
+                      .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR', { sensitivity: 'base' }))
+                    }
+                    value={formData.projeto.map(proj => ({
+                      value: proj,
+                      label: proj
+                    }))}
+                    onChange={handleProjetoChange}
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                    placeholder="Selecione os projetos..."
+                    noOptionsMessage={() => "Nenhum projeto encontrado"}
+                  />
                 </div>
 
                 <div className="modal-buttons">
