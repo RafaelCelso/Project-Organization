@@ -64,7 +64,7 @@ li:hover {
 }
 
 li.active {
-  background-color: #41B9A0; /* Cor do menu ativo */
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);; /* Cor do menu ativo */
   color: white; /* Cor da fonte no menu ativo */
 }
 
