@@ -3223,7 +3223,7 @@
   font-weight: 500;
 }
 
-/* Adicione os estilos para os cards de informaç��o */
+/* Adicione os estilos para os cards de informaço */
 .task-info-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -3569,4 +3569,82 @@
 .select-all-btn:hover {
   background-color: #e5e7eb;
   border-color: #d1d5db;
+}
+
+.comment-item {
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+}
+
+.user-comment {
+  background-color: #f8f9fa;
+  border-left: 4px solid #007bff;
+}
+
+.system-log {
+  background-color: #f3f4f6;
+  border-left: 4px solid #6c757d;
+  font-style: italic;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.comment-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comment-icon {
+  color: #007bff;
+}
+
+.log-icon {
+  color: #6c757d;
+}
+
+.comment-user {
+  font-weight: 600;
+}
+
+.comment-date {
+  font-size: 0.85em;
+  color: #6c757d;
+}
+
+.comment-text {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.log-message {
+  color: #495057;
+}
+
+/* Estilo para o ícone do botão de comentário */
+.add-comment-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background-color: #3b82f6;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-comment-btn:hover {
+  background-color: #2563EB;
+}
+
+.add-comment-btn i {
+  font-size: 18px;
 }

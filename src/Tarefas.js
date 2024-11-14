@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEllipsisV, faClipboardList, faUser, faCalendarAlt, faExclamationTriangle, faSpinner, faCheckCircle, faProjectDiagram, faComment, faImage, faDownload, faSearch, faFilter, faTimes, faTag, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEllipsisV, faClipboardList, faUser, faCalendarAlt, faExclamationTriangle, faSpinner, faCheckCircle, faProjectDiagram, faComment, faImage, faDownload, faSearch, faFilter, faTimes, faTag, faTrash, faHistory } from '@fortawesome/free-solid-svg-icons';
 import Sidebar from './Sidebar';
 import './Tarefas.css';
 import { format } from 'date-fns';
@@ -111,7 +111,7 @@ function Tarefas() {
   });
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [comentario, setComentario] = useState('');
-  const [comentarios, setComentarios] = useState([]);
+  const [comentarios, setComentarios] = useState({});
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [lastTaskId, setLastTaskId] = useState(5); // Começa do 5 já que temos tarefas iniciais
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -181,18 +181,55 @@ function Tarefas() {
   const [archivedTask, setArchivedTask] = useState(null);
   const [isConfirmDeleteArchivedTaskModalOpen, setIsConfirmDeleteArchivedTaskModalOpen] = useState(false);
 
-  const handleAddComment = () => {
-    if (comentario.trim()) {
+  const handleAddComment = async () => {
+    if (!comentario.trim() || !selectedTask) return;
+
+    try {
       const novoComentario = {
-        id: Date.now(),
-        texto: comentario,
-        usuario: 'Usuário Atual', // Substituir pelo usuário logado
-        data: new Date(),
+        data: new Date().toISOString(),
+        detalhes: comentario,
+        tipo: "comentario",
+        usuario: "Usuário Atual", // Substitua pelo usuário logado
+        nome: "1234" // Substitua pelo nome do usuário logado
       };
 
-      setComentarios([...comentarios, novoComentario]);
+      // Atualiza o log da tarefa no Firebase
+      const projetoRef = doc(db, 'projetosTarefas', selectedProject.id);
+      const novoKanban = { ...tasks };
+      
+      // Encontra a coluna e a tarefa
+      Object.keys(novoKanban).forEach(coluna => {
+        novoKanban[coluna] = novoKanban[coluna].map(task => {
+          if (task.id === selectedTask.id) {
+            return {
+              ...task,
+              log: [...(task.log || []), novoComentario]
+            };
+          }
+          return task;
+        });
+      });
+
+      // Atualiza o Firebase
+      await updateDoc(projetoRef, {
+        kanban: novoKanban
+      });
+
+      // Atualiza o estado local
+      setTasks(novoKanban);
+      
+      // Atualiza o estado dos comentários
+      setComentarios(prev => ({
+        ...prev,
+        [selectedTask.id]: [...(prev[selectedTask.id] || []), novoComentario]
+      }));
+
       setComentario('');
       setShowCommentInput(false);
+
+    } catch (error) {
+      console.error('Erro ao adicionar comentário:', error);
+      alert('Erro ao adicionar comentário. Por favor, tente novamente.');
     }
   };
 
@@ -543,6 +580,12 @@ function Tarefas() {
       progresso: task.progresso || 'nao_iniciada',
       status: task.status || 'todo'
     });
+    
+    // Carrega os comentários da tarefa
+    setComentarios({
+      [task.id]: task.log || []
+    });
+    
     setIsViewModalOpen(true);
   };
 
@@ -2740,15 +2783,31 @@ function Tarefas() {
                   )}
 
                   <div className="comments-list">
-                    {comentarios.map(comment => (
-                      <div key={comment.id} className="comment-item">
+                    {comentarios[selectedTask.id]?.map(comment => (
+                      <div 
+                        key={comment.data} 
+                        className={`comment-item ${comment.tipo === 'comentario' ? 'user-comment' : 'system-log'}`}
+                      >
                         <div className="comment-header">
-                          <span className="comment-user">{comment.usuario}</span>
+                          <div className="comment-user-info">
+                            {comment.tipo === 'comentario' ? (
+                              <FontAwesomeIcon icon={faComment} className="comment-icon" />
+                            ) : (
+                              <FontAwesomeIcon icon={faHistory} className="log-icon" />
+                            )}
+                            <span className="comment-user">{comment.usuario}</span>
+                          </div>
                           <span className="comment-date">
                             {format(new Date(comment.data), "dd/MM/yyyy 'às' HH:mm")}
                           </span>
                         </div>
-                        <p className="comment-text">{comment.texto}</p>
+                        <p className="comment-text">
+                          {comment.tipo === 'comentario' ? (
+                            comment.detalhes
+                          ) : (
+                            <span className="log-message">{comment.detalhes}</span>
+                          )}
+                        </p>
                       </div>
                     ))}
                   </div>
