@@ -176,6 +176,11 @@ function Tarefas() {
   // Adicione um estado para controlar a validação
   const [showValidation, setShowValidation] = useState(false);
 
+  // Estados para o novo modal
+  const [isArchivedTaskModalOpen, setIsArchivedTaskModalOpen] = useState(false);
+  const [archivedTask, setArchivedTask] = useState(null);
+  const [isConfirmDeleteArchivedTaskModalOpen, setIsConfirmDeleteArchivedTaskModalOpen] = useState(false);
+
   const handleAddComment = () => {
     if (comentario.trim()) {
       const novoComentario = {
@@ -312,6 +317,23 @@ function Tarefas() {
     }
   };
 
+  // Adicione esta função para buscar o maior ID
+  const getMaxTaskId = () => {
+    let maxId = 0;
+    
+    // Verifica todas as colunas do kanban
+    Object.values(tasks).forEach(column => {
+      column.forEach(task => {
+        if (task.taskId && typeof task.taskId === 'number') {
+          maxId = Math.max(maxId, task.taskId);
+        }
+      });
+    });
+    
+    return maxId;
+  };
+
+  // Modifique a função handleSubmit
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -322,10 +344,13 @@ function Tarefas() {
     }
 
     try {
+      // Busca o maior ID existente e incrementa
+      const nextTaskId = getMaxTaskId() + 1;
+      
       // Prepara os dados da tarefa
       const novaTarefa = {
         id: formData.id || `task-${Date.now()}`,
-        taskId: lastTaskId + 1,
+        taskId: nextTaskId, // Usa o novo ID calculado
         titulo: formData.titulo,
         content: formData.content || '',
         responsavel: formData.responsavel ? responsaveis
@@ -339,8 +364,8 @@ function Tarefas() {
         numeroChamado: formData.numeroChamado || '',
         projetoId: selectedProject.id,
         nome: formData.titulo,
-        tags: formData.tags || [], // Adiciona as tags à tarefa
-        imagens: uploadedFiles || [], // Garante que as imagens também sejam salvas
+        tags: formData.tags || [],
+        imagens: uploadedFiles || [],
         log: [
           {
             tipo: isEditing ? 'edicao' : 'criacao',
@@ -384,7 +409,6 @@ function Tarefas() {
 
         // Atualiza o estado local
         setTasks(novoKanban);
-        setLastTaskId(lastTaskId + 1);
       }
 
       // Fecha o modal e limpa o formulário
@@ -1852,6 +1876,24 @@ function Tarefas() {
     }
   };
 
+  // Função para abrir o modal de tarefa arquivada
+  const handleArchivedTaskClick = (task) => {
+    setArchivedTask(task);
+    setIsArchivedTaskModalOpen(true);
+  };
+
+  // Função para confirmar exclusão de tarefa arquivada
+  const confirmDeleteArchivedTask = () => {
+    const newTasks = {
+      ...tasks,
+      arquivado: tasks.arquivado.filter(t => t.id !== archivedTask.id)
+    };
+    updateProjectKanban(newTasks);
+    setIsConfirmDeleteArchivedTaskModalOpen(false);
+    setIsArchivedTaskModalOpen(false);
+    setArchivedTask(null);
+  };
+
   return (
     <div className="tarefas-container">
       <Sidebar />
@@ -3029,6 +3071,113 @@ function Tarefas() {
                   disabled={!selectedProjectsToAdd.length || isLoadingProjects}
                 >
                   Adicionar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Tarefa Arquivada */}
+        {isArchivedTaskModalOpen && archivedTask && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <div className="task-details">
+                <div className="task-header">
+                  <h2>{archivedTask.titulo}</h2>
+                  {archivedTask.numeroChamado && (
+                    <span className="task-chamado">Chamado: {archivedTask.numeroChamado}</span>
+                  )}
+                </div>
+
+                {archivedTask.tags && archivedTask.tags.length > 0 && (
+                  <div className="tags-container">
+                    {archivedTask.tags.map(tag => (
+                      <span 
+                        key={tag.id} 
+                        className="tag" 
+                        style={{ backgroundColor: tag.cor }}
+                      >
+                        {tag.texto}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="task-info-cards">
+                  <div className="info-card">
+                    <div className="info-card-header">
+                      <i className="material-icons">person</i>
+                      <h3>Responsáveis</h3>
+                    </div>
+                    <div className="info-card-content">
+                      {Array.isArray(archivedTask.responsavel) ? 
+                        archivedTask.responsavel.join(', ') : 
+                        archivedTask.responsavel || 'Não atribuído'}
+                    </div>
+                  </div>
+
+                  <div className="info-card">
+                    <div className="info-card-header">
+                      <i className="material-icons">event_available</i>
+                      <h3>Data Arquivamento</h3>
+                    </div>
+                    <div className="info-card-content">
+                      {archivedTask.arquivadoEm || 'Não definida'}
+                    </div>
+                  </div>
+                </div>
+
+                {archivedTask.content && (
+                  <div className="task-description-section">
+                    <div className="section-header">
+                      <i className="material-icons">description</i>
+                      <h3>Descrição</h3>
+                    </div>
+                    <div className="description-content">
+                      <p>{archivedTask.content}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="modal-buttons">
+                <button 
+                  type="button" 
+                  className="cancel-btn" 
+                  onClick={() => setIsArchivedTaskModalOpen(false)}
+                >
+                  Fechar
+                </button>
+                <button 
+                  type="button" 
+                  className="delete-btn" 
+                  onClick={() => setIsConfirmDeleteArchivedTaskModalOpen(true)}
+                >
+                  Excluir
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Confirmação de Exclusão de Tarefa Arquivada */}
+        {isConfirmDeleteArchivedTaskModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal-content delete-modal">
+              <h2>Confirmar Exclusão</h2>
+              <p>Tem certeza que deseja excluir a tarefa "{archivedTask?.titulo}" permanentemente?</p>
+              <div className="modal-buttons">
+                <button 
+                  className="cancel-btn" 
+                  onClick={() => setIsConfirmDeleteArchivedTaskModalOpen(false)}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  className="delete-btn"
+                  onClick={confirmDeleteArchivedTask}
+                >
+                  Confirmar Exclusão
                 </button>
               </div>
             </div>
