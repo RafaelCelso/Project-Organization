@@ -148,7 +148,7 @@ function Tarefas() {
 
   // Adicione estes estados
   const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
-  const [selectedProjectToAdd, setSelectedProjectToAdd] = useState(null);
+  const [selectedProjectsToAdd, setSelectedProjectsToAdd] = useState([]);
 
   // Adicione esta lista de projetos disponíveis (você pode pegar do backend depois)
   const [availableProjects, setAvailableProjects] = useState([]);
@@ -1455,44 +1455,52 @@ function Tarefas() {
 
   // Modifique a função handleAddProject
   const handleAddProject = async () => {
-    if (selectedProjectToAdd) {
+    if (selectedProjectsToAdd.length > 0) {
       try {
         const projetosRef = collection(db, 'projetosTarefas');
         
-        // Cria o objeto do projeto com valores padrão para campos que podem estar indefinidos
-        const newProject = {
-          projetoId: selectedProjectToAdd.id, // ID do projeto original
-          nome: selectedProjectToAdd.nome || '',
-          tipo: selectedProjectToAdd.tipo || 'SAC',
-          analista: selectedProjectToAdd.analista || '',
-          desenvolvedor: selectedProjectToAdd.desenvolvedor || '',
-          status: selectedProjectToAdd.status || 'Em Andamento',
-          dataInicio: selectedProjectToAdd.dataInicio || new Date().toISOString().split('T')[0],
-          dataConclusao: selectedProjectToAdd.dataConclusao || '',
-          descricao: selectedProjectToAdd.descricao || '',
-          prioridade: selectedProjectToAdd.prioridade || 'media',
-          kanban: {
-            aDefinir: [],
-            todo: [],
-            inProgress: [],
-            testing: [],
-            prontoDeploy: [],
-            done: [],
-            arquivado: []
-          }
-        };
+        // Cria um array de promessas para adicionar múltiplos projetos
+        const addPromises = selectedProjectsToAdd.map(async (projeto) => {
+          const newProject = {
+            projetoId: projeto.id,
+            nome: projeto.nome || '',
+            tipo: projeto.tipo || 'SAC',
+            analista: projeto.analista || '',
+            desenvolvedor: projeto.desenvolvedor || '',
+            status: projeto.status || 'Em Andamento',
+            dataInicio: projeto.dataInicio || new Date().toISOString().split('T')[0],
+            dataConclusao: projeto.dataConclusao || '',
+            descricao: projeto.descricao || '',
+            prioridade: projeto.prioridade || 'media',
+            kanban: {
+              aDefinir: [],
+              todo: [],
+              inProgress: [],
+              testing: [],
+              prontoDeploy: [],
+              done: [],
+              arquivado: []
+            }
+          };
+          
+          return await addDoc(projetosRef, newProject);
+        });
+
+        // Aguarda todas as promessas serem resolvidas
+        const results = await Promise.all(addPromises);
         
-        // Adiciona o projeto ao Firebase
-        const docRef = await addDoc(projetosRef, newProject);
+        // Atualiza o estado local com os novos projetos
+        const newProjetos = selectedProjectsToAdd.map((projeto, index) => ({
+          ...projeto,
+          id: results[index].id
+        }));
         
-        // Atualiza o estado local com o novo projeto
-        setProjetos(prev => [...prev, { ...newProject, id: docRef.id }]);
+        setProjetos(prev => [...prev, ...newProjetos]);
         
         setIsAddProjectModalOpen(false);
-        setSelectedProjectToAdd(null);
+        setSelectedProjectsToAdd([]);
       } catch (error) {
-        console.error('Erro ao adicionar projeto:', error);
-        // Aqui você pode adicionar uma notificação de erro para o usuário
+        console.error('Erro ao adicionar projetos:', error);
       }
     }
   };
@@ -1822,6 +1830,27 @@ function Tarefas() {
 
     loadTarefas();
   }, [selectedProject?.id]);
+
+  // Atualize a função que manipula a seleção de projetos
+  const handleProjectSelection = (project) => {
+    setSelectedProjectsToAdd(prev => {
+      const isSelected = prev.some(p => p.id === project.id);
+      if (isSelected) {
+        return prev.filter(p => p.id !== project.id);
+      } else {
+        return [...prev, project];
+      }
+    });
+  };
+
+  // Adicione esta função para selecionar todos os projetos
+  const handleSelectAllProjects = () => {
+    if (selectedProjectsToAdd.length === availableProjects.length) {
+      setSelectedProjectsToAdd([]); // Desmarca todos se já estiverem todos selecionados
+    } else {
+      setSelectedProjectsToAdd([...availableProjects]); // Seleciona todos
+    }
+  };
 
   return (
     <div className="tarefas-container">
@@ -2627,7 +2656,7 @@ function Tarefas() {
                 {/* Seção de Comentários */}
                 <div className="comments-section">
                   <div className="section-header">
-                    <i className="material-icons">chat</i>
+                    <i className="material-icons" id="chat-icon">chat</i>
                     <h3>Comentários</h3>
                     {selectedTask.status !== 'arquivado' && (
                       <button 
@@ -2922,7 +2951,16 @@ function Tarefas() {
         {isAddProjectModalOpen && (
           <div className="modal-overlay">
             <div className="modal-content">
-              <h2>Adicionar Projeto</h2>
+              <div className="modal-header-with-action">
+                <h2>Adicionar Projetos</h2>
+                <button 
+                  type="button" 
+                  className="select-all-btn"
+                  onClick={handleSelectAllProjects}
+                >
+                  {selectedProjectsToAdd.length === availableProjects.length ? 'Desmarcar todos' : 'Selecionar todos'}
+                </button>
+              </div>
               
               <div className="available-projects-list">
                 {isLoadingProjects ? (
@@ -2949,8 +2987,10 @@ function Tarefas() {
                   availableProjects.map(project => (
                     <div 
                       key={project.id}
-                      className={`available-project-card ${selectedProjectToAdd?.id === project.id ? 'selected' : ''}`}
-                      onClick={() => setSelectedProjectToAdd(project)}
+                      className={`available-project-card ${
+                        selectedProjectsToAdd.some(p => p.id === project.id) ? 'selected' : ''
+                      }`}
+                      onClick={() => handleProjectSelection(project)}
                     >
                       <div className="project-card-header">
                         <h3>{project.nome}</h3>
@@ -2960,6 +3000,11 @@ function Tarefas() {
                         <span>Analista: {project.analista}</span>
                         <span>Desenvolvedor: {project.desenvolvedor}</span>
                         <span>Status: {project.status}</span>
+                      </div>
+                      <div className="selection-indicator">
+                        {selectedProjectsToAdd.some(p => p.id === project.id) && (
+                          <FontAwesomeIcon icon={faCheckCircle} />
+                        )}
                       </div>
                     </div>
                   ))
@@ -2972,7 +3017,7 @@ function Tarefas() {
                   className="cancel-btn"
                   onClick={() => {
                     setIsAddProjectModalOpen(false);
-                    setSelectedProjectToAdd(null);
+                    setSelectedProjectsToAdd([]);
                   }}
                 >
                   Cancelar
@@ -2981,7 +3026,7 @@ function Tarefas() {
                   type="button" 
                   className="save-btn"
                   onClick={handleAddProject}
-                  disabled={!selectedProjectToAdd || isLoadingProjects}
+                  disabled={!selectedProjectsToAdd.length || isLoadingProjects}
                 >
                   Adicionar
                 </button>

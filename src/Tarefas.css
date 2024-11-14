@@ -3223,7 +3223,7 @@
   font-weight: 500;
 }
 
-/* Adicione os estilos para os cards de informação */
+/* Adicione os estilos para os cards de informaç��o */
 .task-info-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -3319,6 +3319,10 @@
 .section-header i {
   font-size: 24px;
   color: white;
+}
+
+#chat-icon {
+  color: #6E7583;
 }
 
 .section-header h3 {
@@ -3457,4 +3461,112 @@
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Adicione estes estilos para o modal de seleção múltipla */
+.available-projects-list {
+  position: relative;
+}
+
+.selected-count {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-weight: 500;
+  color: #3b82f6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  text-align: center;
+}
+
+.available-project-card {
+  position: relative;
+  padding-right: 40px; /* Espaço para o indicador de seleção */
+}
+
+.selection-indicator {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #3b82f6;
+  font-size: 20px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.available-project-card.selected .selection-indicator {
+  opacity: 1;
+}
+
+.available-project-card.selected {
+  background-color: #f0f7ff;
+  border-color: #3b82f6;
+}
+
+.save-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.save-btn:disabled:hover {
+  background-color: #9ca3af;
+  transform: none;
+}
+
+/* Ajuste o hover dos cards */
+.available-project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.available-project-card:hover .selection-indicator {
+  opacity: 0.5;
+}
+
+.available-project-card.selected:hover .selection-indicator {
+  opacity: 1;
+}
+
+/* Remova os estilos da contagem de seleção */
+.selected-count {
+  display: none;
+}
+
+/* Ajuste a largura do modal de exclusão */
+.delete-modal {
+  width: 600px;
+  max-width: 90vw;
+}
+
+/* Estilo para o header com botão de selecionar todos */
+.modal-header-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-header-with-action h2 {
+  margin: 0;
+}
+
+.select-all-btn {
+  padding: 8px 16px;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.select-all-btn:hover {
+  background-color: #e5e7eb;
+  border-color: #d1d5db;
 }

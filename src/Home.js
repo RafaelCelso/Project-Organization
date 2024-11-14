@@ -173,7 +173,7 @@ function Home() {
     <div className="home-container">
       <Sidebar />
       <div className="home-content">
-        <h1 className="page-title">Bem-vindo à Página Inicial</h1>
+        <h1 className="page-title">Início</h1>
         
         <div className="cards-container">
           <div className="card" onClick={handleEventosClick}>
