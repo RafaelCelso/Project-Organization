@@ -20,14 +20,8 @@ function Colaboradores() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [colaboradorToDelete, setColaboradorToDelete] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [colaboradores, setColaboradores] = useState([
-    {
-      id: 1,
-      nome: "Ana Silva",
-      cargo: "Analista",
-      status: "Ativo"
-    }
-  ]);
+  const [colaboradores, setColaboradores] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   const [formData, setFormData] = useState({
     id: null,
@@ -330,6 +324,8 @@ function Colaboradores() {
 
   const loadColaboradores = async () => {
     try {
+      setIsLoading(true);
+      
       // Primeiro, buscar todos os projetos
       const projetosRef = collection(db, 'projetos');
       const projetosSnapshot = await getDocs(projetosRef);
@@ -421,10 +417,11 @@ function Colaboradores() {
 
       // Atualizar o estado com os dados processados
       setColaboradores(colaboradoresData);
-
     } catch (error) {
       console.error("Erro ao carregar colaboradores:", error);
       alert("Erro ao carregar colaboradores. Por favor, recarregue a página.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -543,49 +540,56 @@ function Colaboradores() {
         </div>
 
         <div className="colaboradores-grid">
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Cargo</th>
-                <th>Projeto</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {colaboradoresFiltrados.map(colaborador => (
-                <tr key={colaborador.id}>
-                  <td>{colaborador.nome}</td>
-                  <td>{colaborador.cargo}</td>
-                  <td className="projetos-cell">
-                    {Array.isArray(colaborador.projeto) 
-                      ? colaborador.projeto.sort().join(', ') 
-                      : ''}
-                  </td>
-                  <td className={`status-${colaborador.status.toLowerCase()}`}>
-                    {colaborador.status}
-                  </td>
-                  <td className="acoes-column">
-                    <button 
-                      className="icon-button edit-btn"
-                      onClick={() => handleEdit(colaborador)}
-                      title="Editar"
-                    >
-                      <i className="material-icons">create</i>
-                    </button>
-                    <button 
-                      className="icon-button delete-btn"
-                      onClick={() => handleDelete(colaborador)}
-                      title="Excluir"
-                    >
-                      <i className="material-icons">delete_outline</i>
-                    </button>
-                  </td>
+          {isLoading ? (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p>Carregando colaboradores...</p>
+            </div>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Cargo</th>
+                  <th>Projeto</th>
+                  <th>Status</th>
+                  <th>Ações</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {colaboradoresFiltrados.map(colaborador => (
+                  <tr key={colaborador.id}>
+                    <td>{colaborador.nome}</td>
+                    <td>{colaborador.cargo}</td>
+                    <td className="projetos-cell">
+                      {Array.isArray(colaborador.projeto) 
+                        ? colaborador.projeto.sort().join(', ') 
+                        : ''}
+                    </td>
+                    <td className={`status-${colaborador.status.toLowerCase()}`}>
+                      {colaborador.status}
+                    </td>
+                    <td className="acoes-column">
+                      <button 
+                        className="icon-button edit-btn"
+                        onClick={() => handleEdit(colaborador)}
+                        title="Editar"
+                      >
+                        <i className="material-icons">create</i>
+                      </button>
+                      <button 
+                        className="icon-button delete-btn"
+                        onClick={() => handleDelete(colaborador)}
+                        title="Excluir"
+                      >
+                        <i className="material-icons">delete_outline</i>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {isModalOpen && (
