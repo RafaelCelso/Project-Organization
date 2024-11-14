@@ -1215,12 +1215,19 @@ function Tarefas() {
 
         // Filtro por texto (nome, ID ou chamado)
         if (filtros.busca) {
-          if (filtros.tipoBusca === 'nome') {
-            passouFiltro = passouFiltro && tarefa.titulo.toLowerCase().includes(filtros.busca.toLowerCase());
-          } else if (filtros.tipoBusca === 'id') {
-            passouFiltro = passouFiltro && tarefa.taskId?.toString().includes(filtros.busca);
-          } else if (filtros.tipoBusca === 'chamado') {
-            passouFiltro = passouFiltro && tarefa.numeroChamado?.toString().toLowerCase().includes(filtros.busca.toLowerCase());
+          const busca = filtros.busca.toLowerCase();
+          switch (filtros.tipoBusca) {
+            case 'nome':
+              passouFiltro = passouFiltro && tarefa.titulo?.toLowerCase().includes(busca);
+              break;
+            case 'id':
+              passouFiltro = passouFiltro && tarefa.taskId?.toString().includes(busca);
+              break;
+            case 'chamado':
+              passouFiltro = passouFiltro && tarefa.numeroChamado?.toString().toLowerCase().includes(busca);
+              break;
+            default:
+              break;
           }
         }
 
@@ -1234,6 +1241,8 @@ function Tarefas() {
             passouFiltro = passouFiltro && 
               dataTarefa >= dataInicio && 
               dataTarefa <= dataFim;
+          } else {
+            passouFiltro = false;
           }
         }
 
@@ -1255,26 +1264,20 @@ function Tarefas() {
     setTarefasFiltradas(resultado);
   };
 
-  // Função para limpar os filtros
+  // Atualize a função limparFiltros
   const limparFiltros = () => {
     setFiltros({
       busca: '',
-      tipoBusca: 'nome', // Mantém o tipo de busca como 'nome' por padrão
+      tipoBusca: 'nome',
       prioridade: '',
       dataInicio: '',
       dataFim: '',
       tag: ''
     });
+    setTarefasFiltradas(null); // Limpa as tarefas filtradas
   };
 
-  // Adicionar função para lidar com o pressionamento de tecla
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      aplicarFiltros();
-    }
-  };
-
-  // Renderização dos filtros
+  // Atualize o renderFiltros para usar as funções corretas
   const renderFiltros = () => (
     <div className="filtros-section">
       <div className="filtros-container">
@@ -1291,7 +1294,7 @@ function Tarefas() {
                 }}
                 onChange={(option) => setFiltros({
                   ...filtros, 
-                  tipoBusca: option ? option.value : 'nome'
+                  tipoBusca: option.value
                 })}
                 options={[
                   { value: 'nome', label: 'Nome' },
@@ -1304,7 +1307,7 @@ function Tarefas() {
                 isSearchable={false}
               />
               <div className="busca-input-container">
-                <i className="material-icons busca-icon">search</i>
+                <FontAwesomeIcon icon={faSearch} className="busca-icon" />
                 <input
                   type="text"
                   placeholder={`Buscar por ${
@@ -1314,7 +1317,6 @@ function Tarefas() {
                   }...`}
                   value={filtros.busca}
                   onChange={(e) => setFiltros({...filtros, busca: e.target.value})}
-                  onKeyPress={handleKeyPress}
                 />
               </div>
             </div>
@@ -1344,11 +1346,15 @@ function Tarefas() {
           <div className="filtro-grupo">
             <label>Prioridade</label>
             <Select
-              value={[
-                { value: filtros.prioridade, label: filtros.prioridade ? 
-                  filtros.prioridade.charAt(0).toUpperCase() + filtros.prioridade.slice(1) : '' }
-              ].filter(option => option.value !== '')}
-              onChange={(option) => setFiltros({...filtros, prioridade: option ? option.value : ''})}
+              isClearable
+              value={filtros.prioridade ? { 
+                value: filtros.prioridade, 
+                label: filtros.prioridade.charAt(0).toUpperCase() + filtros.prioridade.slice(1) 
+              } : null}
+              onChange={(option) => setFiltros({
+                ...filtros, 
+                prioridade: option ? option.value : ''
+              })}
               options={[
                 { value: 'baixa', label: 'Baixa' },
                 { value: 'media', label: 'Média' },
@@ -1358,17 +1364,21 @@ function Tarefas() {
               className="react-select-container"
               classNamePrefix="react-select"
               placeholder="Selecione"
-              isClearable
             />
           </div>
 
           <div className="filtro-grupo">
             <label>Tag</label>
             <Select
-              value={[
-                { value: filtros.tag, label: availableTags.find(t => t.id === parseInt(filtros.tag))?.texto || '' }
-              ].filter(option => option.value !== '')}
-              onChange={(option) => setFiltros({...filtros, tag: option ? option.value : ''})}
+              isClearable
+              value={filtros.tag ? {
+                value: filtros.tag,
+                label: availableTags.find(t => t.id === parseInt(filtros.tag))?.texto
+              } : null}
+              onChange={(option) => setFiltros({
+                ...filtros, 
+                tag: option ? option.value : ''
+              })}
               options={availableTags.map(tag => ({
                 value: tag.id.toString(),
                 label: tag.texto
@@ -1376,7 +1386,6 @@ function Tarefas() {
               className="react-select-container"
               classNamePrefix="react-select"
               placeholder="Selecione"
-              isClearable
             />
           </div>
         </div>
@@ -1386,7 +1395,7 @@ function Tarefas() {
         className="limpar-filtros-btn"
         onClick={limparFiltros}
       >
-        <i className="material-icons">clear</i>
+        <FontAwesomeIcon icon={faTimes} />
         Limpar Filtros
       </button>
     </div>
@@ -1975,6 +1984,13 @@ function Tarefas() {
         return log.detalhes;
     }
   };
+
+  // Adicione este useEffect para aplicar os filtros automaticamente
+  useEffect(() => {
+    if (selectedProject) { // Só aplica os filtros se houver um projeto selecionado
+      aplicarFiltros();
+    }
+  }, [filtros, tasks, selectedProject]); // Adiciona selectedProject como dependência
 
   return (
     <div className="tarefas-container">
