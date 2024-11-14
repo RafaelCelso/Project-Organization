@@ -2108,14 +2108,14 @@ function Tarefas() {
                                         {task.dataConclusao ? (
                                           <>
                                             <span className="date-label">Conclusão:</span>
-                                            {format(new Date(task.dataConclusao), 'dd/MM/yyyy')}
+                                            {format(new Date(task.dataConclusao + 'T00:00:00'), 'dd/MM/yyyy')}
                                           </>
                                         ) : 'Sem data de conclusão'}
                                       </span>
                                       {task.arquivadoEm && (
                                         <span className="archived-date">
                                           <span className="date-label">Arquivado em:</span>
-                                          {format(new Date(task.arquivadoEm), 'dd/MM/yyyy')}
+                                          {format(new Date(task.arquivadoEm + 'T00:00:00'), 'dd/MM/yyyy')}
                                         </span>
                                       )}
                                     </div>
@@ -2230,14 +2230,14 @@ function Tarefas() {
                                           {task.dataConclusao ? (
                                             <>
                                               <span className="date-label">Conclusão:</span>
-                                              {format(new Date(task.dataConclusao), 'dd/MM/yyyy')}
+                                              {format(new Date(task.dataConclusao + 'T00:00:00'), 'dd/MM/yyyy')}
                                             </>
                                           ) : 'Sem data de conclusão'}
                                         </span>
                                         {task.arquivadoEm && (
                                           <span className="archived-date">
                                             <span className="date-label">Arquivado em:</span>
-                                            {format(new Date(task.arquivadoEm), 'dd/MM/yyyy')}
+                                            {format(new Date(task.arquivadoEm + 'T00:00:00'), 'dd/MM/yyyy')}
                                           </span>
                                         )}
                                       </div>
@@ -2750,7 +2750,9 @@ function Tarefas() {
                       <h3>Data Conclusão</h3>
                     </div>
                     <div className="info-card-content">
-                      {selectedTask.dataConclusao || 'Não definida'}
+                      {selectedTask.dataConclusao ? 
+                        format(new Date(selectedTask.dataConclusao + 'T00:00:00'), 'dd/MM/yyyy') 
+                        : 'Não definida'}
                     </div>
                   </div>
 
