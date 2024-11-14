@@ -103,7 +103,7 @@ function Tarefas() {
     status: 'aDefinir',
     dataInicio: '',
     dataConclusao: '',
-    prioridade: '',
+    prioridade: 'baixa', // Define prioridade baixa como padrão
     progresso: 'nao_iniciada',
     imagens: [],
     tags: [],
@@ -180,6 +180,28 @@ function Tarefas() {
   const [isArchivedTaskModalOpen, setIsArchivedTaskModalOpen] = useState(false);
   const [archivedTask, setArchivedTask] = useState(null);
   const [isConfirmDeleteArchivedTaskModalOpen, setIsConfirmDeleteArchivedTaskModalOpen] = useState(false);
+
+  // Crie uma função auxiliar para converter o status
+  const getStatusDisplay = (status) => {
+    switch (status) {
+      case 'aDefinir':
+        return 'A Definir';
+      case 'todo':
+        return 'A Fazer';
+      case 'inProgress':
+        return 'Em Andamento';
+      case 'testing':
+        return 'Em Teste';
+      case 'prontoDeploy':
+        return 'Pronto para Deploy';
+      case 'done':
+        return 'Concluído';
+      case 'arquivado':
+        return 'Arquivado';
+      default:
+        return status;
+    }
+  };
 
   const handleAddComment = async () => {
     if (!comentario.trim() || !selectedTask) return;
@@ -395,7 +417,7 @@ function Tarefas() {
           .map(resp => resp.nome) : [],
         dataInicio: formData.dataInicio || '',
         dataConclusao: formData.dataConclusao || '',
-        prioridade: formData.prioridade || '',
+        prioridade: formData.prioridade || 'baixa', // Define prioridade baixa se não estiver definida
         progresso: formData.progresso || 'nao_iniciada',
         status: formData.status || 'aDefinir',
         numeroChamado: formData.numeroChamado || '',
@@ -665,7 +687,7 @@ function Tarefas() {
       status: 'aDefinir',
       dataInicio: '',
       dataConclusao: '',
-      prioridade: '',
+      prioridade: 'baixa', // Define prioridade baixa como padrão
       progresso: 'nao_iniciada',
       imagens: [],
       tags: [],
@@ -1937,6 +1959,23 @@ function Tarefas() {
     setArchivedTask(null);
   };
 
+  // Adicione esta função para formatar as mensagens de log
+  const getLogMessage = (log) => {
+    switch (log.tipo) {
+      case 'criacao':
+        return 'Tarefa criada';
+      case 'edicao':
+        return 'Tarefa editada';
+      case 'movimentacao':
+        const [origem, destino] = log.detalhes.split('Movida de')[1].split('para').map(s => s.trim());
+        return `Movida de ${getStatusDisplay(origem)} para ${getStatusDisplay(destino)}`;
+      case 'comentario':
+        return log.detalhes;
+      default:
+        return log.detalhes;
+    }
+  };
+
   return (
     <div className="tarefas-container">
       <Sidebar />
@@ -2678,7 +2717,7 @@ function Tarefas() {
                     </div>
                     <div className="info-card-content">
                       <span className={`status-badge status-${selectedTask.status}`}>
-                        {selectedTask.status}
+                        {getStatusDisplay(selectedTask.status)}
                       </span>
                     </div>
                   </div>
@@ -2805,7 +2844,7 @@ function Tarefas() {
                           {comment.tipo === 'comentario' ? (
                             comment.detalhes
                           ) : (
-                            <span className="log-message">{comment.detalhes}</span>
+                            <span className="log-message">{getLogMessage(comment)}</span>
                           )}
                         </p>
                       </div>

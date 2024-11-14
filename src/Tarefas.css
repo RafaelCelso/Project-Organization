@@ -2505,12 +2505,45 @@
 }
 
 .status-badge {
-  background-color: #f0fdf4;
-  color: #166534;
-  padding: 6px 16px;
-  border-radius: 6px;
-  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
   font-weight: 500;
+}
+
+.status-aDefinir {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.status-todo {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.status-inProgress {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.status-testing {
+  background-color: #fae8ff;
+  color: #a21caf;
+}
+
+.status-prontoDeploy {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.status-done {
+  background-color: #bbf7d0;
+  color: #166534;
+}
+
+.status-arquivado {
+  background-color: #e5e7eb;
+  color: #4b5563;
 }
 
 .project-details-grid {
@@ -3647,4 +3680,82 @@
 
 .add-comment-btn i {
   font-size: 18px;
+}
+
+/* Estilos para os logs do sistema */
+.system-log {
+  background-color: #f8fafc;
+  border-left: 4px solid #64748b;
+  font-style: italic;
+}
+
+.system-log .log-icon {
+  color: #64748b;
+}
+
+.system-log .comment-user {
+  color: #64748b;
+}
+
+.system-log .log-message {
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* Estilos para comentários de usuário */
+.user-comment {
+  background-color: #f0f9ff;
+  border-left: 4px solid #0ea5e9;
+}
+
+.user-comment .comment-icon {
+  color: #0ea5e9;
+}
+
+.user-comment .comment-user {
+  color: #0369a1;
+}
+
+.user-comment .comment-text {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+/* Estilos comuns */
+.comment-item {
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.comment-header {
+  margin-bottom: 8px;
+}
+
+.comment-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comment-date {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Animação suave ao adicionar novos itens */
+.comment-item {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
