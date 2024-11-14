@@ -69,6 +69,13 @@ function Projetos() {
   // Adicione um estado para projetos
   const [projetos, setProjetos] = useState([]);
 
+  // Adicionar o estado para o modal de feedback (logo após os outros estados)
+  const [feedbackModal, setFeedbackModal] = useState({
+    isOpen: false,
+    message: '',
+    type: '' // 'success' ou 'error'
+  });
+
   // Função para aplicar filtros
   const aplicarFiltros = () => {
     let resultado = projetos.filter(projeto => {
@@ -358,7 +365,11 @@ function Projetos() {
           projeto.id === formData.id ? { ...projetoData, id: formData.id } : projeto
         ));
         
-        console.log('Projeto atualizado com sucesso!');
+        setFeedbackModal({
+          isOpen: true,
+          message: "Projeto atualizado com sucesso!",
+          type: 'success'
+        });
       } else {
         // Cria novo projeto
         const docRef = await addDoc(collection(db, 'projetos'), projetoData);
@@ -367,7 +378,11 @@ function Projetos() {
         // Atualiza estado local
         setProjetos(prevProjetos => [...prevProjetos, novoProjeto]);
         
-        console.log('Novo projeto criado com sucesso!');
+        setFeedbackModal({
+          isOpen: true,
+          message: "Projeto criado com sucesso!",
+          type: 'success'
+        });
       }
 
       // Fecha o modal e limpa o formulário
@@ -375,7 +390,11 @@ function Projetos() {
       limparFormulario();
     } catch (error) {
       console.error('Erro ao salvar projeto:', error);
-      alert('Erro ao salvar o projeto. Por favor, tente novamente.');
+      setFeedbackModal({
+        isOpen: true,
+        message: "Erro ao salvar o projeto. Por favor, tente novamente.",
+        type: 'error'
+      });
     }
   };
 
@@ -393,9 +412,19 @@ function Projetos() {
       setIsDeleteModalOpen(false);
       setProjetoToDelete(null);
       limparFormulario();
+      
+      setFeedbackModal({
+        isOpen: true,
+        message: "Projeto excluído com sucesso!",
+        type: 'success'
+      });
     } catch (error) {
       console.error('Erro ao excluir projeto:', error);
-      alert('Erro ao excluir o projeto. Por favor, tente novamente.');
+      setFeedbackModal({
+        isOpen: true,
+        message: "Erro ao excluir o projeto. Por favor, tente novamente.",
+        type: 'error'
+      });
     }
   };
 
@@ -591,6 +620,7 @@ function Projetos() {
                     <option value="OL">OL</option>
                     <option value="PSP">PSP</option>
                     <option value="Interno">Interno</option>
+                    <option value="Outro">Outro</option>
                   </select>
                 </div>
 
@@ -621,7 +651,6 @@ function Projetos() {
                     id="cliente"
                     value={formData.cliente}
                     onChange={(e) => setFormData({ ...formData, cliente: e.target.value })}
-                    required
                   />
                 </div>
 
@@ -743,7 +772,6 @@ function Projetos() {
                         email: e.target.value,
                       },
                     })}
-                    required
                   />
                 </div>
 
@@ -763,7 +791,6 @@ function Projetos() {
                         telefone: e.target.value,
                       },
                     })}
-                    required
                   />
                 </div>
 
@@ -806,6 +833,28 @@ function Projetos() {
                   Confirmar Exclusão
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Feedback */}
+        {feedbackModal.isOpen && (
+          <div className="modal-overlay">
+            <div className={`modal-content feedback-modal ${feedbackModal.type}`}>
+              <div className="feedback-icon">
+                {feedbackModal.type === 'success' ? (
+                  <i className="material-icons">check_circle</i>
+                ) : (
+                  <i className="material-icons">error</i>
+                )}
+              </div>
+              <p>{feedbackModal.message}</p>
+              <button 
+                className="ok-btn"
+                onClick={() => setFeedbackModal({ ...feedbackModal, isOpen: false })}
+              >
+                OK
+              </button>
             </div>
           </div>
         )}

@@ -604,3 +604,69 @@
     width: 100%;
   }
 }
+
+/* Estilos para o modal de feedback */
+.feedback-modal {
+  max-width: 400px !important;
+  padding: 24px !important;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: auto;
+}
+
+.feedback-modal.success .feedback-icon {
+  color: #4CAF50;
+}
+
+.feedback-modal.error .feedback-icon {
+  color: #f44336;
+}
+
+.feedback-modal .feedback-icon {
+  font-size: 48px;
+}
+
+.feedback-modal .feedback-icon i {
+  font-size: 48px;
+}
+
+.feedback-modal p {
+  font-size: 16px;
+  color: #333;
+  margin: 16px 0;
+}
+
+.feedback-modal .ok-btn {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.feedback-modal .ok-btn:hover {
+  background-color: #1976D2;
+}
+
+.feedback-modal.success .ok-btn {
+  background-color: #4CAF50;
+}
+
+.feedback-modal.success .ok-btn:hover {
+  background-color: #45a049;
+}
+
+.feedback-modal.error .ok-btn {
+  background-color: #f44336;
+}
+
+.feedback-modal.error .ok-btn:hover {
+  background-color: #d32f2f;
+}

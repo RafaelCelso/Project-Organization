@@ -9,7 +9,8 @@ import {
   deleteDoc, 
   doc, 
   query, 
-  where 
+  where, 
+  getDoc 
 } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import Select from 'react-select';
@@ -24,8 +25,7 @@ function Colaboradores() {
       id: 1,
       nome: "Ana Silva",
       cargo: "Analista",
-      status: "Ativo",
-      projeto: "Projeto A"
+      status: "Ativo"
     }
   ]);
   
@@ -34,7 +34,9 @@ function Colaboradores() {
     nome: '',
     cargo: '',
     status: '',
-    projeto: []
+    projeto: [],
+    createdAt: '',
+    updatedAt: ''
   });
 
   const [filtros, setFiltros] = useState({
@@ -45,6 +47,12 @@ function Colaboradores() {
   });
 
   const [projetos, setProjetos] = useState([]);
+
+  const [feedbackModal, setFeedbackModal] = useState({
+    isOpen: false,
+    message: '',
+    type: '' // 'success' ou 'error'
+  });
 
   const OPCOES_CARGO = [
     { value: '', label: 'Todos os cargos' },
@@ -65,9 +73,7 @@ function Colaboradores() {
       return (
         colaborador.nome.toLowerCase().includes(filtros.nome.toLowerCase()) &&
         (filtros.cargo === '' || colaborador.cargo === filtros.cargo) &&
-        (filtros.status === '' || colaborador.status === filtros.status) &&
-        (filtros.projeto === '' || (Array.isArray(colaborador.projeto) && 
-          colaborador.projeto.includes(filtros.projeto)))
+        (filtros.status === '' || colaborador.status === filtros.status)
       );
     })
     .sort((a, b) => {
@@ -100,7 +106,9 @@ function Colaboradores() {
   const handleEdit = (colaborador) => {
     const colaboradorFormatado = {
       ...colaborador,
-      projeto: Array.isArray(colaborador.projeto) ? colaborador.projeto : []
+      projeto: Array.isArray(colaborador.projeto) ? colaborador.projeto : [],
+      createdAt: colaborador.createdAt || '',
+      updatedAt: colaborador.updatedAt || ''
     };
     
     setIsEditing(true);
@@ -109,21 +117,94 @@ function Colaboradores() {
   };
 
   const handleDelete = (colaborador) => {
+    if (!colaborador || !colaborador.id) {
+      console.error("Colaborador inválido:", colaborador);
+      return;
+    }
     setColaboradorToDelete(colaborador);
     setIsDeleteModalOpen(true);
   };
 
   const confirmDelete = async () => {
     try {
+      if (!colaboradorToDelete) {
+        console.error("Colaborador não selecionado para exclusão");
+        return;
+      }
+
+      console.log("Tentando excluir colaborador:", colaboradorToDelete);
+
+      // Remover o colaborador dos projetos primeiro
+      const projetosRef = collection(db, 'projetos');
+      const projetosSnapshot = await getDocs(projetosRef);
+      
+      const atualizacoesProjetos = [];
+      
+      projetosSnapshot.forEach(projetoDoc => {
+        const projeto = projetoDoc.data();
+        let precisaAtualizar = false;
+        const atualizacao = {};
+
+        // Verificar e remover de analistaPrincipal
+        if (projeto.analistaPrincipal?.[0]?.value === colaboradorToDelete.id) {
+          atualizacao.analistaPrincipal = [];
+          precisaAtualizar = true;
+        }
+
+        // Verificar e remover de desenvolvedorPrincipal
+        if (projeto.desenvolvedorPrincipal?.[0]?.value === colaboradorToDelete.id) {
+          atualizacao.desenvolvedorPrincipal = [];
+          precisaAtualizar = true;
+        }
+
+        // Verificar e remover de supervisorPrincipal
+        if (projeto.supervisorPrincipal?.[0]?.value === colaboradorToDelete.id) {
+          atualizacao.supervisorPrincipal = [];
+          precisaAtualizar = true;
+        }
+
+        if (precisaAtualizar) {
+          const projetoRef = doc(db, 'projetos', projetoDoc.id);
+          atualizacoesProjetos.push(updateDoc(projetoRef, atualizacao));
+        }
+      });
+
+      // Aguardar todas as atualizações dos projetos
+      if (atualizacoesProjetos.length > 0) {
+        await Promise.all(atualizacoesProjetos);
+      }
+
+      // Agora excluir o colaborador
       const colaboradorRef = doc(db, 'colaboradores', colaboradorToDelete.id);
       await deleteDoc(colaboradorRef);
       
-      setColaboradores(colaboradores.filter(col => col.id !== colaboradorToDelete.id));
+      // Atualizar o estado local
+      setColaboradores(prevColaboradores => 
+        prevColaboradores.filter(col => col.id !== colaboradorToDelete.id)
+      );
+      
       setIsDeleteModalOpen(false);
       setColaboradorToDelete(null);
+      
+      // Recarregar a lista de colaboradores
+      await loadColaboradores();
+      
+      setFeedbackModal({
+        isOpen: true,
+        message: "Colaborador excluído com sucesso!",
+        type: 'success'
+      });
     } catch (error) {
       console.error("Erro ao excluir colaborador:", error);
-      // Aqui você pode adicionar uma notificação de erro para o usuário
+      console.error("Detalhes do erro:", {
+        colaborador: colaboradorToDelete,
+        erro: error.message
+      });
+      setFeedbackModal({
+        isOpen: true,
+        message: "Erro ao excluir colaborador. Por favor, tente novamente.",
+        type: 'error'
+      });
     }
   };
 
@@ -131,49 +212,53 @@ function Colaboradores() {
     e.preventDefault();
     
     try {
-      // Para cada projeto selecionado, precisamos atualizar o documento do projeto
-      for (const projetoNome of formData.projeto) {
-        const projetoQuery = query(
-          collection(db, 'projetos'),
-          where('nome', '==', projetoNome)
-        );
-        
-        const projetoSnapshot = await getDocs(projetoQuery);
-        
-        if (!projetoSnapshot.empty) {
-          const projetoDoc = projetoSnapshot.docs[0];
-          const projetoRef = doc(db, 'projetos', projetoDoc.id);
-          
-          const updateData = {};
-          
-          // Determinar qual campo atualizar com base no cargo
-          const colaboradorData = {
-            value: formData.id || crypto.randomUUID(), // Gerar ID se for novo
-            label: formData.nome
-          };
-          
-          switch (formData.cargo) {
-            case 'Analista':
-              updateData.analistaPrincipal = [colaboradorData];
-              break;
-            case 'Desenvolvedor':
-              updateData.desenvolvedorPrincipal = [colaboradorData];
-              break;
-            case 'Supervisor':
-              updateData.supervisorPrincipal = [colaboradorData];
-              break;
-          }
-          
-          await updateDoc(projetoRef, updateData);
+      const now = new Date().toISOString();
+      
+      // Se estiver editando, buscar os projetos atuais do colaborador
+      let projetosAtuais = [];
+      if (isEditing && formData.id) {
+        const colaboradorRef = doc(db, 'colaboradores', formData.id);
+        const colaboradorDoc = await getDoc(colaboradorRef);
+        if (colaboradorDoc.exists()) {
+          projetosAtuais = colaboradorDoc.data().projeto || [];
         }
+      }
+      
+      const colaboradorData = {
+        nome: formData.nome,
+        cargo: formData.cargo,
+        status: formData.status,
+        projeto: projetosAtuais, // Mantém os projetos existentes
+        createdAt: isEditing ? formData.createdAt : now,
+        updatedAt: now
+      };
+
+      const colaboradoresRef = collection(db, 'colaboradores');
+      
+      if (isEditing && formData.id) {
+        const docRef = doc(db, 'colaboradores', formData.id);
+        await updateDoc(docRef, {
+          ...colaboradorData,
+          createdAt: formData.createdAt
+        });
+      } else {
+        await addDoc(colaboradoresRef, colaboradorData);
       }
 
       handleCloseModal();
-      // Recarregar os colaboradores para atualizar a lista
-      window.location.reload();
+      await loadColaboradores();
+      setFeedbackModal({
+        isOpen: true,
+        message: isEditing ? "Colaborador atualizado com sucesso!" : "Colaborador criado com sucesso!",
+        type: 'success'
+      });
     } catch (error) {
       console.error("Erro ao salvar colaborador:", error);
-      alert("Erro ao salvar colaborador. Por favor, tente novamente.");
+      setFeedbackModal({
+        isOpen: true,
+        message: "Erro ao salvar colaborador. Por favor, tente novamente.",
+        type: 'error'
+      });
     }
   };
 
@@ -185,7 +270,9 @@ function Colaboradores() {
       nome: '',
       cargo: '',
       status: '',
-      projeto: []
+      projeto: [],
+      createdAt: '',
+      updatedAt: ''
     });
   };
 
@@ -196,7 +283,9 @@ function Colaboradores() {
       nome: '',
       cargo: '',
       status: '',
-      projeto: []
+      projeto: [],
+      createdAt: '',
+      updatedAt: ''
     });
     setIsModalOpen(true);
   };
@@ -239,70 +328,108 @@ function Colaboradores() {
     });
   };
 
-  useEffect(() => {
-    const fetchColaboradores = async () => {
-      try {
-        const projetosRef = collection(db, 'projetos');
-        const snapshot = await getDocs(projetosRef);
+  const loadColaboradores = async () => {
+    try {
+      // Primeiro, buscar todos os projetos
+      const projetosRef = collection(db, 'projetos');
+      const projetosSnapshot = await getDocs(projetosRef);
+      
+      // Criar um mapa de colaboradores e seus projetos
+      const colaboradoresProjetos = new Map();
+      
+      projetosSnapshot.forEach(doc => {
+        const projeto = doc.data();
+        const projetoNome = projeto.nome;
+
+        // Verificar analista principal
+        if (projeto.analistaPrincipal?.[0]) {
+          const colaboradorId = projeto.analistaPrincipal[0].value;
+          if (!colaboradoresProjetos.has(colaboradorId)) {
+            colaboradoresProjetos.set(colaboradorId, new Set());
+          }
+          colaboradoresProjetos.get(colaboradorId).add(projetoNome);
+        }
+
+        // Verificar desenvolvedor principal
+        if (projeto.desenvolvedorPrincipal?.[0]) {
+          const colaboradorId = projeto.desenvolvedorPrincipal[0].value;
+          if (!colaboradoresProjetos.has(colaboradorId)) {
+            colaboradoresProjetos.set(colaboradorId, new Set());
+          }
+          colaboradoresProjetos.get(colaboradorId).add(projetoNome);
+        }
+
+        // Verificar supervisor principal
+        if (projeto.supervisorPrincipal?.[0]) {
+          const colaboradorId = projeto.supervisorPrincipal[0].value;
+          if (!colaboradoresProjetos.has(colaboradorId)) {
+            colaboradoresProjetos.set(colaboradorId, new Set());
+          }
+          colaboradoresProjetos.get(colaboradorId).add(projetoNome);
+        }
+      });
+
+      // Agora buscar os colaboradores
+      const colaboradoresRef = collection(db, 'colaboradores');
+      const colaboradoresSnapshot = await getDocs(colaboradoresRef);
+      
+      const atualizacoes = [];
+      const colaboradoresData = [];
+
+      // Processar cada colaborador
+      for (const doc of colaboradoresSnapshot.docs) {
+        const colaborador = {
+          id: doc.id,
+          ...doc.data()
+        };
+
+        // Verificar se o colaborador está associado a algum projeto
+        const projetosDoColaborador = colaboradoresProjetos.get(doc.id);
         
-        const colaboradoresData = [];
-        
-        snapshot.docs.forEach(doc => {
-          const projetoData = doc.data();
-          const projetoNome = projetoData.nome || doc.id;
+        if (projetosDoColaborador && projetosDoColaborador.size > 0) {
+          // Colaborador tem projetos - atualizar com a lista de projetos
+          const projetosAtualizados = Array.from(projetosDoColaborador).sort();
+          colaborador.projeto = projetosAtualizados;
+          
+          // Adicionar atualização ao lote
+          atualizacoes.push(
+            updateDoc(doc.ref, { 
+              projeto: projetosAtualizados,
+              updatedAt: new Date().toISOString()
+            })
+          );
+        } else {
+          // Colaborador não tem projetos - limpar o array de projetos
+          colaborador.projeto = [];
+          
+          // Adicionar atualização ao lote
+          atualizacoes.push(
+            updateDoc(doc.ref, { 
+              projeto: [],
+              updatedAt: new Date().toISOString()
+            })
+          );
+        }
 
-          // Adicionar analista principal se existir
-          if (projetoData.analistaPrincipal?.[0]) {
-            colaboradoresData.push({
-              id: projetoData.analistaPrincipal[0].value,
-              nome: projetoData.analistaPrincipal[0].label,
-              cargo: "Analista",
-              projeto: [projetoNome],
-              status: "Ativo"
-            });
-          }
-
-          // Adicionar desenvolvedor principal se existir
-          if (projetoData.desenvolvedorPrincipal?.[0]) {
-            colaboradoresData.push({
-              id: projetoData.desenvolvedorPrincipal[0].value,
-              nome: projetoData.desenvolvedorPrincipal[0].label,
-              cargo: "Desenvolvedor",
-              projeto: [projetoNome],
-              status: "Ativo"
-            });
-          }
-
-          // Adicionar supervisor principal se existir
-          if (projetoData.supervisorPrincipal?.[0]) {
-            colaboradoresData.push({
-              id: projetoData.supervisorPrincipal[0].value,
-              nome: projetoData.supervisorPrincipal[0].label,
-              cargo: "Supervisor",
-              projeto: [projetoNome],
-              status: "Ativo"
-            });
-          }
-        });
-
-        // Consolidar colaboradores que aparecem em múltiplos projetos
-        const colaboradoresConsolidados = colaboradoresData.reduce((acc, curr) => {
-          const existingColab = acc.find(c => c.id === curr.id);
-          if (existingColab) {
-            existingColab.projeto = [...new Set([...existingColab.projeto, ...curr.projeto])];
-            return acc;
-          }
-          return [...acc, curr];
-        }, []);
-
-        setColaboradores(colaboradoresConsolidados);
-      } catch (error) {
-        console.error("Erro ao carregar colaboradores:", error);
-        alert("Erro ao carregar colaboradores. Por favor, recarregue a página.");
+        colaboradoresData.push(colaborador);
       }
-    };
 
-    fetchColaboradores();
+      // Executar todas as atualizações em lote
+      if (atualizacoes.length > 0) {
+        await Promise.all(atualizacoes);
+      }
+
+      // Atualizar o estado com os dados processados
+      setColaboradores(colaboradoresData);
+
+    } catch (error) {
+      console.error("Erro ao carregar colaboradores:", error);
+      alert("Erro ao carregar colaboradores. Por favor, recarregue a página.");
+    }
+  };
+
+  useEffect(() => {
+    loadColaboradores();
   }, []);
 
   useEffect(() => {
@@ -433,8 +560,8 @@ function Colaboradores() {
                   <td>{colaborador.cargo}</td>
                   <td className="projetos-cell">
                     {Array.isArray(colaborador.projeto) 
-                      ? colaborador.projeto.join(', ') 
-                      : colaborador.projeto}
+                      ? colaborador.projeto.sort().join(', ') 
+                      : ''}
                   </td>
                   <td className={`status-${colaborador.status.toLowerCase()}`}>
                     {colaborador.status}
@@ -517,30 +644,6 @@ function Colaboradores() {
                   </select>
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="projeto">Projetos</label>
-                  <Select
-                    isMulti
-                    name="projeto"
-                    options={projetos
-                      .map(projeto => ({
-                        value: projeto.nome,
-                        label: projeto.nome
-                      }))
-                      .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR', { sensitivity: 'base' }))
-                    }
-                    value={formData.projeto.map(proj => ({
-                      value: proj,
-                      label: proj
-                    }))}
-                    onChange={handleProjetoChange}
-                    className="react-select-container"
-                    classNamePrefix="react-select"
-                    placeholder="Selecione os projetos..."
-                    noOptionsMessage={() => "Nenhum projeto encontrado"}
-                  />
-                </div>
-
                 <div className="modal-buttons">
                   <button type="button" className="cancel-btn" onClick={handleCloseModal}>
                     Cancelar
@@ -554,11 +657,11 @@ function Colaboradores() {
           </div>
         )}
 
-        {isDeleteModalOpen && (
+        {isDeleteModalOpen && colaboradorToDelete && (
           <div className="modal-overlay">
             <div className="modal-content delete-modal">
               <h2>Confirmar Exclusão</h2>
-              <p>Tem certeza que deseja excluir o colaborador "{colaboradorToDelete?.nome}"?</p>
+              <p>Tem certeza que deseja excluir o colaborador "{colaboradorToDelete.nome}"?</p>
               <div className="modal-buttons">
                 <button 
                   className="cancel-btn" 
@@ -576,6 +679,27 @@ function Colaboradores() {
                   Confirmar Exclusão
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {feedbackModal.isOpen && (
+          <div className="modal-overlay">
+            <div className={`modal-content feedback-modal ${feedbackModal.type}`}>
+              <div className="feedback-icon">
+                {feedbackModal.type === 'success' ? (
+                  <i className="material-icons">check_circle</i>
+                ) : (
+                  <i className="material-icons">error</i>
+                )}
+              </div>
+              <p>{feedbackModal.message}</p>
+              <button 
+                className="ok-btn"
+                onClick={() => setFeedbackModal({ ...feedbackModal, isOpen: false })}
+              >
+                OK
+              </button>
             </div>
           </div>
         )}
