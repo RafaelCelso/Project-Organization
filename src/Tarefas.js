@@ -103,11 +103,12 @@ function Tarefas() {
     status: 'aDefinir',
     dataInicio: '',
     dataConclusao: '',
-    prioridade: 'baixa', // Define prioridade baixa como padrão
+    prioridade: 'baixa',
     progresso: 'nao_iniciada',
     imagens: [],
     tags: [],
-    numeroChamado: ''
+    numeroChamado: '',
+    testes: [] // Garante que testes seja inicializado como array vazio
   });
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [comentario, setComentario] = useState('');
@@ -180,6 +181,61 @@ function Tarefas() {
   const [isArchivedTaskModalOpen, setIsArchivedTaskModalOpen] = useState(false);
   const [archivedTask, setArchivedTask] = useState(null);
   const [isConfirmDeleteArchivedTaskModalOpen, setIsConfirmDeleteArchivedTaskModalOpen] = useState(false);
+
+  // Adicione estas novas funções para gerenciar os testes
+  const [novoTopico, setNovoTopico] = useState('');
+
+  const handleAddTopico = () => {
+    if (novoTopico.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        testes: Array.isArray(prev.testes) ? [
+          ...prev.testes,
+          {
+            id: Date.now(),
+            descricao: novoTopico.trim(),
+            concluido: false
+          }
+        ] : [
+          {
+            id: Date.now(),
+            descricao: novoTopico.trim(),
+            concluido: false
+          }
+        ]
+      }));
+      setNovoTopico('');
+    }
+  };
+
+  const handleToggleTopico = (id) => {
+    setFormData(prev => ({
+      ...prev,
+      testes: Array.isArray(prev.testes) 
+        ? prev.testes.map(teste => 
+            teste.id === id ? { ...teste, concluido: !teste.concluido } : teste
+          )
+        : []
+    }));
+  };
+
+  const handleRemoveTopico = (id) => {
+    setFormData(prev => ({
+      ...prev,
+      testes: Array.isArray(prev.testes) 
+        ? prev.testes.filter(teste => teste.id !== id)
+        : []
+    }));
+  };
+
+  const calcularProgressoTestes = () => {
+    if (!formData?.testes || !Array.isArray(formData.testes) || formData.testes.length === 0) {
+      return 0;
+    }
+    
+    const testesConcluidos = formData.testes.filter(teste => teste?.concluido).length;
+    return Math.round((testesConcluidos / formData.testes.length) * 100);
+  };
 
   // Crie uma função auxiliar para converter o status
   const getStatusDisplay = (status) => {
@@ -345,7 +401,7 @@ function Tarefas() {
         ...removed,
         status: destination.droppableId,
         log: [
-          ...(removed.log || []),
+          ...(removed.log || []), // Preserva os logs existentes
           {
             tipo: 'movimentacao',
             data: new Date().toISOString(),
@@ -425,6 +481,7 @@ function Tarefas() {
         nome: formData.titulo,
         tags: formData.tags || [],
         imagens: uploadedFiles || [],
+        testes: formData.testes || [], // Adiciona os testes à tarefa
         log: [
           {
             tipo: isEditing ? 'edicao' : 'criacao',
@@ -687,17 +744,18 @@ function Tarefas() {
       status: 'aDefinir',
       dataInicio: '',
       dataConclusao: '',
-      prioridade: 'baixa', // Define prioridade baixa como padrão
+      prioridade: 'baixa',
       progresso: 'nao_iniciada',
       imagens: [],
       tags: [],
-      numeroChamado: ''
+      numeroChamado: '',
+      testes: [] // Garante que testes seja inicializado como array vazio ao limpar
     });
-    setUploadedFiles([]); // Limpa as imagens
-    setActiveTab('detalhes'); // Volta para a aba de detalhes
-    setTaskLog([]); // Limpa o log
-    setIsEditing(false); // Reseta o modo de edição
-    setShowValidation(false); // Reseta a validação
+    setUploadedFiles([]);
+    setActiveTab('detalhes');
+    setTaskLog([]);
+    setIsEditing(false);
+    setShowValidation(false);
   };
 
   const handleEdit = (task) => {
@@ -1207,61 +1265,84 @@ function Tarefas() {
 
   // Atualize a função aplicarFiltros
   const aplicarFiltros = () => {
-    let resultado = {};
-    
-    Object.keys(tasks).forEach(coluna => {
-      resultado[coluna] = tasks[coluna].filter(tarefa => {
-        let passouFiltro = true;
+    if (!tasks || !Object.keys(tasks).length) {
+      setTarefasFiltradas(null);
+      return;
+    }
 
-        // Filtro por texto (nome, ID ou chamado)
-        if (filtros.busca) {
-          const busca = filtros.busca.toLowerCase();
-          switch (filtros.tipoBusca) {
-            case 'nome':
-              passouFiltro = passouFiltro && tarefa.titulo?.toLowerCase().includes(busca);
-              break;
-            case 'id':
-              passouFiltro = passouFiltro && tarefa.taskId?.toString().includes(busca);
-              break;
-            case 'chamado':
-              passouFiltro = passouFiltro && tarefa.numeroChamado?.toString().toLowerCase().includes(busca);
-              break;
-            default:
-              break;
-          }
+    try {
+      let resultado = {};
+      
+      Object.keys(tasks).forEach(coluna => {
+        if (!Array.isArray(tasks[coluna])) {
+          resultado[coluna] = [];
+          return;
         }
 
-        // Filtro por data
-        if (filtros.dataInicio && filtros.dataFim) {
-          const dataInicio = new Date(filtros.dataInicio);
-          const dataFim = new Date(filtros.dataFim);
-          const dataTarefa = tarefa.dataInicio ? new Date(tarefa.dataInicio) : null;
+        resultado[coluna] = tasks[coluna].filter(tarefa => {
+          if (!tarefa) return false;
           
-          if (dataTarefa) {
-            passouFiltro = passouFiltro && 
-              dataTarefa >= dataInicio && 
-              dataTarefa <= dataFim;
-          } else {
-            passouFiltro = false;
+          let passouFiltro = true;
+
+          // Filtro por texto (nome, ID ou chamado)
+          if (filtros.busca) {
+            const busca = filtros.busca.toLowerCase();
+            switch (filtros.tipoBusca) {
+              case 'nome':
+                passouFiltro = passouFiltro && (tarefa.titulo?.toLowerCase().includes(busca) || false);
+                break;
+              case 'id':
+                passouFiltro = passouFiltro && (tarefa.taskId?.toString().includes(busca) || false);
+                break;
+              case 'chamado':
+                passouFiltro = passouFiltro && (tarefa.numeroChamado?.toString().toLowerCase().includes(busca) || false);
+                break;
+              default:
+                break;
+            }
           }
-        }
 
-        // Filtro por prioridade
-        if (filtros.prioridade) {
-          passouFiltro = passouFiltro && tarefa.prioridade === filtros.prioridade;
-        }
+          // Filtro por data
+          if (filtros.dataInicio && filtros.dataFim) {
+            try {
+              const dataInicio = new Date(filtros.dataInicio);
+              const dataFim = new Date(filtros.dataFim);
+              const dataTarefa = tarefa.dataInicio ? new Date(tarefa.dataInicio) : null;
+              
+              if (dataTarefa) {
+                passouFiltro = passouFiltro && 
+                  dataTarefa >= dataInicio && 
+                  dataTarefa <= dataFim;
+              } else {
+                passouFiltro = false;
+              }
+            } catch (error) {
+              console.error('Erro ao processar datas:', error);
+              passouFiltro = false;
+            }
+          }
 
-        // Filtro por tag
-        if (filtros.tag) {
-          passouFiltro = passouFiltro && 
-            tarefa.tags?.some(tag => tag.id === parseInt(filtros.tag));
-        }
+          // Filtro por prioridade
+          if (filtros.prioridade) {
+            passouFiltro = passouFiltro && tarefa.prioridade === filtros.prioridade;
+          }
 
-        return passouFiltro;
+          // Filtro por tag
+          if (filtros.tag) {
+            passouFiltro = passouFiltro && 
+              Array.isArray(tarefa.tags) && 
+              tarefa.tags.some(tag => tag?.id === parseInt(filtros.tag));
+          }
+
+          return passouFiltro;
+        });
       });
-    });
 
-    setTarefasFiltradas(resultado);
+      setTarefasFiltradas(resultado);
+    } catch (error) {
+      console.error('Erro ao aplicar filtros:', error);
+      setTarefasFiltradas(null);
+    }
   };
 
   // Atualize a função limparFiltros
@@ -1987,10 +2068,63 @@ function Tarefas() {
 
   // Adicione este useEffect para aplicar os filtros automaticamente
   useEffect(() => {
-    if (selectedProject) { // Só aplica os filtros se houver um projeto selecionado
+    if (selectedProject && tasks && Object.keys(tasks).length > 0) {
       aplicarFiltros();
     }
-  }, [filtros, tasks, selectedProject]); // Adiciona selectedProject como dependência
+  }, [filtros, tasks, selectedProject]);
+
+  // Adicione esta função para atualizar o status do teste
+  const handleToggleTesteView = async (testeId) => {
+    try {
+      // Cria uma cópia atualizada da tarefa
+      const tarefaAtualizada = {
+        ...selectedTask,
+        testes: selectedTask.testes.map(teste => 
+          teste.id === testeId ? { ...teste, concluido: !teste.concluido } : teste
+        )
+      };
+
+      // Atualiza o Firebase
+      const projetoRef = doc(db, 'projetosTarefas', selectedProject.id);
+      const novoKanban = { ...tasks };
+
+      // Encontra e atualiza a tarefa no kanban
+      Object.keys(novoKanban).forEach(coluna => {
+        novoKanban[coluna] = novoKanban[coluna].map(task => 
+          task.id === selectedTask.id ? tarefaAtualizada : task
+        );
+      });
+
+      // Atualiza o documento no Firebase
+      await updateDoc(projetoRef, {
+        kanban: novoKanban
+      });
+
+      // Atualiza os estados locais
+      setTasks(novoKanban);
+      setSelectedTask(tarefaAtualizada);
+
+      // Adiciona um log da atualização
+      const novoLog = {
+        tipo: 'teste',
+        data: new Date().toISOString(),
+        usuario: 'Usuário Atual',
+        detalhes: `Teste "${selectedTask.testes.find(t => t.id === testeId).descricao}" ${
+        !selectedTask.testes.find(t => t.id === testeId).concluido ? 'marcado como concluído' : 'desmarcado'
+      }`
+      };
+
+      // Atualiza os comentários/logs
+      setComentarios(prev => ({
+        ...prev,
+        [selectedTask.id]: [...(prev[selectedTask.id] || []), novoLog]
+      }));
+
+    } catch (error) {
+      console.error('Erro ao atualizar teste:', error);
+      alert('Erro ao atualizar teste. Por favor, tente novamente.');
+    }
+  };
 
   return (
     <div className="tarefas-container">
@@ -2564,6 +2698,78 @@ function Tarefas() {
                       </div>
                     )}
                   </div>
+
+                  {/* Seção de Testes */}
+                  <div className="form-group full-width testes-section">
+                    <label>
+                      <FontAwesomeIcon icon={faCheckCircle} className="form-icon" /> Tópicos
+                    </label>
+                    
+                    <div className="testes-container">
+                      {/* Barra de Progresso */}
+                      {formData?.testes && formData.testes.length > 0 && (
+                        <div className="teste-progresso">
+                          <div className="progresso-info">
+                            <span>Progresso dos Tópicos</span>
+                            <span>{calcularProgressoTestes()}%</span>
+                          </div>
+                          <div className="progresso-barra-container">
+                            <div 
+                              className="progresso-barra" 
+                              style={{ width: `${calcularProgressoTestes()}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Lista de Tópicos */}
+                      <div className="teste-topicos">
+                        {formData?.testes?.map(teste => (
+                          <div key={teste.id} className="teste-topico">
+                            <div className="topico-content">
+                              <input
+                                type="checkbox"
+                                checked={teste.concluido}
+                                onChange={() => handleToggleTopico(teste.id)}
+                                id={`teste-${teste.id}`}
+                              />
+                              <label 
+                                htmlFor={`teste-${teste.id}`}
+                                className={teste.concluido ? 'concluido' : ''}
+                              >
+                                {teste.descricao}
+                              </label>
+                            </div>
+                            <button 
+                              type="button" 
+                              className="remove-topico-btn"
+                              onClick={() => handleRemoveTopico(teste.id)}
+                            >
+                              <FontAwesomeIcon icon={faTimes} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Adicionar Novo Tópico */}
+                      <div className="add-topico-container">
+                        <input
+                          type="text"
+                          value={novoTopico}
+                          onChange={(e) => setNovoTopico(e.target.value)}
+                          placeholder="Digite um novo tópico"
+                          className="add-topico-input"
+                        />
+                        <button 
+                          type="button"
+                          className="add-topico-btn"
+                          onClick={handleAddTopico}
+                        >
+                          <FontAwesomeIcon icon={faPlus} /> Adicionar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="modal-buttons">
@@ -2869,6 +3075,65 @@ function Tarefas() {
                     ))}
                   </div>
                 </div>
+
+                {/* Adicione esta seção dentro do modal de visualização da tarefa */}
+                {selectedTask.testes && selectedTask.testes.length > 0 && (
+                  <div className="task-description-section">
+                    <div className="section-header">
+                      <i className="material-icons">checklist</i>
+                      <h3>Tópicos</h3>
+                    </div>
+                    <div className="testes-container">
+                      {/* Barra de Progresso */}
+                      <div className="teste-progresso">
+                        <div className="progresso-info">
+                          <span>Tópicos</span>
+                          <span>{Math.round((selectedTask.testes.filter(teste => teste.concluido).length / selectedTask.testes.length) * 100)}%</span>
+                        </div>
+                        <div className="progresso-barra-container">
+                          <div 
+                            className="progresso-barra" 
+                            style={{ 
+                              width: `${Math.round(
+                                (selectedTask.testes.filter(teste => teste.concluido).length / 
+                                selectedTask.testes.length) * 100
+                              )}%` 
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Lista de Tópicos */}
+                      <div className="teste-topicos view-only">
+                        {selectedTask.testes.map(teste => (
+                          <div 
+                            key={teste.id} 
+                            className="teste-topico"
+                            onClick={() => !selectedTask.status === 'arquivado' && handleToggleTesteView(teste.id)}
+                            style={{ cursor: selectedTask.status === 'arquivado' ? 'not-allowed' : 'pointer' }}
+                          >
+                            <div className="topico-content">
+                              <input
+                                type="checkbox"
+                                checked={teste.concluido}
+                                onChange={() => handleToggleTesteView(teste.id)}
+                                disabled={selectedTask.status === 'arquivado'}
+                                id={`view-teste-${teste.id}`}
+                                onClick={(e) => e.stopPropagation()} // Evita duplo trigger ao clicar no checkbox
+                              />
+                              <label 
+                                htmlFor={`view-teste-${teste.id}`}
+                                className={teste.concluido ? 'concluido' : ''}
+                              >
+                                {teste.descricao}
+                              </label>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="modal-buttons">
