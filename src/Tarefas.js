@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEllipsisV, faClipboardList, faUser, faCalendarAlt, faExclamationTriangle, faSpinner, faCheckCircle, faProjectDiagram, faComment, faImage, faDownload, faSearch, faFilter, faTimes, faTag, faTrash, faHistory, faPen } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEllipsisV, faClipboardList, faUser, faCalendarAlt, faExclamationTriangle, faSpinner, faCheckCircle, faProjectDiagram, faComment, faImage, faDownload, faSearch, faFilter, faTimes, faTag, faTrash, faHistory, faPen, faExchange } from '@fortawesome/free-solid-svg-icons';
 import Sidebar from './Sidebar';
 import './Tarefas.css';
 import { format } from 'date-fns';
@@ -189,6 +189,9 @@ function Tarefas() {
   const [editingTopicoId, setEditingTopicoId] = useState(null);
   const [editingTopicoText, setEditingTopicoText] = useState('');
 
+  // Adicione este estado no início do componente
+  const [activeCommentTab, setActiveCommentTab] = useState('comentarios');
+
   const handleAddTopico = () => {
     if (novoTopico.trim()) {
       setFormData(prev => ({
@@ -267,45 +270,47 @@ function Tarefas() {
     if (!comentario.trim() || !selectedTask) return;
 
     try {
+      // Cria o novo comentário
       const novoComentario = {
-        data: new Date().toISOString(),
-        detalhes: comentario,
         tipo: "comentario",
+        data: new Date().toISOString(),
         usuario: "Usuário Atual", // Substitua pelo usuário logado
-        nome: "1234" // Substitua pelo nome do usuário logado
+        detalhes: comentario.trim()
       };
 
-      // Atualiza o log da tarefa no Firebase
+      // Cria uma cópia atualizada da tarefa
+      const tarefaAtualizada = {
+        ...selectedTask,
+        log: [...(selectedTask.log || []), novoComentario]
+      };
+
+      // Atualiza o Firebase
       const projetoRef = doc(db, 'projetosTarefas', selectedProject.id);
       const novoKanban = { ...tasks };
       
-      // Encontra a coluna e a tarefa
+      // Encontra e atualiza a tarefa no kanban
       Object.keys(novoKanban).forEach(coluna => {
-        novoKanban[coluna] = novoKanban[coluna].map(task => {
-          if (task.id === selectedTask.id) {
-            return {
-              ...task,
-              log: [...(task.log || []), novoComentario]
-            };
-          }
-          return task;
-        });
+        novoKanban[coluna] = novoKanban[coluna].map(task => 
+          task.id === selectedTask.id ? tarefaAtualizada : task
+        );
       });
 
-      // Atualiza o Firebase
+      // Atualiza o documento no Firebase
       await updateDoc(projetoRef, {
         kanban: novoKanban
       });
 
-      // Atualiza o estado local
+      // Atualiza os estados locais
       setTasks(novoKanban);
+      setSelectedTask(tarefaAtualizada);
       
       // Atualiza o estado dos comentários
       setComentarios(prev => ({
         ...prev,
-        [selectedTask.id]: [...(prev[selectedTask.id] || []), novoComentario]
+        [selectedTask.id]: tarefaAtualizada.log
       }));
 
+      // Limpa o campo de comentário e fecha o input
       setComentario('');
       setShowCommentInput(false);
 
@@ -661,10 +666,13 @@ function Tarefas() {
       dataConclusao: task.dataConclusao || '',
       prioridade: task.prioridade || '',
       progresso: task.progresso || 'nao_iniciada',
-      status: task.status || 'todo'
+      status: task.status || 'todo',
+      numeroChamado: task.numeroChamado || '',
+      tags: task.tags || [],
+      testes: task.testes || []
     });
     
-    // Carrega os comentários da tarefa
+    // Carrega os logs/comentários da tarefa
     setComentarios({
       [task.id]: task.log || []
     });
@@ -2078,10 +2086,10 @@ function Tarefas() {
     }
   }, [filtros, tasks, selectedProject]);
 
-  // Adicione esta função para atualizar o status do teste
+  // Modifique a função handleToggleTesteView
   const handleToggleTesteView = async (testeId) => {
     try {
-      // Cria uma cópia atualizada da tarefa
+      // Cria uma cópia atualizada da tarefa mantendo todos os dados existentes
       const tarefaAtualizada = {
         ...selectedTask,
         testes: selectedTask.testes.map(teste => 
@@ -2089,27 +2097,7 @@ function Tarefas() {
         )
       };
 
-      // Atualiza o Firebase
-      const projetoRef = doc(db, 'projetosTarefas', selectedProject.id);
-      const novoKanban = { ...tasks };
-
-      // Encontra e atualiza a tarefa no kanban
-      Object.keys(novoKanban).forEach(coluna => {
-        novoKanban[coluna] = novoKanban[coluna].map(task => 
-          task.id === selectedTask.id ? tarefaAtualizada : task
-        );
-      });
-
-      // Atualiza o documento no Firebase
-      await updateDoc(projetoRef, {
-        kanban: novoKanban
-      });
-
-      // Atualiza os estados locais
-      setTasks(novoKanban);
-      setSelectedTask(tarefaAtualizada);
-
-      // Adiciona um log da atualização
+      // Cria o novo log
       const novoLog = {
         tipo: 'teste',
         data: new Date().toISOString(),
@@ -2117,19 +2105,43 @@ function Tarefas() {
         detalhes: `Teste "${selectedTask.testes.find(t => t.id === testeId).descricao}" ${
         !selectedTask.testes.find(t => t.id === testeId).concluido ? 'marcado como concluído' : 'desmarcado'
       }`
-      };
+    };
 
-      // Atualiza os comentários/logs
-      setComentarios(prev => ({
-        ...prev,
-        [selectedTask.id]: [...(prev[selectedTask.id] || []), novoLog]
-      }));
+    // Mantém os logs existentes e adiciona o novo
+    const logsAtualizados = [...(selectedTask.log || []), novoLog];
+    tarefaAtualizada.log = logsAtualizados;
 
-    } catch (error) {
-      console.error('Erro ao atualizar teste:', error);
-      alert('Erro ao atualizar teste. Por favor, tente novamente.');
-    }
-  };
+    // Atualiza o Firebase
+    const projetoRef = doc(db, 'projetosTarefas', selectedProject.id);
+    const novoKanban = { ...tasks };
+
+    // Encontra e atualiza a tarefa no kanban mantendo todos os dados
+    Object.keys(novoKanban).forEach(coluna => {
+      novoKanban[coluna] = novoKanban[coluna].map(task => 
+        task.id === selectedTask.id ? tarefaAtualizada : task
+      );
+    });
+
+    // Atualiza o documento no Firebase
+    await updateDoc(projetoRef, {
+      kanban: novoKanban
+    });
+
+    // Atualiza os estados locais
+    setTasks(novoKanban);
+    setSelectedTask(tarefaAtualizada);
+    
+    // Atualiza os comentários mantendo os existentes e adicionando o novo log
+    setComentarios(prev => ({
+      ...prev,
+      [selectedTask.id]: logsAtualizados
+    }));
+
+  } catch (error) {
+    console.error('Erro ao atualizar teste:', error);
+    alert('Erro ao atualizar teste. Por favor, tente novamente.');
+  }
+};
 
   // Adicione estas novas funções
   const handleStartEditTopico = (topico) => {
@@ -3099,76 +3111,120 @@ function Tarefas() {
                 {/* Seção de Comentários */}
                 <div className="comments-section">
                   <div className="section-header">
-                    <i className="material-icons" id="chat-icon">chat</i>
-                    <h3>Comentários</h3>
-                    {selectedTask.status !== 'arquivado' && (
+                    <div className="comments-tabs">
+                      <button 
+                        className={`tab-button ${activeCommentTab === 'comentarios' ? 'active' : ''}`}
+                        onClick={() => setActiveCommentTab('comentarios')}
+                      >
+                        <FontAwesomeIcon icon={faComment} />
+                        Comentários
+                      </button>
+                      <button 
+                        className={`tab-button ${activeCommentTab === 'logs' ? 'active' : ''}`}
+                        onClick={() => setActiveCommentTab('logs')}
+                      >
+                        <FontAwesomeIcon icon={faHistory} />
+                        Logs
+                      </button>
+                    </div>
+                    {activeCommentTab === 'comentarios' && selectedTask.status !== 'arquivado' && (
                       <button 
                         className="add-comment-btn"
                         onClick={() => setShowCommentInput(!showCommentInput)}
                       >
-                        <i className="material-icons">add_comment</i>
+                        <FontAwesomeIcon icon={faComment} />
                         Comentar
                       </button>
                     )}
                   </div>
 
-                  {showCommentInput && (
-                    <div className="comment-input-container">
-                      <textarea
-                        value={comentario}
-                        onChange={(e) => setComentario(e.target.value)}
-                        placeholder="Digite seu comentário..."
-                        rows="3"
-                      />
-                      <div className="comment-actions">
-                        <button 
-                          className="comment-cancel-btn"
-                          onClick={() => {
-                            setShowCommentInput(false);
-                            setComentario('');
-                          }}
-                        >
-                          Cancelar
-                        </button>
-                        <button 
-                          className="comment-submit-btn"
-                          onClick={handleAddComment}
-                        >
-                          Enviar
-                        </button>
+                  {activeCommentTab === 'comentarios' && (
+                    <>
+                      {showCommentInput && (
+                        <div className="comment-input-container">
+                          <textarea
+                            value={comentario}
+                            onChange={(e) => setComentario(e.target.value)}
+                            placeholder="Digite seu comentário..."
+                            rows="3"
+                          />
+                          <div className="comment-actions">
+                            <button 
+                              className="comment-cancel-btn"
+                              onClick={() => {
+                                setShowCommentInput(false);
+                                setComentario('');
+                              }}
+                            >
+                              Cancelar
+                            </button>
+                            <button 
+                              className="comment-submit-btn"
+                              onClick={handleAddComment}
+                            >
+                              Enviar
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Lista de Comentários */}
+                      <div className="comments-list">
+                        {comentarios[selectedTask.id]
+                          ?.filter(comment => comment.tipo === 'comentario')
+                          .sort((a, b) => new Date(b.data) - new Date(a.data))
+                          .map(comment => (
+                            <div 
+                              key={comment.data} 
+                              className="comment-item user-comment"
+                            >
+                              <div className="comment-header">
+                                <div className="comment-user-info">
+                                  <FontAwesomeIcon icon={faComment} className="comment-icon" />
+                                  <span className="comment-user">{comment.usuario}</span>
+                                </div>
+                                <span className="comment-date">
+                                  {format(new Date(comment.data), "dd/MM/yyyy 'às' HH:mm")}
+                                </span>
+                              </div>
+                              <p className="comment-text">{comment.detalhes}</p>
+                            </div>
+                          ))}
                       </div>
-                    </div>
+                    </>
                   )}
 
-                  <div className="comments-list">
-                    {comentarios[selectedTask.id]?.map(comment => (
-                      <div 
-                        key={comment.data} 
-                        className={`comment-item ${comment.tipo === 'comentario' ? 'user-comment' : 'system-log'}`}
-                      >
-                        <div className="comment-header">
-                          <div className="comment-user-info">
-                            {comment.tipo === 'comentario' ? (
-                              <FontAwesomeIcon icon={faComment} className="comment-icon" />
-                            ) : (
-                              <FontAwesomeIcon icon={faHistory} className="log-icon" />
-                            )}
-                            <span className="comment-user">{comment.usuario}</span>
+                  {activeCommentTab === 'logs' && (
+                    <div className="comments-list">
+                      {comentarios[selectedTask.id]
+                        ?.filter(comment => comment.tipo !== 'comentario')
+                        .sort((a, b) => new Date(b.data) - new Date(a.data))
+                        .map(log => (
+                          <div 
+                            key={log.data} 
+                            className={`comment-item system-log ${log.tipo === 'teste' ? 'teste-log' : ''}`}
+                          >
+                            <div className="comment-header">
+                              <div className="comment-user-info">
+                                <FontAwesomeIcon 
+                                  icon={
+                                    log.tipo === 'teste' ? faCheckCircle :
+                                    log.tipo === 'movimentacao' ? faExchange :
+                                    faHistory
+                                  } 
+                                  className="log-icon" 
+                                />
+                                <span className="comment-user">{log.usuario}</span>
+                              </div>
+                              <span className="comment-date">
+                                {format(new Date(log.data), "dd/MM/yyyy 'às' HH:mm")}
+                              </span>
+                            </div>
+                            <p className="log-message">{getLogMessage(log)}</p>
                           </div>
-                          <span className="comment-date">
-                            {format(new Date(comment.data), "dd/MM/yyyy 'às' HH:mm")}
-                          </span>
-                        </div>
-                        <p className="comment-text">
-                          {comment.tipo === 'comentario' ? (
-                            comment.detalhes
-                          ) : (
-                            <span className="log-message">{getLogMessage(comment)}</span>
-                          )}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
+                        ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Adicione esta seção dentro do modal de visualização da tarefa */}
@@ -3446,7 +3502,7 @@ function Tarefas() {
         {isDeleteProjectModalOpen && projectToDelete && (
           <div className="modal-overlay">
             <div className="modal-content delete-modal">
-              <h2>Confirmar Exclus��o</h2>
+              <h2>Confirmar Excluso</h2>
               <p>Tem certeza que deseja excluir o projeto "{projectToDelete.nome}"?</p>
               <div className="info-section">
                 <p><strong>Tipo:</strong> {projectToDelete.tipo}</p>

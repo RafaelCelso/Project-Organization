@@ -4401,3 +4401,112 @@
   color: #000;
   font-weight: normal;
 }
+
+/* Ajuste os estilos para o botão Adicionar na criação de tags */
+.tag-actions .add-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 45px;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.tag-actions .add-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+}
+
+.tag-actions .add-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.tag-actions .add-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.tag-actions .add-btn i {
+  font-size: 18px;
+}
+
+/* Estilos para as abas de comentários */
+.comments-tabs {
+  display: flex;
+  gap: 16px;
+  margin-right: auto;
+}
+
+.comments-tabs .tab-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.comments-tabs .tab-button:hover {
+  color: #3b82f6;
+}
+
+.comments-tabs .tab-button.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+/* Ajuste no header da seção */
+.comments-section .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Estilos específicos para logs */
+.comment-item.system-log {
+  background-color: #f8fafc;
+  border-left: 4px solid #64748b;
+}
+
+.comment-item.system-log.teste-log {
+  background-color: #f0fdf4;
+  border-left: 4px solid #22c55e;
+}
+
+.comment-item.system-log .log-icon {
+  color: #64748b;
+}
+
+.comment-item.system-log.teste-log .log-icon {
+  color: #22c55e;
+}
+
+.comment-item.system-log .log-message {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.comment-item.system-log.teste-log .log-message {
+  color: #166534;
+}
