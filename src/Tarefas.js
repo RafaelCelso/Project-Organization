@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEllipsisV, faClipboardList, faUser, faCalendarAlt, faExclamationTriangle, faSpinner, faCheckCircle, faProjectDiagram, faComment, faImage, faDownload, faSearch, faFilter, faTimes, faTag, faTrash, faHistory } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEllipsisV, faClipboardList, faUser, faCalendarAlt, faExclamationTriangle, faSpinner, faCheckCircle, faProjectDiagram, faComment, faImage, faDownload, faSearch, faFilter, faTimes, faTag, faTrash, faHistory, faPen } from '@fortawesome/free-solid-svg-icons';
 import Sidebar from './Sidebar';
 import './Tarefas.css';
 import { format } from 'date-fns';
@@ -184,6 +184,10 @@ function Tarefas() {
 
   // Adicione estas novas funções para gerenciar os testes
   const [novoTopico, setNovoTopico] = useState('');
+
+  // Adicione este novo estado
+  const [editingTopicoId, setEditingTopicoId] = useState(null);
+  const [editingTopicoText, setEditingTopicoText] = useState('');
 
   const handleAddTopico = () => {
     if (novoTopico.trim()) {
@@ -781,7 +785,8 @@ function Tarefas() {
       progresso: task.progresso || 'nao_iniciada',
       status: task.status || 'todo',
       numeroChamado: task.numeroChamado || '',
-      tags: task.tags || [] // Adiciona as tags existentes ao formData
+      tags: task.tags || [],
+      testes: Array.isArray(task.testes) ? task.testes : [] // Garante que os testes sejam carregados corretamente
     });
 
     // Carrega as imagens existentes
@@ -2126,6 +2131,109 @@ function Tarefas() {
     }
   };
 
+  // Adicione estas novas funções
+  const handleStartEditTopico = (topico) => {
+    setEditingTopicoId(topico.id);
+    setEditingTopicoText(topico.descricao);
+  };
+
+  const handleSaveEditTopico = () => {
+    if (editingTopicoText.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        testes: prev.testes.map(teste => 
+          teste.id === editingTopicoId 
+            ? { ...teste, descricao: editingTopicoText.trim() }
+            : teste
+        )
+      }));
+      setEditingTopicoId(null);
+      setEditingTopicoText('');
+    }
+  };
+
+  const handleCancelEditTopico = () => {
+    setEditingTopicoId(null);
+    setEditingTopicoText('');
+  };
+
+  // Atualize a seção de tópicos no formulário
+  const renderTopicos = () => (
+    <div className="teste-topicos">
+      {formData?.testes?.map(teste => (
+        <div key={teste.id} className="teste-topico">
+          <div className="topico-content">
+            <input
+              type="checkbox"
+              checked={teste.concluido}
+              onChange={() => handleToggleTopico(teste.id)}
+              id={`teste-${teste.id}`}
+            />
+            {editingTopicoId === teste.id ? (
+              <div className="topico-edit-container">
+                <input
+                  type="text"
+                  value={editingTopicoText}
+                  onChange={(e) => setEditingTopicoText(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleSaveEditTopico();
+                    }
+                  }}
+                  className="topico-edit-input"
+                  autoFocus
+                />
+                <div className="topico-edit-actions">
+                  <button 
+                    type="button"
+                    className="save-edit-btn"
+                    onClick={handleSaveEditTopico}
+                  >
+                    <FontAwesomeIcon icon={faCheckCircle} />
+                  </button>
+                  <button 
+                    type="button"
+                    className="cancel-edit-btn"
+                    onClick={handleCancelEditTopico}
+                  >
+                    <FontAwesomeIcon icon={faTimes} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="topico-label-container">
+                <label 
+                  htmlFor={`teste-${teste.id}`}
+                  className={teste.concluido ? 'concluido' : ''}
+                  onDoubleClick={() => handleStartEditTopico(teste)}
+                >
+                  {teste.descricao}
+                </label>
+                <button 
+                  type="button"
+                  className="edit-topico-btn"
+                  onClick={() => handleStartEditTopico(teste)}
+                >
+                  <FontAwesomeIcon icon={faPen} />
+                </button>
+              </div>
+            )}
+          </div>
+          {editingTopicoId !== teste.id && (
+            <button 
+              type="button" 
+              className="remove-topico-btn"
+              onClick={() => handleRemoveTopico(teste.id)}
+            >
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="tarefas-container">
       <Sidebar />
@@ -2723,33 +2831,7 @@ function Tarefas() {
                       )}
 
                       {/* Lista de Tópicos */}
-                      <div className="teste-topicos">
-                        {formData?.testes?.map(teste => (
-                          <div key={teste.id} className="teste-topico">
-                            <div className="topico-content">
-                              <input
-                                type="checkbox"
-                                checked={teste.concluido}
-                                onChange={() => handleToggleTopico(teste.id)}
-                                id={`teste-${teste.id}`}
-                              />
-                              <label 
-                                htmlFor={`teste-${teste.id}`}
-                                className={teste.concluido ? 'concluido' : ''}
-                              >
-                                {teste.descricao}
-                              </label>
-                            </div>
-                            <button 
-                              type="button" 
-                              className="remove-topico-btn"
-                              onClick={() => handleRemoveTopico(teste.id)}
-                            >
-                              <FontAwesomeIcon icon={faTimes} />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
+                      {renderTopicos()}
 
                       {/* Adicionar Novo Tópico */}
                       <div className="add-topico-container">

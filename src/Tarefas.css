@@ -3865,10 +3865,34 @@
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
+  opacity: 1;
+  visibility: visible;
 }
 
 .remove-topico-btn:hover {
   background-color: #fee2e2;
+}
+
+/* Ajuste o layout do tópico durante a edição */
+.teste-topico {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.topico-edit-container {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+}
+
+.topico-edit-input {
+  flex: 1;
 }
 
 /* Estilos para adicionar novo tópico */
@@ -4029,4 +4053,101 @@
   border-radius: 12px;
   padding: 20px;
   margin-top: 24px;
+}
+
+.topico-edit-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.topico-edit-input {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.topico-edit-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.save-edit-btn,
+.cancel-edit-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.save-edit-btn {
+  color: #4caf50;
+}
+
+.cancel-edit-btn {
+  color: #f44336;
+}
+
+.save-edit-btn:hover {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.cancel-edit-btn:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.teste-topico label {
+  cursor: pointer;
+  user-select: none;
+}
+
+.teste-topico label:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+}
+
+.topico-label-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  position: relative;
+}
+
+.edit-topico-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #9ca3af;
+  opacity: 0;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.teste-topico:hover .edit-topico-btn {
+  opacity: 1;
+}
+
+.edit-topico-btn:hover {
+  color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Ajuste o espaçamento do label */
+.topico-label-container label {
+  flex: 1;
+  padding: 4px 0;
 }
