@@ -215,14 +215,50 @@ function Tarefas() {
     }
   };
 
-  const handleToggleTopico = (id) => {
+  const addConfettiParticles = (checkbox) => {
+    // Remove partículas existentes
+    const existingParticles = checkbox.parentElement.querySelector('.confetti-particles');
+    if (existingParticles) {
+      existingParticles.remove();
+    }
+
+    // Cria novo elemento para as partículas
+    const particles = document.createElement('div');
+    particles.className = 'confetti-particles';
+    
+    // Adiciona 8 partículas
+    for (let i = 0; i < 8; i++) {
+      const particle = document.createElement('i');
+      particles.appendChild(particle);
+    }
+
+    // Adiciona as partículas após o checkbox
+    checkbox.parentElement.appendChild(particles);
+
+    // Remove as partículas após a animação
+    setTimeout(() => {
+      particles.remove();
+    }, 600);
+  };
+
+  // Modifique a função handleToggleTopico para incluir a animação
+  const handleToggleTopico = (testeId) => {
     setFormData(prev => ({
       ...prev,
-      testes: Array.isArray(prev.testes) 
-        ? prev.testes.map(teste => 
-            teste.id === id ? { ...teste, concluido: !teste.concluido } : teste
-          )
-        : []
+      testes: prev.testes.map(teste => {
+        if (teste.id === testeId) {
+          // Encontra o checkbox correspondente e adiciona os confetes
+          setTimeout(() => {
+            const checkbox = document.querySelector(`#teste-${testeId}`);
+            if (checkbox && !teste.concluido) {
+              addConfettiParticles(checkbox);
+            }
+          }, 0);
+          
+          return { ...teste, concluido: !teste.concluido };
+        }
+        return teste;
+      })
     }));
   };
 
@@ -2107,41 +2143,41 @@ function Tarefas() {
       }`
     };
 
-    // Mantém os logs existentes e adiciona o novo
-    const logsAtualizados = [...(selectedTask.log || []), novoLog];
-    tarefaAtualizada.log = logsAtualizados;
+      // Mantém os logs existentes e adiciona o novo
+      const logsAtualizados = [...(selectedTask.log || []), novoLog];
+      tarefaAtualizada.log = logsAtualizados;
 
-    // Atualiza o Firebase
-    const projetoRef = doc(db, 'projetosTarefas', selectedProject.id);
-    const novoKanban = { ...tasks };
+      // Atualiza o Firebase
+      const projetoRef = doc(db, 'projetosTarefas', selectedProject.id);
+      const novoKanban = { ...tasks };
 
-    // Encontra e atualiza a tarefa no kanban mantendo todos os dados
-    Object.keys(novoKanban).forEach(coluna => {
-      novoKanban[coluna] = novoKanban[coluna].map(task => 
-        task.id === selectedTask.id ? tarefaAtualizada : task
-      );
-    });
+      // Encontra e atualiza a tarefa no kanban mantendo todos os dados
+      Object.keys(novoKanban).forEach(coluna => {
+        novoKanban[coluna] = novoKanban[coluna].map(task => 
+          task.id === selectedTask.id ? tarefaAtualizada : task
+        );
+      });
 
-    // Atualiza o documento no Firebase
-    await updateDoc(projetoRef, {
-      kanban: novoKanban
-    });
+      // Atualiza o documento no Firebase
+      await updateDoc(projetoRef, {
+        kanban: novoKanban
+      });
 
-    // Atualiza os estados locais
-    setTasks(novoKanban);
-    setSelectedTask(tarefaAtualizada);
-    
-    // Atualiza os comentários mantendo os existentes e adicionando o novo log
-    setComentarios(prev => ({
-      ...prev,
-      [selectedTask.id]: logsAtualizados
-    }));
+      // Atualiza os estados locais
+      setTasks(novoKanban);
+      setSelectedTask(tarefaAtualizada);
+      
+      // Atualiza os comentários mantendo os existentes e adicionando o novo log
+      setComentarios(prev => ({
+        ...prev,
+        [selectedTask.id]: logsAtualizados
+      }));
 
-  } catch (error) {
-    console.error('Erro ao atualizar teste:', error);
-    alert('Erro ao atualizar teste. Por favor, tente novamente.');
-  }
-};
+    } catch (error) {
+      console.error('Erro ao atualizar teste:', error);
+      alert('Erro ao atualizar teste. Por favor, tente novamente.');
+    }
+  };
 
   // Adicione estas novas funções
   const handleStartEditTopico = (topico) => {

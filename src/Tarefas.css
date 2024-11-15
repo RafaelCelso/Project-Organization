@@ -4528,24 +4528,68 @@
 }
 
 .topico-content input[type="checkbox"]:checked {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
+  background-color: #22c55e; /* Verde */
+  border-color: #22c55e;
 }
 
 .topico-content input[type="checkbox"]:checked::after {
+  content: '✓'; /* Ícone de check */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* Ajuste no hover do checkbox */
+.topico-content input[type="checkbox"]:hover {
+  border-color: #22c55e;
+}
+
+/* Ajuste na transição para tornar mais suave */
+.topico-content input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #e5e7eb;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  background-color: white;
+}
+
+/* Efeito de ripple ao clicar */
+.topico-content input[type="checkbox"]:active::before {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 12px;
-  height: 12px;
-  background-color: white;
+  width: 32px;
+  height: 32px;
+  background-color: rgba(34, 197, 94, 0.1);
   border-radius: 50%;
+  animation: ripple 0.4s ease-out;
 }
 
-.topico-content input[type="checkbox"]:hover {
-  border-color: #3b82f6;
+@keyframes ripple {
+  from {
+    width: 0px;
+    height: 0px;
+    opacity: 1;
+  }
+  to {
+    width: 32px;
+    height: 32px;
+    opacity: 0;
+  }
 }
 
 .topico-label-container {
@@ -4675,4 +4719,219 @@
 
 .add-topico-btn:active {
   transform: translateY(0);
+}
+
+/* Animação de confetes */
+@keyframes confetti {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.5);
+  }
+}
+
+@keyframes confettiParticle {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--r));
+    opacity: 0;
+  }
+}
+
+/* Container para os confetes */
+.topico-content input[type="checkbox"] {
+  position: relative;
+}
+
+/* Efeito de confete ao marcar o checkbox */
+.topico-content input[type="checkbox"]:checked::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+  animation: confetti 0.6s ease-out forwards;
+  z-index: 1;
+}
+
+/* Partículas de confete */
+.topico-content input[type="checkbox"]:checked::before {
+  background: radial-gradient(circle, transparent 30%, #22c55e 30%);
+  mix-blend-mode: screen;
+}
+
+/* Múltiplas partículas de confete */
+.topico-content input[type="checkbox"]:checked::after {
+  content: '✓';
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles {
+  position: absolute;
+  pointer-events: none;
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 2px;
+  animation: confettiParticle 0.6s ease-out forwards;
+  transform-origin: center;
+}
+
+/* Gerar 12 partículas com cores e direções diferentes */
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(1) {
+  left: 50%;
+  top: 50%;
+  background: #22c55e;
+  --tx: -20px;
+  --ty: -20px;
+  --r: -45deg;
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(2) {
+  left: 50%;
+  top: 50%;
+  background: #3b82f6;
+  --tx: 20px;
+  --ty: -20px;
+  --r: 45deg;
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(3) {
+  left: 50%;
+  top: 50%;
+  background: #eab308;
+  --tx: -20px;
+  --ty: 20px;
+  --r: 135deg;
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(4) {
+  left: 50%;
+  top: 50%;
+  background: #ec4899;
+  --tx: 20px;
+  --ty: 20px;
+  --r: -135deg;
+}
+
+/* Adicione mais partículas com diferentes direções */
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(5) {
+  left: 50%;
+  top: 50%;
+  background: #22c55e;
+  --tx: 0px;
+  --ty: -25px;
+  --r: 0deg;
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(6) {
+  left: 50%;
+  top: 50%;
+  background: #3b82f6;
+  --tx: 0px;
+  --ty: 25px;
+  --r: 180deg;
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(7) {
+  left: 50%;
+  top: 50%;
+  background: #eab308;
+  --tx: -25px;
+  --ty: 0px;
+  --r: -90deg;
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(8) {
+  left: 50%;
+  top: 50%;
+  background: #ec4899;
+  --tx: 25px;
+  --ty: 0px;
+  --r: 90deg;
+}
+
+/* Adicione o elemento para as partículas no HTML via JavaScript */
+.confetti-particles {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Ajuste a posição do check para ficar sobre os confetes */
+.topico-content input[type="checkbox"]:checked::after {
+  z-index: 3;
+}
+
+/* Melhore a animação do checkbox */
+.topico-content input[type="checkbox"] {
+  transform-origin: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.topico-content input[type="checkbox"]:checked {
+  transform: scale(1.1);
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Ajuste nas partículas de confete para formato redondo */
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i {
+  position: absolute;
+  width: 6px; /* Aumentado um pouco para melhor visibilidade */
+  height: 6px;
+  border-radius: 50%; /* Alterado para 50% para fazer círculos perfeitos */
+  animation: confettiParticle 0.6s ease-out forwards;
+  transform-origin: center;
+  opacity: 0.9; /* Adicionada uma leve transparência */
+}
+
+/* Ajuste na animação do confete central */
+.topico-content input[type="checkbox"]:checked::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%; /* Garante que o efeito central também seja circular */
+  pointer-events: none;
+  animation: confetti 0.6s ease-out forwards;
+  z-index: 1;
+  background: radial-gradient(circle, transparent 30%, rgba(34, 197, 94, 0.2) 30%);
+  mix-blend-mode: overlay;
+}
+
+/* Ajuste na animação para movimento mais suave e circular */
+@keyframes confettiParticle {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--r)) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Ajuste na animação central para efeito mais suave */
+@keyframes confetti {
+  0% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(0.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2);
+  }
 }
