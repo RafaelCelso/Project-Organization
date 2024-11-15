@@ -323,6 +323,12 @@ function Colaboradores() {
       status: '',
       projeto: ''
     });
+    
+    // Forçar o reset do estado interno dos componentes Select
+    const event = new Event('change');
+    document.querySelectorAll('.react-select__clear-indicator').forEach(button => {
+      button.dispatchEvent(event);
+    });
   };
 
   const loadColaboradores = async () => {
@@ -512,11 +518,10 @@ function Colaboradores() {
               <div className="filtro-grupo">
                 <label>Projeto</label>
                 <Select
-                  value={projetos
-                    .filter(p => p.nome === filtros.projeto)
-                    .map(p => ({ value: p.nome, label: p.nome }))[0]}
+                  value={filtros.projeto ? { value: filtros.projeto, label: filtros.projeto } : null}
                   onChange={handleFiltroProjetoChange}
                   options={[
+                    { value: '', label: 'Todos os projetos' },  // Adicionar opção default
                     ...projetos
                       .map(projeto => ({
                         value: projeto.nome,
