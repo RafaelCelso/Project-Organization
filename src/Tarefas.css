@@ -2500,7 +2500,7 @@
   border-radius: 12px;
   padding: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .available-project-card:hover {
@@ -5119,4 +5119,91 @@
 /* Mantém a cor original do título quando o card está selecionado */
 #tarefas-project-card.selected:hover h3 {
   color: #1f2937;
+}
+
+/* Estilos para os cards no modal de Adicionar Projetos */
+.available-project-card {
+  background-color: #fff;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+/* Efeito de brilho */
+.available-project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+  z-index: 2;
+}
+
+/* Efeito hover e selecionado */
+.available-project-card:hover,
+.available-project-card.selected {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+}
+
+/* Cores do texto no hover e selecionado */
+.available-project-card:hover h3,
+.available-project-card:hover .project-info span,
+.available-project-card.selected h3,
+.available-project-card.selected .project-info span {
+  color: white;
+}
+
+/* Ajuste no tipo do projeto */
+.available-project-card:hover .project-type,
+.available-project-card.selected .project-type {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #1976d2;
+}
+
+/* Animação de brilho */
+.available-project-card:hover::before,
+.available-project-card.selected::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+/* Ajuste no indicador de seleção */
+.available-project-card .selection-indicator {
+  color: #3b82f6;
+  transition: all 0.3s ease;
+}
+
+.available-project-card:hover .selection-indicator,
+.available-project-card.selected .selection-indicator {
+  color: white;
+}
+
+/* Mantenha o efeito de brilho mesmo quando selecionado */
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
 }
