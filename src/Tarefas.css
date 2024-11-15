@@ -5336,3 +5336,47 @@
   color: white !important;
   opacity: 0.9; /* Mantém uma leve diferenciação visual */
 }
+
+/* Ajuste no container do tópico */
+.teste-topico {
+  width: 100%;
+  word-break: break-word; /* Permite quebra de palavras longas */
+  overflow-wrap: break-word; /* Suporte adicional para quebra de palavras */
+}
+
+/* Ajuste no container do label */
+.topico-label-container {
+  width: 100%;
+  overflow: hidden; /* Previne overflow */
+}
+
+/* Ajuste no label do tópico */
+.topico-label-container label {
+  width: 100%;
+  white-space: normal; /* Permite quebra de linha */
+  word-wrap: break-word; /* Quebra palavras longas */
+  line-height: 1.4; /* Melhora o espaçamento entre linhas */
+}
+
+/* Ajuste no input de edição */
+.topico-edit-input {
+  width: 100%;
+  white-space: normal;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+/* Ajuste no input de novo tópico */
+.add-topico-input {
+  width: 100%;
+  white-space: normal;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+/* Container do formulário de tópicos */
+.teste-topicos {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden; /* Previne overflow horizontal */
+}
