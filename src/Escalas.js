@@ -273,12 +273,23 @@ function Escalas() {
           <div className="card">
             <h2><FontAwesomeIcon icon={faCalendarAlt} /> Próximos Eventos</h2>
             <ul>
-              {eventos.map(evento => (
-                <li key={evento.id}>
-                  <span>{evento.title}</span>
-                  <span>{new Date(evento.start).toLocaleDateString('pt-BR')}</span>
-                </li>
-              ))}
+              {eventos
+                .filter(evento => {
+                  const hoje = new Date();
+                  const eventoData = new Date(evento.start);
+                  return (
+                    eventoData.getMonth() === hoje.getMonth() &&
+                    eventoData.getFullYear() === hoje.getFullYear() &&
+                    eventoData >= hoje
+                  );
+                })
+                .sort((a, b) => new Date(a.start) - new Date(b.start))
+                .map(evento => (
+                  <li key={evento.id}>
+                    <span>{evento.title}</span>
+                    <span>{new Date(evento.start).toLocaleDateString('pt-BR')}</span>
+                  </li>
+                ))}
             </ul>
           </div>
         </div>

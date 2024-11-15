@@ -82,11 +82,15 @@ function Home() {
       try {
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
-
+        
+        // Cria data do último dia do mês atual
+        const ultimoDiaMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0, 23, 59, 59);
+        
         const eventosRef = collection(db, 'eventos');
         const q = query(
           eventosRef,
           where('start', '>=', hoje.toISOString()),
+          where('start', '<=', ultimoDiaMes.toISOString()),
           orderBy('start', 'asc'),
           limit(5)
         );
@@ -99,7 +103,7 @@ function Home() {
           end: new Date(doc.data().end)
         }));
 
-        console.log('Próximos eventos carregados:', eventosData);
+        console.log('Próximos eventos do mês atual:', eventosData);
         setEventos(eventosData);
       } catch (error) {
         console.error('Erro ao buscar eventos:', error);
