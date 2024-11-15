@@ -2412,14 +2412,16 @@ function Tarefas() {
               key={projeto.id} 
               className={`project-card ${selectedProject?.id === projeto.id ? 'selected' : ''}`}
               onClick={() => handleProjectSelect(projeto)}
+              id="tarefas-project-card" // Adicione este ID
             >
               <div className="project-card-header">
                 <h3>{projeto.nome}</h3>
                 <div className="project-header-actions">
                   <span className="project-type">{projeto.tipo}</span>
                   <button 
-                    className="edit-project-btn"
+                    className="project-edit-button"
                     onClick={(e) => handleEditProject(e, projeto)}
+                    id="tarefas-edit-button" // Adicione este ID
                   >
                     <FontAwesomeIcon icon={faEllipsisV} />
                   </button>
@@ -2427,10 +2429,14 @@ function Tarefas() {
               </div>
               <div className="project-card-content">
                 <div className="project-info">
-                  <span>Analista: {projeto.analista}</span>
-                  <span>Desenvolvedor: {projeto.desenvolvedor}</span>
+                  <span className="project-member" id="tarefas-member-info"> {/* Adicione este ID */}
+                    <span className="member-label">Analista:</span> {projeto.analista}
+                  </span>
+                  <span className="project-member" id="tarefas-member-info"> {/* Adicione este ID */}
+                    <span className="member-label">Desenvolvedor:</span> {projeto.desenvolvedor}
+                  </span>
                 </div>
-                <div className="task-count">
+                <div className="project-task-count" id="tarefas-task-count"> {/* Adicione este ID */}
                   <span>
                     {getTotalTasks(projeto)} tarefas
                   </span>

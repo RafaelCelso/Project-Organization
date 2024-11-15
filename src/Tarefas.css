@@ -1598,7 +1598,7 @@
   }
 }
 
-/* Estilos para o formul��rio simplificado */
+/* Estilos para o formulrio simplificado */
 .simplified-form {
   background-color: #fff;
   padding: 24px;
@@ -4977,4 +4977,146 @@
 .task-card:hover .unread-indicator {
   background-color: #f44336;
   border-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Adicione estes estilos para os elementos específicos do card de projeto */
+.project-info span.project-member {
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+.project-task-count {
+  color: #6b7280;
+  transition: color 0.3s ease;
+}
+
+.project-edit-button {
+  color: #64748b;
+  transition: color 0.3s ease;
+}
+
+/* Ajuste as cores no hover do card */
+.project-card:hover .project-member,
+.project-card:hover .project-task-count,
+.project-card:hover .project-edit-button {
+  color: white;
+}
+
+/* Ajuste o ícone de edição especificamente */
+.project-card:hover .project-edit-button {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.project-card:hover .project-edit-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Atualize os estilos para usar os IDs específicos */
+
+/* Cores padrão */
+#tarefas-member-info {
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+#tarefas-task-count {
+  color: #6b7280;
+  transition: color 0.3s ease;
+}
+
+#tarefas-edit-button {
+  color: #64748b;
+  transition: all 0.3s ease;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+/* Efeitos hover */
+#tarefas-project-card:hover #tarefas-member-info,
+#tarefas-project-card:hover #tarefas-task-count,
+#tarefas-project-card:hover #tarefas-edit-button {
+  color: white;
+}
+
+/* Efeitos especiais para o botão de edição */
+#tarefas-project-card:hover #tarefas-edit-button {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#tarefas-project-card:hover #tarefas-edit-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Garante que o label mantenha a cor correta */
+#tarefas-project-card:hover .member-label {
+  color: rgba(255, 255, 255, 0.7); /* Deixa o label levemente mais suave */
+}
+
+/* Cores padrão */
+#tarefas-member-info {
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+#tarefas-task-count {
+  color: #6b7280;
+  transition: color 0.3s ease;
+}
+
+#tarefas-edit-button {
+  color: #64748b;
+  transition: all 0.3s ease;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+/* Efeitos hover apenas quando o card não está selecionado */
+#tarefas-project-card:not(.selected):hover #tarefas-member-info,
+#tarefas-project-card:not(.selected):hover #tarefas-task-count,
+#tarefas-project-card:not(.selected):hover #tarefas-edit-button {
+  color: white;
+}
+
+/* Efeitos especiais para o botão de edição */
+#tarefas-project-card:not(.selected):hover #tarefas-edit-button {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#tarefas-project-card:not(.selected):hover #tarefas-edit-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Garante que o label mantenha a cor correta apenas quando não selecionado */
+#tarefas-project-card:not(.selected):hover .member-label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Mantém as cores originais quando o card está selecionado */
+#tarefas-project-card.selected:hover #tarefas-member-info,
+#tarefas-project-card.selected:hover #tarefas-task-count {
+  color: #666;
+}
+
+#tarefas-project-card.selected:hover #tarefas-edit-button {
+  color: #64748b;
+}
+
+#tarefas-project-card.selected:hover .member-label {
+  color: #666;
+}
+
+/* Adicione estas regras para o título do card */
+#tarefas-project-card h3 {
+  color: #1f2937;
+  transition: color 0.3s ease;
+}
+
+/* Muda a cor do título para branco no hover apenas quando não está selecionado */
+#tarefas-project-card:not(.selected):hover h3 {
+  color: white;
+}
+
+/* Mantém a cor original do título quando o card está selecionado */
+#tarefas-project-card.selected:hover h3 {
+  color: #1f2937;
 }
