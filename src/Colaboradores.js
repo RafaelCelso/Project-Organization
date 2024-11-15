@@ -67,7 +67,10 @@ function Colaboradores() {
       return (
         colaborador.nome.toLowerCase().includes(filtros.nome.toLowerCase()) &&
         (filtros.cargo === '' || colaborador.cargo === filtros.cargo) &&
-        (filtros.status === '' || colaborador.status === filtros.status)
+        (filtros.status === '' || colaborador.status === filtros.status) &&
+        (filtros.projeto === '' || 
+          (Array.isArray(colaborador.projeto) && 
+           colaborador.projeto.includes(filtros.projeto)))
       );
     })
     .sort((a, b) => {
