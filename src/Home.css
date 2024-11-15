@@ -38,15 +38,113 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+  z-index: 2;
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+}
+
+.card:hover h2,
+.card:hover .indicador,
+.card:hover ul li span {
+  color: white;
+}
+
+.card:hover .icon.success {
+  color: #4caf50;
+}
+
+.card:hover .icon.warning {
+  color: #ff9800;
+}
+
+.card:hover .icon.spin {
+  color: #2196f3;
+}
+
+.card:hover ul li:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.card:hover::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+.card:hover .indicador:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.card:hover ul li {
+  border-bottom-color: rgba(255, 255, 255, 0.2);
 }
 
 .card.expanded {
-  background-color: #f8fafc;
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+}
+
+.card.expanded h2,
+.card.expanded .indicador,
+.card.expanded ul li span {
+  color: white;
+}
+
+.card.expanded .icon.success {
+  color: #4caf50;
+}
+
+.card.expanded .icon.warning {
+  color: #ff9800;
+}
+
+.card.expanded .icon.spin {
+  color: #2196f3;
+}
+
+.card.expanded .indicador:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.card.expanded::before {
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 
 .card h2 {
@@ -451,4 +549,30 @@
   font-style: italic;
   text-align: center;
   padding: 12px 0;
+}
+
+/* Ajuste nas cores dos textos dos eventos no hover */
+.card:hover ul li span {
+  color: white !important; /* Força a cor branca para sobrescrever outros estilos */
+}
+
+/* Ajuste na borda entre os eventos */
+.card:hover ul li {
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ajuste no hover dos itens da lista */
+.card:hover ul li:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Garante que todos os textos dentro do card fiquem brancos no hover */
+.card:hover ul li span:first-child,
+.card:hover ul li span:last-child {
+  color: white;
+}
+
+/* Ajuste para a mensagem de "Nenhum evento próximo" */
+.card:hover .no-events span {
+  color: white;
 }
