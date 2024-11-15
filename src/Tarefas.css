@@ -1598,7 +1598,7 @@
   }
 }
 
-/* Estilos para o formulário simplificado */
+/* Estilos para o formul��rio simplificado */
 .simplified-form {
   background-color: #fff;
   padding: 24px;
@@ -4562,7 +4562,6 @@
   position: relative;
   transition: all 0.3s ease;
   flex-shrink: 0;
-  background-color: white;
 }
 
 /* Efeito de ripple ao clicar */
@@ -4934,4 +4933,48 @@
     opacity: 0;
     transform: translate(-50%, -50%) scale(2);
   }
+}
+
+/* Adicione estes estilos ao seu arquivo CSS */
+
+.task-chat-icon {
+  position: relative;
+  margin-left: 8px;
+}
+
+.chat-icon {
+  color: #666;
+  font-size: 14px;
+}
+
+.chat-icon.has-unread {
+  color: #1976d2;
+}
+
+.unread-indicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background-color: #f44336;
+  border-radius: 50%;
+  border: 2px solid #fff;
+}
+
+.task-metadata {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Adicione este estilo para mudar a cor do ícone de chat no hover do card */
+.task-card:hover .chat-icon {
+  color: white;
+}
+
+/* Mantenha o indicador de não lido visível mesmo com o hover */
+.task-card:hover .unread-indicator {
+  background-color: #f44336;
+  border-color: rgba(255, 255, 255, 0.9);
 }

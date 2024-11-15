@@ -192,6 +192,15 @@ function Tarefas() {
   // Adicione este estado no início do componente
   const [activeCommentTab, setActiveCommentTab] = useState('comentarios');
 
+  // Adicione estes estados no início do componente
+  const [unreadMessages, setUnreadMessages] = useState({});
+  const [viewedTasks, setViewedTasks] = useState(new Set());
+
+  // Adicione esta função para verificar se há mensagens não lidas
+  const hasUnreadMessages = (taskId) => {
+    return unreadMessages[taskId] && !viewedTasks.has(taskId);
+  };
+
   const handleAddTopico = () => {
     if (novoTopico.trim()) {
       setFormData(prev => ({
@@ -690,6 +699,48 @@ function Tarefas() {
     setNewStageName('');
   };
 
+  // Função para marcar mensagens como lidas
+  const markMessagesAsRead = async (taskId) => {
+    if (!selectedProject?.id) return;
+
+    try {
+      const projetoRef = doc(db, 'projetosTarefas', selectedProject.id);
+      const novoKanban = { ...tasks };
+
+      // Atualiza o registro de leitura para todas as colunas
+      Object.keys(novoKanban).forEach(coluna => {
+        novoKanban[coluna] = novoKanban[coluna].map(task => {
+          if (task.id === taskId) {
+            return {
+              ...task,
+              readBy: [...(task.readBy || []), 'Usuário Atual'] // Substitua pelo ID do usuário real
+            };
+          }
+          return task;
+        });
+      });
+
+      // Atualiza o Firebase
+      await updateDoc(projetoRef, {
+        kanban: novoKanban
+      });
+
+      // Atualiza o estado local
+      setTasks(novoKanban);
+      
+      // Remove a tarefa das mensagens não lidas
+      setUnreadMessages(prev => {
+        const newState = { ...prev };
+        delete newState[taskId];
+        return newState;
+      });
+
+    } catch (error) {
+      console.error('Erro ao marcar mensagens como lidas:', error);
+    }
+  };
+
+  // Modifique handleTaskClick para usar a nova função
   const handleTaskClick = (task) => {
     setSelectedTask(task);
     setFormData({
@@ -713,6 +764,10 @@ function Tarefas() {
       [task.id]: task.log || []
     });
     
+    // Marca as mensagens como lidas
+    markMessagesAsRead(task.id);
+    
+    setViewedTasks(prev => new Set([...prev, task.id]));
     setIsViewModalOpen(true);
   };
 
@@ -2295,6 +2350,46 @@ function Tarefas() {
     </div>
   );
 
+  // Adicione esta função para verificar se a tarefa tem comentários
+  const hasComments = (task) => {
+    return task.log?.some(entry => entry.tipo === 'comentario');
+  };
+
+  // Modifique o useEffect que carrega os comentários para atualizar as mensagens não lidas
+  useEffect(() => {
+    const loadUnreadMessages = async () => {
+      if (!selectedProject?.id) return;
+
+      try {
+        const projetoRef = doc(db, 'projetosTarefas', selectedProject.id);
+        const projetoDoc = await getDoc(projetoRef);
+
+        if (projetoDoc.exists()) {
+          const kanbanData = projetoDoc.data().kanban || {};
+          const newUnreadMessages = {};
+
+          // Verifica todas as tarefas por comentários não lidos
+          Object.values(kanbanData).forEach(column => {
+            column.forEach(task => {
+              if (task.log?.some(entry => 
+                entry.tipo === 'comentario' && 
+                !task.readBy?.includes('Usuário Atual') // Substitua por ID do usuário real
+              )) {
+                newUnreadMessages[task.id] = true;
+              }
+            });
+          });
+
+          setUnreadMessages(newUnreadMessages);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar mensagens não lidas:', error);
+      }
+    };
+
+    loadUnreadMessages();
+  }, [selectedProject?.id]);
+
   return (
     <div className="tarefas-container">
       <Sidebar />
@@ -2416,6 +2511,18 @@ function Tarefas() {
                                         </span>
                                       ))}
                                     </div>
+                                    
+                                    {hasComments(task) && (
+                                      <div className="task-chat-icon">
+                                        <FontAwesomeIcon 
+                                          icon={faComment} 
+                                          className={`chat-icon ${hasUnreadMessages(task.id) ? 'has-unread' : ''}`}
+                                        />
+                                        {hasUnreadMessages(task.id) && (
+                                          <span className="unread-indicator"></span>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
 
                                   <div className="task-content">{task.content}</div>
@@ -2538,6 +2645,18 @@ function Tarefas() {
                                           </span>
                                         ))}
                                       </div>
+                                      
+                                      {hasComments(task) && (
+                                        <div className="task-chat-icon">
+                                          <FontAwesomeIcon 
+                                            icon={faComment} 
+                                            className={`chat-icon ${hasUnreadMessages(task.id) ? 'has-unread' : ''}`}
+                                          />
+                                          {hasUnreadMessages(task.id) && (
+                                            <span className="unread-indicator"></span>
+                                          )}
+                                        </div>
+                                      )}
                                     </div>
 
                                     <div className="task-content">{task.content}</div>
