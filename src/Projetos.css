@@ -260,21 +260,133 @@
 }
 
 .project-card {
-  background: white;
+  background-color: #fff;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
   border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  border: 2px solid transparent;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  cursor: pointer;
 }
 
+/* Adicione o efeito de brilho */
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+  z-index: 2;
+}
+
+/* Adicione a camada de blur */
+.project-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+
+/* Estilo hover */
 .project-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 20px -6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.project-card:hover::after {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Efeito de brilho ao redor do card */
+.project-card:hover {
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+}
+
+/* Ajuste das cores do texto no hover - atualize esta parte */
+.project-card:hover h3,
+.project-card:hover .info-content {
+  color: white;
+}
+
+/* Mantenha a cor preta para os labels no hover */
+.project-card:hover .info-label {
+  color: #000;
+  font-weight: 500;
+}
+
+/* Mantenha o ícone em preto também para combinar com os labels */
+.project-card:hover .info-icon {
+  color: white;
+}
+
+/* Mantenha o badge de tipo de projeto legível */
+.project-card:hover .project-type-badge {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #1976d2;
+}
+
+/* Mantenha o badge de status legível */
+.project-card:hover .status-badge {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #2e7d32;
+}
+
+.project-card:hover .status-inativo {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #c62828;
+}
+
+/* Animação de brilho */
+.project-card:hover::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+/* Ajuste o botão de opções no hover */
+.project-card:hover .options-btn {
+  color: white;
+}
+
+.project-card:hover .options-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .project-card-header {
