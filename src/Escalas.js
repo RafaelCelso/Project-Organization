@@ -392,6 +392,17 @@ function Escalas() {
                     onChange={(e) => {
                       if (e.target.value) {
                         const newDate = new Date(e.target.value + 'T00:00:00');
+                        const startDate = new Date(formData.start);
+                        
+                        // Se a data fim for diferente da data início, define hora para 23:59
+                        if (format(newDate, 'yyyy-MM-dd') !== format(startDate, 'yyyy-MM-dd')) {
+                          newDate.setHours(23, 59, 0);
+                        } else {
+                          // Se for a mesma data, mantém a hora atual ou define uma hora padrão
+                          const currentEnd = formData.end || new Date();
+                          newDate.setHours(currentEnd.getHours(), currentEnd.getMinutes());
+                        }
+                        
                         setFormData({...formData, end: newDate});
                       } else {
                         setFormData({...formData, end: null});
