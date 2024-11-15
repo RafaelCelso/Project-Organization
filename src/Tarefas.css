@@ -100,18 +100,147 @@
 }
 
 .task-card {
-  background: white;
+  background-color: #fff;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
   border-radius: 12px;
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-  cursor: grab;
-  position: relative;
-  transform-origin: 50% 50%;
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+}
+
+.task-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+  z-index: 2;
+}
+
+/* Adiciona uma camada de blur por trás do card */
+.task-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.task-card:hover::after {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Adiciona um efeito de brilho ao redor do card */
+.task-card:hover {
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),  /* Cor do início do gradiente */
+    0 0 30px rgba(65, 185, 160, 0.2); /* Cor do fim do gradiente */
+}
+
+/* Ajuste específico para cada elemento */
+.task-card:hover .task-title,
+.task-card:hover .task-content,
+.task-card:hover .task-date,
+.task-card:hover .task-assignee {
+  color: white;
+}
+
+/* Mantenha o número do chamado em preto */
+.task-card:hover .task-chamado {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #000;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.task-card:hover .chamado-label {
+  color: #000;
+  font-weight: normal;
+}
+
+.task-card:hover .chamado-number {
+  color: #000;
+  font-weight: normal;
+}
+
+/* Ajuste para as prioridades */
+.task-card:hover .task-priority {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #000;
+  font-weight: 600;
+}
+
+/* Mantenha as cores específicas para cada nível de prioridade */
+.task-card:hover .priority-baixa {
+  color: #166534;
+  background-color: #dcfce7;
+}
+
+.task-card:hover .priority-media {
+  color: #854d0e;
+  background-color: #fef9c3;
+}
+
+.task-card:hover .priority-alta {
+  color: #991b1b;
+  background-color: #fee2e2;
+}
+
+.task-card:hover .priority-urgente {
+  color: #7f1d1d;
+  background-color: #fef2f2;
+}
+
+.task-card:hover::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+/* Mantenha o efeito especial para quando estiver arrastando */
+.task-card.dragging {
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
 }
 
 .task-card:active {
@@ -1970,7 +2099,6 @@
   flex-direction: column;
   gap: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
   cursor: grab;
   position: relative;
@@ -3837,6 +3965,31 @@
   align-items: center;
   gap: 12px;
   flex: 1;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.topico-content:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Ajuste o cursor do label para evitar confusão visual */
+.topico-content label {
+  cursor: inherit;
+}
+
+/* Mantenha o cursor pointer específico para os controles interativos */
+.topico-content input[type="checkbox"],
+.edit-topico-btn,
+.remove-topico-btn {
+  cursor: pointer;
+}
+
+/* Ajuste o estilo do container de edição para não herdar o cursor pointer */
+.topico-edit-container {
+  cursor: text;
 }
 
 .topico-content input[type="checkbox"] {
@@ -4150,4 +4303,101 @@
 .topico-label-container label {
   flex: 1;
   padding: 4px 0;
+}
+
+/* Ajuste os estilos para o modo de visualização */
+.teste-topicos.view-only .topico-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.teste-topicos.view-only .topico-content:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.teste-topicos.view-only .topico-label-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.teste-topicos.view-only .topico-label-container label {
+  flex: 1;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+}
+
+/* Ajuste o estilo quando a tarefa estiver arquivada */
+.teste-topicos.view-only .teste-topico[style*="not-allowed"] .topico-content,
+.teste-topicos.view-only .teste-topico[style*="not-allowed"] .topico-label-container,
+.teste-topicos.view-only .teste-topico[style*="not-allowed"] label {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Melhore o feedback visual ao clicar */
+.teste-topicos.view-only .topico-content:active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Adicione ou atualize estas regras CSS */
+
+.task-card {
+  /* Mantenha as propriedades existentes */
+  background-color: #fff;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.task-card:hover {
+  background-color: #f8f9ff; /* Cor de fundo suave ao passar o mouse */
+  transform: translateY(-2px); /* Leve elevação do card */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra mais pronunciada */
+  cursor: pointer;
+}
+
+/* Adicione também um efeito especial para quando estiver arrastando */
+.task-card.dragging {
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+}
+
+/* Ajuste para as tags */
+.task-card:hover .task-tag {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.task-card:hover .tag-icon {
+  color: white;
+}
+
+/* Ajuste para a palavra "Conclusão" */
+.task-card:hover .date-label {
+  color: white;
+}
+
+/* Ajuste para o responsável */
+.task-card:hover .task-assignee {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #000;
+}
+
+/* Ajuste para o número do chamado - removendo o negrito */
+.task-card:hover .chamado-label {
+  color: #000;
+  font-weight: normal;
+}
+
+.task-card:hover .chamado-number {
+  color: #000;
+  font-weight: normal;
 }

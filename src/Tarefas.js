@@ -2162,15 +2162,19 @@ function Tarefas() {
     <div className="teste-topicos">
       {formData?.testes?.map(teste => (
         <div key={teste.id} className="teste-topico">
-          <div className="topico-content">
+          <div 
+            className="topico-content"
+            onClick={() => handleToggleTopico(teste.id)} // Adiciona o handler de clique aqui
+          >
             <input
               type="checkbox"
               checked={teste.concluido}
               onChange={() => handleToggleTopico(teste.id)}
               id={`teste-${teste.id}`}
+              onClick={(e) => e.stopPropagation()} // Evita duplo trigger ao clicar no checkbox
             />
             {editingTopicoId === teste.id ? (
-              <div className="topico-edit-container">
+              <div className="topico-edit-container" onClick={(e) => e.stopPropagation()}> {/* Evita toggle ao clicar na área de edição */}
                 <input
                   type="text"
                   value={editingTopicoText}
@@ -2202,7 +2206,10 @@ function Tarefas() {
                 </div>
               </div>
             ) : (
-              <div className="topico-label-container">
+              <div 
+                className="topico-label-container"
+                onClick={(e) => e.stopPropagation()} // Evita toggle ao clicar na área do label
+              >
                 <label 
                   htmlFor={`teste-${teste.id}`}
                   className={teste.concluido ? 'concluido' : ''}
@@ -2213,7 +2220,10 @@ function Tarefas() {
                 <button 
                   type="button"
                   className="edit-topico-btn"
-                  onClick={() => handleStartEditTopico(teste)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStartEditTopico(teste);
+                  }}
                 >
                   <FontAwesomeIcon icon={faPen} />
                 </button>
@@ -2224,7 +2234,10 @@ function Tarefas() {
             <button 
               type="button" 
               className="remove-topico-btn"
-              onClick={() => handleRemoveTopico(teste.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRemoveTopico(teste.id);
+              }}
             >
               <FontAwesomeIcon icon={faTimes} />
             </button>
@@ -3191,10 +3204,12 @@ function Tarefas() {
                           <div 
                             key={teste.id} 
                             className="teste-topico"
-                            onClick={() => !selectedTask.status === 'arquivado' && handleToggleTesteView(teste.id)}
                             style={{ cursor: selectedTask.status === 'arquivado' ? 'not-allowed' : 'pointer' }}
                           >
-                            <div className="topico-content">
+                            <div 
+                              className="topico-content"
+                              onClick={() => !selectedTask.status === 'arquivado' && handleToggleTesteView(teste.id)}
+                            >
                               <input
                                 type="checkbox"
                                 checked={teste.concluido}
@@ -3203,12 +3218,22 @@ function Tarefas() {
                                 id={`view-teste-${teste.id}`}
                                 onClick={(e) => e.stopPropagation()} // Evita duplo trigger ao clicar no checkbox
                               />
-                              <label 
-                                htmlFor={`view-teste-${teste.id}`}
-                                className={teste.concluido ? 'concluido' : ''}
+                              <div 
+                                className="topico-label-container"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (selectedTask.status !== 'arquivado') {
+                                    handleToggleTesteView(teste.id);
+                                  }
+                                }}
                               >
-                                {teste.descricao}
-                              </label>
+                                <label 
+                                  htmlFor={`view-teste-${teste.id}`}
+                                  className={teste.concluido ? 'concluido' : ''}
+                                >
+                                  {teste.descricao}
+                                </label>
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -3421,7 +3446,7 @@ function Tarefas() {
         {isDeleteProjectModalOpen && projectToDelete && (
           <div className="modal-overlay">
             <div className="modal-content delete-modal">
-              <h2>Confirmar Exclusão</h2>
+              <h2>Confirmar Exclus��o</h2>
               <p>Tem certeza que deseja excluir o projeto "{projectToDelete.nome}"?</p>
               <div className="info-section">
                 <p><strong>Tipo:</strong> {projectToDelete.tipo}</p>
