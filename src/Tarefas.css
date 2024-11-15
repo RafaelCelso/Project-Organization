@@ -5207,3 +5207,132 @@
     left: 200%;
   }
 }
+
+/* Estilos específicos para os cards de projeto da página Tarefas */
+.tarefas-project-card {
+  background-color: #fff;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+/* Efeito de brilho */
+.tarefas-project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+  z-index: 2;
+}
+
+/* Efeito hover e selecionado */
+.tarefas-project-card:hover,
+.tarefas-project-card.selected {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+}
+
+/* Cores do texto no hover e selecionado */
+.tarefas-project-card:hover h3,
+.tarefas-project-card:hover .project-info span,
+.tarefas-project-card.selected h3,
+.tarefas-project-card.selected .project-info span {
+  color: white;
+}
+
+/* Ajuste no tipo do projeto */
+.tarefas-project-card:hover .project-type,
+.tarefas-project-card.selected .project-type {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #1976d2;
+}
+
+/* Animação de brilho apenas no hover inicial ou seleção */
+.tarefas-project-card:hover::before {
+  animation: shimmer 1.5s ease-in-out forwards;
+}
+
+/* Ajuste no botão de edição */
+.tarefas-project-card:hover .project-edit-button,
+.tarefas-project-card.selected .project-edit-button {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.tarefas-project-card:hover .project-edit-button:hover,
+.tarefas-project-card.selected .project-edit-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ajuste na contagem de tarefas */
+.tarefas-project-card:hover .project-task-count,
+.tarefas-project-card.selected .project-task-count {
+  color: white;
+}
+
+/* Ajuste nos labels */
+.tarefas-project-card:hover .member-label,
+.tarefas-project-card.selected .member-label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Estilos específicos para os cards de projeto da página Tarefas */
+.tarefas-project-card {
+  /* ... outros estilos ... */
+}
+
+/* Cores do texto no hover e selecionado */
+.tarefas-project-card:hover .project-info span,
+.tarefas-project-card.selected .project-info span,
+.tarefas-project-card:hover .project-task-count span,
+.tarefas-project-card.selected .project-task-count span {
+  color: white !important; /* Força a cor branca */
+}
+
+/* Ajuste específico para o nome do analista e desenvolvedor */
+.tarefas-project-card:hover .project-member,
+.tarefas-project-card.selected .project-member,
+.tarefas-project-card:hover .member-label,
+.tarefas-project-card.selected .member-label {
+  color: white !important; /* Força a cor branca */
+}
+
+/* Ajuste específico para a contagem de tarefas */
+.tarefas-project-card:hover .project-task-count,
+.tarefas-project-card.selected .project-task-count {
+  color: white !important; /* Força a cor branca */
+}
+
+/* Garante que todos os textos dentro do card fiquem brancos */
+.tarefas-project-card:hover .project-card-content,
+.tarefas-project-card.selected .project-card-content {
+  color: white !important;
+}
+
+/* Ajuste para garantir que os labels também fiquem brancos */
+.tarefas-project-card:hover .member-label,
+.tarefas-project-card.selected .member-label {
+  color: white !important;
+  opacity: 0.9; /* Mantém uma leve diferenciação visual */
+}

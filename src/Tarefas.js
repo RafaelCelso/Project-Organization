@@ -2410,9 +2410,8 @@ function Tarefas() {
           {(projetosFiltrados.length > 0 ? projetosFiltrados : projetos).map(projeto => (
             <div 
               key={projeto.id} 
-              className={`project-card ${selectedProject?.id === projeto.id ? 'selected' : ''}`}
+              className={`tarefas-project-card ${selectedProject?.id === projeto.id ? 'selected' : ''}`}
               onClick={() => handleProjectSelect(projeto)}
-              id="tarefas-project-card" // Adicione este ID
             >
               <div className="project-card-header">
                 <h3>{projeto.nome}</h3>
@@ -2421,7 +2420,6 @@ function Tarefas() {
                   <button 
                     className="project-edit-button"
                     onClick={(e) => handleEditProject(e, projeto)}
-                    id="tarefas-edit-button" // Adicione este ID
                   >
                     <FontAwesomeIcon icon={faEllipsisV} />
                   </button>
