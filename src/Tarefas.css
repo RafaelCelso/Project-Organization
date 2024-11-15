@@ -3478,7 +3478,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 32px;
 }
 
 .section-header i {
@@ -4445,68 +4445,234 @@
 /* Estilos para as abas de comentários */
 .comments-tabs {
   display: flex;
-  gap: 16px;
+  gap: 4px;
   margin-right: auto;
+  background-color: #f3f4f6;
+  padding: 4px;
+  border-radius: 12px;
 }
 
 .comments-tabs .tab-button {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 10px 20px;
   background: none;
   border: none;
   color: #6b7280;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  position: relative;
 }
 
 .comments-tabs .tab-button:hover {
   color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.05);
 }
 
 .comments-tabs .tab-button.active {
   color: #3b82f6;
-  border-bottom-color: #3b82f6;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Ajuste no header da seção */
-.comments-section .section-header {
+.comments-tabs .tab-button svg {
+  font-size: 16px;
+}
+
+/* Atualização da seção de tópicos */
+.teste-topicos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px;
+}
+
+.teste-topico {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.teste-topico:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.topico-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+/* Novo estilo para checkboxes circulares */
+.topico-content input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #e5e7eb;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.topico-content input[type="checkbox"]:checked {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.topico-content input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+.topico-content input[type="checkbox"]:hover {
+  border-color: #3b82f6;
+}
+
+.topico-label-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topico-label-container label {
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  flex: 1;
+}
+
+.topico-label-container label.concluido {
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
+/* Botões de edição e remoção */
+.edit-topico-btn,
+.remove-topico-btn {
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.teste-topico:hover .edit-topico-btn,
+.teste-topico:hover .remove-topico-btn {
+  opacity: 1;
+}
+
+.edit-topico-btn {
+  color: #3b82f6;
+}
+
+.edit-topico-btn:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.remove-topico-btn {
+  color: #ef4444;
+}
+
+.remove-topico-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Barra de progresso dos tópicos */
+.teste-progresso {
+  background-color: white;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
   margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e5e7eb;
 }
 
-/* Estilos específicos para logs */
-.comment-item.system-log {
-  background-color: #f8fafc;
-  border-left: 4px solid #64748b;
+.progresso-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #374151;
 }
 
-.comment-item.system-log.teste-log {
-  background-color: #f0fdf4;
-  border-left: 4px solid #22c55e;
+.progresso-barra-container {
+  height: 8px;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-.comment-item.system-log .log-icon {
-  color: #64748b;
+.progresso-barra {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  border-radius: 4px;
+  transition: width 0.5s ease;
 }
 
-.comment-item.system-log.teste-log .log-icon {
-  color: #22c55e;
+/* Adicionar novo tópico */
+.add-topico-container {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background-color: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
 }
 
-.comment-item.system-log .log-message {
-  color: #64748b;
-  font-size: 13px;
+.add-topico-input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
 }
 
-.comment-item.system-log.teste-log .log-message {
-  color: #166534;
+.add-topico-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.add-topico-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-topico-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-1px);
+}
+
+.add-topico-btn:active {
+  transform: translateY(0);
 }
