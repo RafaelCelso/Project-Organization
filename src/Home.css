@@ -271,20 +271,122 @@
 
 .projeto-card {
   background-color: white;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border-left: 4px solid;
-  transition: transform 0.2s;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.projeto-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+  z-index: 2;
 }
 
 .projeto-card:hover {
   transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
 }
 
-.projeto-card.success { border-left-color: #4caf50; }
-.projeto-card.warning { border-left-color: #ff9800; }
-.projeto-card.info { border-left-color: #2196f3; }
+.projeto-card:hover::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+/* Ajuste as cores do texto no hover */
+.projeto-card:hover h5,
+.projeto-card:hover .projeto-info span,
+.projeto-card:hover .responsavel span,
+.projeto-card:hover .projeto-detalhes .detalhe span,
+.projeto-card:hover .projeto-tarefas h6,
+.projeto-card:hover .tarefa-card {
+  color: white;
+}
+
+/* Ajuste o background dos elementos internos no hover */
+.projeto-card:hover .projeto-info .tipo {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.projeto-card:hover .projeto-detalhes {
+  border-top-color: rgba(255, 255, 255, 0.2);
+}
+
+.projeto-card:hover .tarefa-card {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-left-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Mantenha as cores de status mesmo no hover */
+.projeto-card:hover .tarefa-status.status-concluido {
+  background-color: rgba(22, 101, 52, 0.2);
+  color: #dcfce7;
+}
+
+.projeto-card:hover .tarefa-status.status-atrasado {
+  background-color: rgba(153, 27, 27, 0.2);
+  color: #fee2e2;
+}
+
+.projeto-card:hover .tarefa-status.status-em-andamento {
+  background-color: rgba(7, 89, 133, 0.2);
+  color: #e0f2fe;
+}
+
+/* Ajuste as cores das prioridades no hover */
+.projeto-card:hover .tarefa-prioridade.prioridade-alta {
+  background-color: rgba(153, 27, 27, 0.2);
+  color: #fee2e2;
+}
+
+.projeto-card:hover .tarefa-prioridade.prioridade-media {
+  background-color: rgba(146, 64, 14, 0.2);
+  color: #fef3c7;
+}
+
+.projeto-card:hover .tarefa-prioridade.prioridade-baixa {
+  background-color: rgba(22, 101, 52, 0.2);
+  color: #dcfce7;
+}
+
+/* Ajuste o ID da tarefa no hover */
+.projeto-card:hover .tarefa-id {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.projeto-card:hover .id-icon {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Mantenha a animação shimmer */
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
 
 .projeto-card h5 {
   font-size: 16px;
@@ -575,5 +677,245 @@
 
 /* Ajuste para a mensagem de "Nenhum evento próximo" */
 .card:hover .no-events span {
+  color: white;
+}
+
+/* Adicione estes estilos ao final do arquivo */
+
+.card small {
+  font-size: 0.8em;
+  opacity: 0.8;
+}
+
+.projetos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+}
+
+/* Ajuste o hover do novo card */
+.card:hover small {
+  color: white;
+}
+
+/* Ajuste a animação de entrada dos projetos */
+.projetos-relacionados {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Adicione estes estilos */
+
+.projeto-detalhes {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.detalhe {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.detalhe span:first-child {
+  color: #666;
+}
+
+.detalhe span:last-child {
+  font-weight: 500;
+  color: #333;
+}
+
+.no-projects {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 24px;
+  color: #666;
+  font-style: italic;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Ajuste o hover dos detalhes no card */
+.card:hover .projeto-detalhes {
+  border-top-color: rgba(255, 255, 255, 0.2);
+}
+
+.card:hover .detalhe span {
+  color: white !important;
+}
+
+/* Adicione estes estilos para os novos elementos */
+
+.indicador-grupo {
+  margin-top: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.03);
+  transition: all 0.3s ease;
+}
+
+.indicador-grupo h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.indicador-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: #555;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.indicador-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Ajustes para o hover do card */
+.card:hover .indicador-grupo {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.card:hover .indicador-grupo h3,
+.card:hover .indicador-item span {
+  color: white;
+}
+
+.card:hover .indicador-item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ajuste no espaçamento dos indicadores */
+.indicadores {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.indicador-grupo:not(:last-child) {
+  margin-bottom: 8px;
+}
+
+/* Adicione estes estilos */
+
+.indicador-item {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.indicador-item.active {
+  background-color: rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+}
+
+.card:hover .indicador-item.active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.limpar-filtro {
+  text-align: center;
+  padding: 8px;
+  margin-top: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.limpar-filtro:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.card:hover .limpar-filtro {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.card:hover .limpar-filtro:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Animação para os cards filtrados */
+.projeto-card {
+  transition: all 0.3s ease;
+}
+
+.projeto-card.hidden {
+  opacity: 0;
+  transform: scale(0.95);
+  height: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.projeto-card.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Adicione estes estilos para ajustar as cores quando o card estiver expandido */
+
+.card.expanded .indicador-grupo h3,
+.card.expanded .indicador span,
+.card.expanded .indicador-item span {
+  color: white !important;
+}
+
+/* Garante que o ícone também fique branco */
+.card.expanded .icon.success {
+  color: white !important;
+}
+
+/* Ajuste para o título do grupo de indicadores */
+.card.expanded h3 {
+  color: white !important;
+}
+
+.projeto-equipe {
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.projeto-equipe .membro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.projeto-equipe .membro span:first-child {
+  color: #666;
+}
+
+.projeto-equipe .membro span:last-child {
+  font-weight: 500;
+  color: #333;
+}
+
+/* Ajuste o hover para os novos elementos */
+.projeto-card:hover .projeto-equipe .membro span {
   color: white;
 }

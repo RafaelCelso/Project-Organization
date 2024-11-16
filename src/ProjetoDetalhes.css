@@ -270,4 +270,61 @@
   .tarefas-stats {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* Modifique os estilos do hover para a classe projeto-card */
+.projeto-card:hover h2,
+.projeto-card:hover span,
+.projeto-card:hover .info-label,
+.projeto-card:hover .info-value,
+.projeto-card:hover .info-content .info-item span {
+  color: white !important;
+}
+
+/* Garante que o ícone também fique branco */
+.projeto-card:hover svg,
+.projeto-card:hover .info-icon {
+  color: white !important;
+}
+
+/* Ajuste o background no hover */
+.projeto-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+}
+
+/* Ajuste para manter a legibilidade de elementos específicos */
+.projeto-card:hover .status-badge {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: inherit;
+}
+
+/* Ajuste as bordas no hover */
+.projeto-card:hover .info-row {
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ajuste as cores do card Equipe no hover */
+.projeto-card:hover .equipe-content {
+  color: white;
+}
+
+.projeto-card:hover .equipe-content h3,
+.projeto-card:hover .equipe-content p {
+  color: white !important;
+}
+
+/* Ajuste a cor da borda entre os membros da equipe no hover */
+.projeto-card:hover .membro {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Garante que todos os textos dentro do card de equipe fiquem brancos */
+.projeto-card:hover .membro h3,
+.projeto-card:hover .membro p {
+  color: white !important;
 } 
