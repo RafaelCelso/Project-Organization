@@ -13,6 +13,7 @@ import {
   faToggleOn,
   faSearch,
   faTimes,
+  faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "./Sidebar";
 import "./Projetos.css";
@@ -512,6 +513,7 @@ function Projetos() {
         <div className="header-with-button">
           <h1 className="page-title">Projetos</h1>
           <button className="new-project-btn" onClick={handleNewProject}>
+            <FontAwesomeIcon icon={faPlus} />
             Novo Projeto
           </button>
         </div>

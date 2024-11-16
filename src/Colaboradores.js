@@ -14,6 +14,8 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import Select from 'react-select';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 function Colaboradores() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -466,6 +468,7 @@ function Colaboradores() {
             className="new-colaborador-btn"
             onClick={handleNewColaborador}
           >
+            <FontAwesomeIcon icon={faPlus} />
             Novo Colaborador
           </button>
         </div>
