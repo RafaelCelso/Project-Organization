@@ -21,9 +21,8 @@
 .page-title {
   font-size: 32px;
   font-weight: 600;
-  color: #333; 
+  color: #333;
   margin-bottom: 24px;
-  
 }
 
 .cards-container {
@@ -44,7 +43,7 @@
 }
 
 .card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -63,11 +62,9 @@
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 
-    0 8px 16px rgba(0, 0, 0, 0.1),
-    0 0 15px rgba(57, 73, 171, 0.3),
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 0 15px rgba(57, 73, 171, 0.3),
     0 0 30px rgba(65, 185, 160, 0.2);
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
 }
 
 .card:hover h2,
@@ -115,11 +112,9 @@
 
 .card.expanded {
   transform: translateY(-2px);
-  box-shadow: 
-    0 8px 16px rgba(0, 0, 0, 0.1),
-    0 0 15px rgba(57, 73, 171, 0.3),
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 0 15px rgba(57, 73, 171, 0.3),
     0 0 30px rgba(65, 185, 160, 0.2);
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
 }
 
 .card.expanded h2,
@@ -248,8 +243,9 @@
 
 .projetos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 24px;
+  margin-top: 20px;
 }
 
 .projeto-categoria h4 {
@@ -260,9 +256,15 @@
   border-bottom: 2px solid #e5e7eb;
 }
 
-.projeto-categoria h4.success { color: #4caf50; }
-.projeto-categoria h4.warning { color: #ff9800; }
-.projeto-categoria h4.info { color: #2196f3; }
+.projeto-categoria h4.success {
+  color: #4caf50;
+}
+.projeto-categoria h4.warning {
+  color: #ff9800;
+}
+.projeto-categoria h4.info {
+  color: #2196f3;
+}
 
 .projeto-cards {
   display: grid;
@@ -273,15 +275,18 @@
   background-color: white;
   border-radius: 12px;
   padding: 20px;
+  min-width: 280px;
+  width: 100%;
+  height: auto;
+  cursor: default;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  cursor: pointer;
   position: relative;
   overflow: hidden;
 }
 
 .projeto-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -300,11 +305,9 @@
 
 .projeto-card:hover {
   transform: translateY(-2px);
-  box-shadow: 
-    0 8px 16px rgba(0, 0, 0, 0.1),
-    0 0 15px rgba(57, 73, 171, 0.3),
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 0 15px rgba(57, 73, 171, 0.3),
     0 0 30px rgba(65, 185, 160, 0.2);
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
 }
 
 .projeto-card:hover::before {
@@ -435,7 +438,7 @@
   .projetos-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .cards-container {
     grid-template-columns: 1fr;
   }
@@ -617,7 +620,7 @@
 }
 
 .projeto-card::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -918,4 +921,238 @@
 /* Ajuste o hover para os novos elementos */
 .projeto-card:hover .projeto-equipe .membro span {
   color: white;
+}
+
+/* Adicione estes estilos ao final do arquivo */
+
+.kanban-stats {
+  display: flex;
+  flex-direction: column;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.projeto-card.show-stats .kanban-stats {
+  display: block;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 16px;
+  width: 100%;
+}
+
+.stat-item {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 8px;
+  border-radius: 8px;
+  text-align: center;
+  position: static;
+  float: none;
+}
+
+.stat-item:first-child {
+  grid-column: 1 / -1;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: #666;
+}
+
+.progress-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  width: 100%;
+}
+
+.progress-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #666;
+}
+
+.progress-bar {
+  height: 6px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-fill.todo {
+  background-color: #e0e0e0;
+}
+.progress-fill.doing {
+  background-color: #2196f3;
+}
+.progress-fill.done {
+  background-color: #4caf50;
+}
+
+/* Ajustes para o hover e card expandido */
+.projeto-card:hover .stat-value,
+.projeto-card:hover .stat-label,
+.projeto-card:hover .progress-header {
+  color: white;
+}
+
+.projeto-card:hover .stat-item {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.projeto-card:hover .progress-bar {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modifique os estilos do kanban-stats */
+.kanban-stats {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  display: block;
+}
+
+.projeto-card.show-stats .kanban-stats {
+  display: block;
+}
+
+/* Ajuste o cursor do projeto-card */
+.projeto-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Remova qualquer navegação ou link do projeto-card */
+.projeto-card a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Ajuste responsivo */
+@media (max-width: 1200px) {
+  .projetos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .projetos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .projeto-card {
+    min-width: 100%;
+  }
+}
+
+/* Ajuste o padding interno do card quando expandido */
+.projeto-card.show-stats {
+  padding: 20px;
+  margin-bottom: 8px;
+}
+
+/* Garanta que o conteúdo não ultrapasse os limites do card */
+.projeto-card {
+  overflow: hidden;
+  box-sizing: border-box;
+  height: auto;
+}
+
+/* Ajuste o espaçamento entre stats-grid e progress-bars */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 16px;
+}
+
+/* Ajuste o progress-bars */
+.progress-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+/* Ajuste o hover para manter a consistência visual */
+.projeto-card:hover .stats-grid {
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ajuste o espaçamento geral do kanban-stats */
+.kanban-stats {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  display: block;
+}
+
+/* Adicione estes estilos para a estatística de vencidas */
+.stat-item.warning .stat-value {
+  color: #ff9800;
+}
+
+.progress-fill.warning {
+  background-color: #ff9800;
+}
+
+/* Ajuste o grid para acomodar 5 itens */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 16px;
+  width: 100%;
+}
+
+/* Ajuste o hover para a nova estatística */
+.projeto-card:hover .stat-item.warning .stat-value,
+.projeto-card:hover .stat-item.warning .stat-label {
+  color: #fff;
+}
+
+.projeto-card:hover .progress-fill.warning {
+  background-color: #ff9800;
 }
