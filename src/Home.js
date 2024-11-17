@@ -10,6 +10,7 @@ import {
   faSpinner,
   faProjectDiagram,
   faHashtag,
+  faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import "./Home.css";
 import { db } from "./firebaseConfig";
@@ -46,6 +47,10 @@ function Home() {
     tipo: null,
     status: null,
   });
+  const [analistas, setAnalistas] = useState([]);
+  const [analistasStats, setAnalistasStats] = useState({});
+  const [showAnalistas, setShowAnalistas] = useState(false);
+  const [analistaFiltrado, setAnalistaFiltrado] = useState(null);
 
   const loadProjetos = async () => {
     try {
@@ -178,6 +183,139 @@ function Home() {
     }
   };
 
+  const loadAnalistas = async () => {
+    try {
+      // Busca colaboradores que são analistas
+      const colaboradoresRef = collection(db, 'colaboradores');
+      const analistasQuery = query(colaboradoresRef, where("cargo", "==", "Analista"));
+      const analistasSnapshot = await getDocs(analistasQuery);
+      
+      // Busca projetos e tarefas
+      const projetosRef = collection(db, "projetos");
+      const projetosTarefasRef = collection(db, "projetosTarefas");
+      
+      const [projetosSnapshot, projetosTarefasSnapshot] = await Promise.all([
+        getDocs(projetosRef),
+        getDocs(projetosTarefasRef)
+      ]);
+
+      // Cria mapa de tarefas por projeto
+      const kanbanPorProjeto = {};
+      projetosTarefasSnapshot.docs.forEach(doc => {
+        const data = doc.data();
+        if (data.projetoId) {
+          kanbanPorProjeto[data.projetoId] = data.kanban || {
+            aDefinir: [],
+            todo: [],
+            inProgress: [],
+            testing: [],
+            prontoDeploy: [],
+            done: [],
+            arquivado: []
+          };
+        }
+      });
+
+      const analistasMap = new Map();
+
+      // Inicializa dados dos analistas
+      analistasSnapshot.docs.forEach(analistaDoc => {
+        const analista = { id: analistaDoc.id, ...analistaDoc.data() };
+        
+        analistasMap.set(analista.id, {
+          id: analista.id,
+          nome: analista.nome,
+          status: analista.status,
+          projetos: [],
+          stats: {
+            total: 0,
+            todo: 0,
+            doing: 0,
+            done: 0,
+            vencidas: 0
+          },
+          tarefas: []
+        });
+      });
+
+      // Processa projetos e suas tarefas
+      projetosSnapshot.docs.forEach(doc => {
+        const projeto = { id: doc.id, ...doc.data() };
+        const kanban = kanbanPorProjeto[doc.id];
+
+        // Verifica se o projeto tem um analista principal
+        if (projeto.analistaPrincipal?.[0]?.value) {
+          const analistaId = projeto.analistaPrincipal[0].value;
+          const analistaData = analistasMap.get(analistaId);
+
+          if (analistaData) {
+            // Adiciona o projeto à lista do analista com seu kanban
+            analistaData.projetos.push({
+              ...projeto,
+              kanban
+            });
+
+            // Processa as tarefas do kanban
+            if (kanban) {
+              // Função para processar tarefas de uma coluna
+              const processarColuna = (tarefas, status) => {
+                if (!Array.isArray(tarefas)) return;
+                
+                tarefas.forEach(tarefa => {
+                  // Adiciona a tarefa à lista do analista
+                  const tarefaProcessada = {
+                    ...tarefa,
+                    projetoNome: projeto.nome,
+                    projetoId: projeto.id,
+                    status
+                  };
+                  analistaData.tarefas.push(tarefaProcessada);
+
+                  // Atualiza estatísticas
+                  analistaData.stats.total++;
+
+                  // Atualiza contadores específicos
+                  if (['aDefinir', 'todo'].includes(status)) {
+                    analistaData.stats.todo++;
+                  } else if (['inProgress', 'testing', 'prontoDeploy'].includes(status)) {
+                    analistaData.stats.doing++;
+                  } else if (['done', 'arquivado'].includes(status)) {
+                    analistaData.stats.done++;
+                  }
+
+                  // Verifica se está vencida
+                  if (tarefa.dataConclusao && new Date(tarefa.dataConclusao) < new Date()) {
+                    analistaData.stats.vencidas++;
+                  }
+                });
+              };
+
+              // Processa cada coluna do kanban
+              processarColuna(kanban.aDefinir, 'aDefinir');
+              processarColuna(kanban.todo, 'todo');
+              processarColuna(kanban.inProgress, 'inProgress');
+              processarColuna(kanban.testing, 'testing');
+              processarColuna(kanban.prontoDeploy, 'prontoDeploy');
+              processarColuna(kanban.done, 'done');
+              processarColuna(kanban.arquivado, 'arquivado');
+            }
+          }
+        }
+      });
+
+      // Converte o Map em array e filtra apenas analistas ativos
+      const analistasArray = Array.from(analistasMap.values())
+        .filter(analista => analista.status === 'Ativo');
+      
+      setAnalistas(analistasArray);
+      
+      console.log('Dados dos analistas carregados:', analistasArray);
+
+    } catch (error) {
+      console.error("Erro ao carregar analistas:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchEventos = async () => {
       try {
@@ -217,6 +355,10 @@ function Home() {
 
   useEffect(() => {
     loadProjetos();
+  }, []);
+
+  useEffect(() => {
+    loadAnalistas();
   }, []);
 
   const handleIndicadorClick = () => {
@@ -518,6 +660,236 @@ function Home() {
     );
   };
 
+  const renderAnalistaCard = (analista) => {
+    const stats = analista.stats;
+    const todoPercent = stats.total > 0 ? (stats.todo / stats.total) * 100 : 0;
+    const doingPercent = stats.total > 0 ? (stats.doing / stats.total) * 100 : 0;
+    const donePercent = stats.total > 0 ? (stats.done / stats.total) * 100 : 0;
+    const vencidasPercent = stats.total > 0 ? (stats.vencidas / stats.total) * 100 : 0;
+
+    // Ordena as tarefas por data de conclusão (vencidas primeiro)
+    const tarefasOrdenadas = [...analista.tarefas].sort((a, b) => {
+      if (a.dataConclusao && b.dataConclusao) {
+        const dataA = new Date(a.dataConclusao);
+        const dataB = new Date(b.dataConclusao);
+        if (dataA < new Date() && dataB < new Date()) {
+          return dataB - dataA; // Tarefas vencidas mais recentes primeiro
+        }
+        return dataA - dataB; // Tarefas não vencidas por data de conclusão
+      }
+      return 0;
+    });
+
+    return (
+      <div key={analista.nome} className="projeto-card">
+        <h5>{analista.nome}</h5>
+        <div className="projeto-info">
+          <span className="tipo">Analista</span>
+          <span className="status">{analista.projetos.length} projetos</span>
+        </div>
+
+        <div className="kanban-stats">
+          <div className="stats-grid">
+            <div className="stat-item">
+              <div className="stat-value">{stats.total}</div>
+              <div className="stat-label">Total de Tarefas</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-value">{stats.todo}</div>
+              <div className="stat-label">A Definir/A Fazer</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-value">{stats.doing}</div>
+              <div className="stat-label">Em Andamento/Teste/Deploy</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-value">{stats.done}</div>
+              <div className="stat-label">Concluídas/Arquivadas</div>
+            </div>
+            <div className="stat-item warning">
+              <div className="stat-value">{stats.vencidas}</div>
+              <div className="stat-label">Vencidas</div>
+            </div>
+          </div>
+
+          <div className="progress-bars">
+            <div className="progress-item">
+              <div className="progress-header">
+                <span>A Definir/A Fazer</span>
+                <span>{todoPercent.toFixed(1)}%</span>
+              </div>
+              <div className="progress-bar">
+                <div className="progress-fill todo" style={{ width: `${todoPercent}%` }} />
+              </div>
+            </div>
+
+            <div className="progress-item">
+              <div className="progress-header">
+                <span>Em Andamento/Teste/Deploy</span>
+                <span>{doingPercent.toFixed(1)}%</span>
+              </div>
+              <div className="progress-bar">
+                <div className="progress-fill doing" style={{ width: `${doingPercent}%` }} />
+              </div>
+            </div>
+
+            <div className="progress-item">
+              <div className="progress-header">
+                <span>Concluídas/Arquivadas</span>
+                <span>{donePercent.toFixed(1)}%</span>
+              </div>
+              <div className="progress-bar">
+                <div className="progress-fill done" style={{ width: `${donePercent}%` }} />
+              </div>
+            </div>
+
+            <div className="progress-item">
+              <div className="progress-header">
+                <span>Vencidas</span>
+                <span>{vencidasPercent.toFixed(1)}%</span>
+              </div>
+              <div className="progress-bar">
+                <div className="progress-fill warning" style={{ width: `${vencidasPercent}%` }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Lista de Tarefas */}
+          <div className="projeto-tarefas">
+            <h6>Tarefas Recentes</h6>
+            <div className="tarefas-list">
+              {tarefasOrdenadas.slice(0, 5).map((tarefa) => (
+                <div 
+                  key={tarefa.id} 
+                  className={`tarefa-card ${
+                    tarefa.dataConclusao && new Date(tarefa.dataConclusao) < new Date() 
+                      ? 'vencida' 
+                      : `prioridade-${tarefa.prioridade?.toLowerCase()}`
+                  }`}
+                >
+                  <div className="tarefa-header">
+                    <div className="tarefa-id-titulo">
+                      <span className="tarefa-id">
+                        <FontAwesomeIcon icon={faHashtag} className="id-icon" />
+                        {tarefa.taskId}
+                      </span>
+                      <span className="tarefa-titulo">{tarefa.titulo}</span>
+                    </div>
+                    <span className={`tarefa-status status-${tarefa.status}`}>
+                      {tarefa.status === 'todo' ? 'A Fazer' :
+                       tarefa.status === 'inProgress' ? 'Em Andamento' :
+                       tarefa.status === 'done' ? 'Concluído' :
+                       tarefa.status === 'testing' ? 'Em Teste' :
+                       tarefa.status === 'prontoDeploy' ? 'Pronto Deploy' :
+                       tarefa.status}
+                    </span>
+                  </div>
+                  <div className="tarefa-footer">
+                    <span className="tarefa-projeto">{tarefa.projetoNome}</span>
+                    {tarefa.dataConclusao && (
+                      <span className={`tarefa-data ${
+                        new Date(tarefa.dataConclusao) < new Date() ? 'vencida' : ''
+                      }`}>
+                        {format(new Date(tarefa.dataConclusao), 'dd/MM/yyyy')}
+                      </span>
+                    )}
+                  </div>
+                  {tarefa.tags && tarefa.tags.length > 0 && (
+                    <div className="tarefa-tags">
+                      {tarefa.tags.map(tag => (
+                        <span 
+                          key={tag.id}
+                          className="tag-mini"
+                          style={{ backgroundColor: tag.cor }}
+                        >
+                          {tag.texto}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderAnalistasCard = () => (
+    <div className={`card ${showAnalistas ? "expanded" : ""}`} onClick={() => setShowAnalistas(!showAnalistas)}>
+      <h2>
+        <FontAwesomeIcon icon={faUsers} /> Analistas
+      </h2>
+      <div className="indicadores">
+        <div className="indicador">
+          <FontAwesomeIcon icon={faUsers} className="icon success" />
+          <span>Total de Analistas: {analistas.length}</span>
+        </div>
+
+        <div className="indicador-grupo">
+          <h3>Filtrar por Analista:</h3>
+          {analistas.map((analista) => (
+            <div
+              key={analista.nome}
+              className={`indicador-item ${analistaFiltrado === analista.nome ? "active" : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setAnalistaFiltrado(analistaFiltrado === analista.nome ? null : analista.nome);
+                setShowAnalistas(true);
+              }}
+            >
+              <span>{analista.nome}</span>
+              <span>{analista.projetos.length} projetos</span>
+            </div>
+          ))}
+        </div>
+
+        {analistaFiltrado && (
+          <div
+            className="indicador limpar-filtro"
+            onClick={(e) => {
+              e.stopPropagation();
+              setAnalistaFiltrado(null);
+            }}
+          >
+            <small>Limpar filtro</small>
+          </div>
+        )}
+
+        {showAnalistas && (
+          <div className="indicador">
+            <small>Clique para ver os detalhes dos analistas</small>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderAnalistasSection = () => {
+    const analistasParaMostrar = analistaFiltrado
+      ? analistas.filter(analista => analista.nome === analistaFiltrado)
+      : analistas;
+
+    return (
+      <div className="projetos-relacionados">
+        <div className="projetos-section">
+          <h3>
+            <FontAwesomeIcon icon={faUsers} /> 
+            {analistaFiltrado ? `Visão do Analista: ${analistaFiltrado}` : 'Visão por Analista'}
+          </h3>
+          <div className="projetos-grid">
+            {analistasParaMostrar.length > 0 ? (
+              analistasParaMostrar.map(analista => renderAnalistaCard(analista))
+            ) : (
+              <p className="no-projects">Nenhum analista encontrado</p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="home-container">
       <Sidebar />
@@ -650,6 +1022,8 @@ function Home() {
               )}
             </div>
           </div>
+
+          {renderAnalistasCard()}
         </div>
 
         {showProjects && (
@@ -718,6 +1092,8 @@ function Home() {
             </div>
           </div>
         )}
+
+        {showAnalistas && renderAnalistasSection()}
       </div>
     </div>
   );

@@ -448,46 +448,43 @@
 }
 
 .projeto-tarefas {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .projeto-tarefas h6 {
   font-size: 14px;
   font-weight: 600;
-  color: #4b5563;
-  margin-bottom: 12px;
+  color: #1f2937;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.projeto-tarefas h6::before {
+  content: "";
+  width: 4px;
+  height: 16px;
+  background: linear-gradient(to bottom, #3949ab, #41b9a0);
+  border-radius: 2px;
+  display: inline-block;
 }
 
 .tarefas-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 200px;
-  overflow-y: auto;
-  padding-right: 8px;
-}
-
-.tarefas-list::-webkit-scrollbar {
-  width: 4px;
-}
-
-.tarefas-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.tarefas-list::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
+  gap: 16px;
 }
 
 .tarefa-card {
-  background-color: #f9fafb;
-  border-radius: 6px;
-  padding: 12px;
-  border-left: 3px solid;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid transparent;
+  transition: all 0.3s ease;
 }
 
 .tarefa-card.prioridade-alta {
@@ -502,113 +499,34 @@
   border-left-color: #10b981;
 }
 
+.tarefa-card.vencida {
+  border-left-color: #dc2626;
+  background-color: #fef2f2;
+}
+
 .tarefa-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
-.tarefa-titulo {
-  font-size: 13px;
-  font-weight: 500;
-  color: #1f2937;
-  flex: 1;
-  margin-right: 8px;
-}
-
-.tarefa-status {
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 500;
-}
-
-.status-concluido {
-  background-color: #dcfce7;
-  color: #166534;
-}
-
-.status-atrasado {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-.status-em-andamento {
-  background-color: #e0f2fe;
-  color: #075985;
-}
-
-.tarefa-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-}
-
-.tarefa-responsavel {
-  color: #6b7280;
-}
-
-.tarefa-prioridade {
-  font-weight: 500;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.prioridade-alta {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-.prioridade-media {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.prioridade-baixa {
-  background-color: #dcfce7;
-  color: #166534;
-}
-
-/* Ajuste no card do projeto para acomodar as tarefas */
-.projeto-card {
-  padding: 20px;
-  min-height: 200px;
-  display: flex;
-  flex-direction: column;
-}
-
-.projeto-cards {
-  display: grid;
-  gap: 20px;
-}
-
-@media (max-width: 768px) {
-  .tarefas-list {
-    max-height: 150px;
-  }
-}
-
-/* Adicione estes estilos */
 .tarefa-id-titulo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex: 1;
 }
 
 .tarefa-id {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  font-family: monospace;
+  background-color: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 4px;
   font-size: 12px;
   color: #6b7280;
-  background-color: #f3f4f6;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .id-icon {
@@ -616,156 +534,119 @@
   color: #9ca3af;
 }
 
-/* Modifique o projeto-card para indicar que é clicável */
-.projeto-card {
-  cursor: pointer;
-  position: relative;
-}
-
-.projeto-card::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.1);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.projeto-card:hover::after {
-  opacity: 1;
-}
-
-/* Ajuste o layout do card para melhor organização */
-.tarefa-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 8px;
-  gap: 12px;
-}
-
 .tarefa-titulo {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: #1f2937;
 }
 
-.no-events {
-  color: #666;
-  font-style: italic;
-  text-align: center;
-  padding: 12px 0;
+.tarefa-status {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
 }
 
-/* Ajuste nas cores dos textos dos eventos no hover */
-.card:hover ul li span {
-  color: white !important; /* Força a cor branca para sobrescrever outros estilos */
+.status-todo {
+  background-color: #f3f4f6;
+  color: #374151;
 }
 
-/* Ajuste na borda entre os eventos */
-.card:hover ul li {
-  border-bottom-color: rgba(255, 255, 255, 0.2);
+.status-inProgress {
+  background-color: #e0f2fe;
+  color: #0369a1;
 }
 
-/* Ajuste no hover dos itens da lista */
-.card:hover ul li:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+.status-testing {
+  background-color: #fef3c7;
+  color: #92400e;
 }
 
-/* Garante que todos os textos dentro do card fiquem brancos no hover */
-.card:hover ul li span:first-child,
-.card:hover ul li span:last-child {
-  color: white;
+.status-prontoDeploy {
+  background-color: #f0fdf4;
+  color: #166534;
 }
 
-/* Ajuste para a mensagem de "Nenhum evento próximo" */
-.card:hover .no-events span {
-  color: white;
+.status-done {
+  background-color: #dcfce7;
+  color: #166534;
 }
 
-/* Adicione estes estilos ao final do arquivo */
-
-.card small {
-  font-size: 0.8em;
-  opacity: 0.8;
-}
-
-.projetos-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-top: 20px;
-}
-
-/* Ajuste o hover do novo card */
-.card:hover small {
-  color: white;
-}
-
-/* Ajuste a animação de entrada dos projetos */
-.projetos-relacionados {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Adicione estes estilos */
-
-.projeto-detalhes {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.detalhe {
+.tarefa-footer {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 13px;
+  align-items: center;
+  margin-top: 12px;
+  font-size: 12px;
 }
 
-.detalhe span:first-child {
-  color: #666;
-}
-
-.detalhe span:last-child {
+.tarefa-projeto {
+  color: #6b7280;
   font-weight: 500;
-  color: #333;
 }
 
-.no-projects {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 24px;
-  color: #666;
-  font-style: italic;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+.tarefa-data {
+  color: #6b7280;
 }
 
-/* Ajuste o hover dos detalhes no card */
-.card:hover .projeto-detalhes {
-  border-top-color: rgba(255, 255, 255, 0.2);
+.tarefa-data.vencida {
+  color: #dc2626;
+  font-weight: 500;
 }
 
-.card:hover .detalhe span {
-  color: white !important;
+.tarefa-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f3f4f6;
 }
 
-/* Adicione estes estilos para os novos elementos */
+.tag-mini {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 500;
+}
+
+.projeto-card:hover .tarefa-card {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-left-color: rgba(255, 255, 255, 0.3);
+}
+
+.projeto-card:hover .tarefa-titulo,
+.projeto-card:hover .tarefa-projeto,
+.projeto-card:hover .tarefa-data:not(.vencida) {
+  color: white;
+}
+
+.projeto-card:hover .tarefa-id {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.projeto-card:hover .id-icon {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 768px) {
+  .tarefa-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .tarefa-status {
+    align-self: flex-start;
+  }
+
+  .tarefa-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
 
 .indicador-grupo {
   margin-top: 12px;
@@ -797,7 +678,6 @@
   background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Ajustes para o hover do card */
 .card:hover .indicador-grupo {
   background-color: rgba(255, 255, 255, 0.1);
 }
@@ -811,7 +691,6 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Ajuste no espaçamento dos indicadores */
 .indicadores {
   display: flex;
   flex-direction: column;
@@ -821,8 +700,6 @@
 .indicador-grupo:not(:last-child) {
   margin-bottom: 8px;
 }
-
-/* Adicione estes estilos */
 
 .indicador-item {
   cursor: pointer;
@@ -861,7 +738,6 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Animação para os cards filtrados */
 .projeto-card {
   transition: all 0.3s ease;
 }
@@ -880,20 +756,16 @@
   transform: scale(1);
 }
 
-/* Adicione estes estilos para ajustar as cores quando o card estiver expandido */
-
 .card.expanded .indicador-grupo h3,
 .card.expanded .indicador span,
 .card.expanded .indicador-item span {
   color: white !important;
 }
 
-/* Garante que o ícone também fique branco */
 .card.expanded .icon.success {
   color: white !important;
 }
 
-/* Ajuste para o título do grupo de indicadores */
 .card.expanded h3 {
   color: white !important;
 }
@@ -921,12 +793,9 @@
   color: #333;
 }
 
-/* Ajuste o hover para os novos elementos */
 .projeto-card:hover .projeto-equipe .membro span {
   color: white;
 }
-
-/* Adicione estes estilos ao final do arquivo */
 
 .kanban-stats {
   display: flex;
@@ -989,7 +858,7 @@
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stat-item:first-child {
     grid-column: auto;
   }
@@ -1040,7 +909,6 @@
   background-color: #4caf50;
 }
 
-/* Ajustes para o hover e card expandido */
 .projeto-card:hover .stat-value,
 .projeto-card:hover .stat-label,
 .projeto-card:hover .progress-header {
@@ -1066,7 +934,6 @@
   }
 }
 
-/* Modifique os estilos do kanban-stats */
 .kanban-stats {
   margin-top: 16px;
   padding-top: 16px;
@@ -1078,19 +945,16 @@
   display: block;
 }
 
-/* Ajuste o cursor do projeto-card */
 .projeto-card {
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-/* Remova qualquer navegação ou link do projeto-card */
 .projeto-card a {
   text-decoration: none;
   color: inherit;
 }
 
-/* Ajuste responsivo */
 @media (max-width: 1200px) {
   .projetos-grid {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -1107,20 +971,17 @@
   }
 }
 
-/* Ajuste o padding interno do card quando expandido */
 .projeto-card.show-stats {
   padding: 20px;
   margin-bottom: 8px;
 }
 
-/* Garanta que o conteúdo não ultrapasse os limites do card */
 .projeto-card {
   overflow: hidden;
   box-sizing: border-box;
   height: auto;
 }
 
-/* Ajuste o espaçamento entre stats-grid e progress-bars */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1131,7 +992,6 @@
   width: 100%;
 }
 
-/* Ajuste o progress-bars */
 .progress-bars {
   display: flex;
   flex-direction: column;
@@ -1141,12 +1001,10 @@
   margin-top: 16px;
 }
 
-/* Ajuste o hover para manter a consistência visual */
 .projeto-card:hover .stats-grid {
   border-bottom-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Ajuste o espaçamento geral do kanban-stats */
 .kanban-stats {
   margin-top: 16px;
   padding-top: 16px;
@@ -1154,7 +1012,6 @@
   display: block;
 }
 
-/* Adicione estes estilos para a estatística de vencidas */
 .stat-item.warning .stat-value {
   color: #ff9800;
 }
@@ -1163,7 +1020,6 @@
   background-color: #ff9800;
 }
 
-/* Ajuste o grid para acomodar 5 itens */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1174,7 +1030,6 @@
   width: 100%;
 }
 
-/* Ajuste o hover para a nova estatística */
 .projeto-card:hover .stat-item.warning .stat-value,
 .projeto-card:hover .stat-item.warning .stat-label {
   color: #fff;
@@ -1184,32 +1039,61 @@
   background-color: #ff9800;
 }
 
-/* Ajuste o grid de projetos para 3 cards por linha */
 .projetos-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Alterado para 3 colunas fixas */
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   margin-top: 20px;
 }
 
-/* Ajuste responsivo */
 @media (max-width: 1400px) {
   .projetos-grid {
-    grid-template-columns: repeat(2, 1fr); /* 2 colunas em telas médias */
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 992px) {
   .projetos-grid {
-    grid-template-columns: 1fr; /* 1 coluna em telas menores */
+    grid-template-columns: 1fr;
   }
 }
 
-/* Ajuste o tamanho mínimo do card */
 .projeto-card {
   min-width: 100%;
   width: 100%;
   height: auto;
   padding: 20px;
   box-sizing: border-box;
+}
+
+/* Ajuste o hover do card para manter a cor do status */
+.projeto-card:hover .tarefa-status {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #1f2937 !important; /* Força a cor preta mesmo no hover */
+}
+
+/* Ajuste específico para cada tipo de status no hover */
+.projeto-card:hover .status-todo {
+  background-color: rgba(243, 244, 246, 0.3);
+  color: #374151 !important;
+}
+
+.projeto-card:hover .status-inProgress {
+  background-color: rgba(224, 242, 254, 0.3);
+  color: #0369a1 !important;
+}
+
+.projeto-card:hover .status-testing {
+  background-color: rgba(254, 243, 199, 0.3);
+  color: #92400e !important;
+}
+
+.projeto-card:hover .status-prontoDeploy {
+  background-color: rgba(240, 253, 244, 0.3);
+  color: #166534 !important;
+}
+
+.projeto-card:hover .status-done {
+  background-color: rgba(220, 252, 231, 0.3);
+  color: #166534 !important;
 }
