@@ -17,6 +17,31 @@
   overflow-y: auto;
   height: 100vh;
   transition: all 0.3s ease;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
+}
+
+.tarefas-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tarefas-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 100px;
+  margin: 4px 0;
+}
+
+.tarefas-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 100px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.tarefas-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 .kanban-board {
@@ -28,24 +53,33 @@
   margin: 0 -12px;
   padding: 0 12px;
   scroll-padding: 12px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
 }
 
 .kanban-board::-webkit-scrollbar {
-  height: 8px;
+  height: 6px; /* Reduzido de 8px para 6px */
+  width: 6px;
 }
 
 .kanban-board::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 100px; /* Aumentado para ficar mais arredondado */
+  margin: 0 10px; /* Adiciona margem nas laterais */
 }
 
 .kanban-board::-webkit-scrollbar-thumb {
-  background: #c0c0c0;
-  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 100px; /* Aumentado para ficar mais arredondado */
+  border: 2px solid transparent; /* Adiciona uma borda transparente */
+  background-clip: padding-box; /* Faz a borda não afetar o background */
 }
 
 .kanban-board::-webkit-scrollbar-thumb:hover {
-  background: #a0a0a0;
+  background: rgba(0, 0, 0, 0.25);
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 .kanban-column {
@@ -92,6 +126,31 @@
   background-color: rgba(255, 255, 255, 0.7);
   margin: 12px;
   border-radius: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
+}
+
+.task-list::-webkit-scrollbar {
+  width: 4px; /* Reduzido de 6px para 4px */
+}
+
+.task-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 100px; /* Aumentado para ficar mais arredondado */
+  margin: 4px 0; /* Adiciona margem no topo e base */
+}
+
+.task-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 100px; /* Aumentado para ficar mais arredondado */
+  border: 1px solid transparent; /* Adiciona uma borda transparente */
+  background-clip: padding-box; /* Faz a borda não afetar o background */
+}
+
+.task-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid transparent;
+  background-clip: padding-box;
 }
 
 .task-list.dragging-over {

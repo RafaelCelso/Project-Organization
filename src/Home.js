@@ -15,6 +15,7 @@ import {
   faComment,
   faHistory,
   faExchange,
+  faArchive,
 } from "@fortawesome/free-solid-svg-icons";
 import "./Home.css";
 import { db } from "./firebaseConfig";
@@ -36,10 +37,13 @@ function Home() {
   const [eventos, setEventos] = useState([]);
   const [projetos, setProjetos] = useState([]);
   const [indicadores, setIndicadores] = useState({
-    realizadas: 0,
-    vencidas: 0,
-    concluidas: 0,
-    emAndamento: 0,
+    aDefinir: 0,
+    todo: 0,
+    inProgress: 0,
+    testing: 0,
+    prontoDeploy: 0,
+    done: 0,
+    arquivado: 0
   });
   const [totalProjetos, setTotalProjetos] = useState(0);
   const [showAllProjects, setShowAllProjects] = useState(false);
@@ -134,12 +138,15 @@ function Home() {
         status: {}
       };
 
-      // Atualiza indicadores
+      // Atualiza indicadores baseado no kanban
       const novosIndicadores = {
-        realizadas: 0,
-        vencidas: 0,
-        concluidas: 0,
-        emAndamento: 0
+        aDefinir: 0,
+        todo: 0,
+        inProgress: 0,
+        testing: 0,
+        prontoDeploy: 0,
+        done: 0,
+        arquivado: 0
       };
 
       // Agrupa projetos
@@ -158,9 +165,13 @@ function Home() {
 
         // Atualiza indicadores baseado no kanban
         if (projeto.kanban) {
-          novosIndicadores.concluidas += (projeto.kanban.done?.length || 0);
-          novosIndicadores.emAndamento += (projeto.kanban.inProgress?.length || 0);
-          novosIndicadores.realizadas += (projeto.kanban.done?.length || 0);
+          novosIndicadores.aDefinir += (projeto.kanban.aDefinir?.length || 0);
+          novosIndicadores.todo += (projeto.kanban.todo?.length || 0);
+          novosIndicadores.inProgress += (projeto.kanban.inProgress?.length || 0);
+          novosIndicadores.testing += (projeto.kanban.testing?.length || 0);
+          novosIndicadores.prontoDeploy += (projeto.kanban.prontoDeploy?.length || 0);
+          novosIndicadores.done += (projeto.kanban.done?.length || 0);
+          novosIndicadores.arquivado += (projeto.kanban.arquivado?.length || 0);
 
           // Verifica tarefas vencidas
           Object.values(projeto.kanban).forEach(coluna => {
@@ -1417,13 +1428,41 @@ function Home() {
 
   const renderKanbanGeral = () => {
     const colunas = {
-      aDefinir: { titulo: 'A Definir', cor: '#6366f1' },
-      todo: { titulo: 'A Fazer', cor: '#8b5cf6' },
-      inProgress: { titulo: 'Em Andamento', cor: '#2196f3' },
-      testing: { titulo: 'Em Teste', cor: '#f59e0b' },
-      prontoDeploy: { titulo: 'Pronto para Deploy', cor: '#10b981' },
-      done: { titulo: 'Concluído', cor: '#4caf50' },
-      arquivado: { titulo: 'Arquivado', cor: '#6b7280' }
+      aDefinir: { 
+        titulo: 'A Definir', 
+        cor: '#6366f1',
+        icon: faSpinner
+      },
+      todo: { 
+        titulo: 'A Fazer', 
+        cor: '#8b5cf6',
+        icon: faTasks
+      },
+      inProgress: { 
+        titulo: 'Em Andamento', 
+        cor: '#2196f3',
+        icon: faSpinner
+      },
+      testing: { 
+        titulo: 'Em Teste', 
+        cor: '#f59e0b',
+        icon: faCheckCircle
+      },
+      prontoDeploy: { 
+        titulo: 'Pronto para Deploy', 
+        cor: '#10b981',
+        icon: faCheckCircle
+      },
+      done: { 
+        titulo: 'Concluído', 
+        cor: '#4caf50',
+        icon: faCheckCircle
+      },
+      arquivado: { 
+        titulo: 'Arquivado', 
+        cor: '#6b7280',
+        icon: faArchive
+      }
     };
 
     const projetosPorColuna = {};
@@ -1450,26 +1489,42 @@ function Home() {
         {Object.entries(colunas).map(([key, coluna]) => {
           const projetosDaColuna = projetosPorColuna[key];
           
-          if (projetosDaColuna.length === 0) return null;
-
           return (
-            <div key={key} className="kanban-coluna-container">
-              <div className="kanban-coluna-header" style={{ borderColor: coluna.cor }}>
-                <h4 style={{ color: coluna.cor }}>{coluna.titulo}</h4>
-                <span className="coluna-contador">{projetosDaColuna.reduce((total, p) => total + p.tarefas.length, 0)} tarefas</span>
+            <div 
+              key={key} 
+              className="kanban-coluna-container" 
+              data-coluna={key}
+            >
+              <div className="kanban-coluna-header">
+                <h4>
+                  <FontAwesomeIcon 
+                    icon={coluna.icon} 
+                    className={`column-icon ${key === 'inProgress' ? 'spin' : ''}`}
+                  />
+                  {coluna.titulo}
+                </h4>
+                <span className="coluna-contador">
+                  {projetosDaColuna.reduce((total, p) => total + p.tarefas.length, 0)} tarefas
+                </span>
               </div>
               <div className="kanban-coluna-content">
-                {projetosDaColuna.map(projeto => (
-                  <div key={`${key}-${projeto.id}`} className="projeto-card-kanban">
-                    <div className="projeto-card-header">
-                      <h5>{projeto.nome}</h5>
-                      <span className="tipo-badge">{projeto.tipo || "Não definido"}</span>
+                {projetosDaColuna.length > 0 ? (
+                  projetosDaColuna.map(projeto => (
+                    <div key={`${key}-${projeto.id}`} className="projeto-card-kanban">
+                      <div className="projeto-card-header">
+                        <h5>{projeto.nome}</h5>
+                        <span className="tipo-badge">{projeto.tipo || "Não definido"}</span>
+                      </div>
+                      <div className="tarefas-list">
+                        {projeto.tarefas.map(tarefa => renderTarefaCard(tarefa))}
+                      </div>
                     </div>
-                    <div className="tarefas-list">
-                      {projeto.tarefas.map(tarefa => renderTarefaCard(tarefa))}
-                    </div>
+                  ))
+                ) : (
+                  <div className="no-tasks">
+                    <p>Nenhuma tarefa nesta coluna</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           );
@@ -1514,29 +1569,32 @@ function Home() {
             </h2>
             <div className="indicadores">
               <div className="indicador">
-                <FontAwesomeIcon
-                  icon={faCheckCircle}
-                  className="icon success"
-                />
-                <span>Concluídas: {indicadores.concluidas}</span>
+                <FontAwesomeIcon icon={faSpinner} className="icon aDefinir" />
+                <span>A Definir: {indicadores.aDefinir}</span>
               </div>
               <div className="indicador">
-                <FontAwesomeIcon
-                  icon={faExclamationTriangle}
-                  className="icon warning"
-                />
-                <span>Vencidas: {indicadores.vencidas}</span>
+                <FontAwesomeIcon icon={faTasks} className="icon todo" />
+                <span>A Fazer: {indicadores.todo}</span>
               </div>
               <div className="indicador">
-                <FontAwesomeIcon icon={faSpinner} className="icon spin" />
-                <span>Em Andamento: {indicadores.emAndamento}</span>
+                <FontAwesomeIcon icon={faSpinner} className="icon inProgress spin" />
+                <span>Em Andamento: {indicadores.inProgress}</span>
               </div>
               <div className="indicador">
-                <FontAwesomeIcon
-                  icon={faCheckCircle}
-                  className="icon success"
-                />
-                <span>Realizadas: {indicadores.realizadas}</span>
+                <FontAwesomeIcon icon={faCheckCircle} className="icon testing" />
+                <span>Em Teste: {indicadores.testing}</span>
+              </div>
+              <div className="indicador">
+                <FontAwesomeIcon icon={faCheckCircle} className="icon prontoDeploy" />
+                <span>Pronto para Deploy: {indicadores.prontoDeploy}</span>
+              </div>
+              <div className="indicador">
+                <FontAwesomeIcon icon={faCheckCircle} className="icon done" />
+                <span>Concluído: {indicadores.done}</span>
+              </div>
+              <div className="indicador">
+                <FontAwesomeIcon icon={faArchive} className="icon arquivado" />
+                <span>Arquivado: {indicadores.arquivado}</span>
               </div>
             </div>
           </div>
