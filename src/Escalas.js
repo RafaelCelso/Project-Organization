@@ -263,11 +263,35 @@ function Escalas() {
     fetchEventos();
   }, []); // Array vazio significa que será executado apenas uma vez ao montar o componente
 
+  const handleAddEvent = () => {
+    const hoje = new Date();
+    hoje.setHours(8, 0, 0, 0); // Define hora inicial como 8:00
+    
+    const fimDia = new Date(hoje);
+    fimDia.setHours(17, 0, 0, 0); // Define hora final como 17:00
+    
+    setFormData({
+      id: null,
+      title: '',
+      start: hoje,
+      end: fimDia,
+      colaborador: '',
+      tipo: '',
+      observacao: ''
+    });
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="escalas-container">
       <Sidebar />
       <div className="escalas-content">
-        <h1 className="page-title">Escalas</h1>
+        <div className="escalas-header">
+          <h1 className="page-title">Escalas</h1>
+          <button className="add-event-btn" onClick={handleAddEvent}>
+            <FontAwesomeIcon icon={faCalendarAlt} /> Adicionar Evento
+          </button>
+        </div>
         
         <div className="cards-container">
           <div className="card">
