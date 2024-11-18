@@ -16,6 +16,7 @@ import {
   faHistory,
   faExchange,
   faArchive,
+  faFileExcel,
 } from "@fortawesome/free-solid-svg-icons";
 import "./Home.css";
 import { db } from "./firebaseConfig";
@@ -45,6 +46,7 @@ import {
   Filler,
 } from "chart.js";
 import { Pie, Bar, Line, Radar } from "react-chartjs-2";
+import * as XLSX from 'xlsx';
 
 // Atualize o registro do ChartJS
 ChartJS.register(
@@ -113,6 +115,10 @@ function Home() {
   const [expandedProjects, setExpandedProjects] = useState(new Set());
   const [expandedAnalistas, setExpandedAnalistas] = useState(new Set());
   const [expandedDesenvolvedores, setExpandedDesenvolvedores] = useState(new Set());
+  const [periodoFiltro, setPeriodoFiltro] = useState({
+    mes: new Date().getMonth() + 1, // Mês atual (1-12)
+    ano: new Date().getFullYear() // Ano atual
+  });
 
   // Adicione estas configurações logo após a declaração dos estados no início do componente
 
@@ -259,11 +265,8 @@ function Home() {
 
   const loadProjetos = async () => {
     try {
-      // Primeiro, busca os projetos básicos
       const projetosRef = collection(db, "projetos");
       const projetosSnapshot = await getDocs(projetosRef);
-
-      // Depois, busca os dados do kanban
       const projetosTarefasRef = collection(db, "projetosTarefas");
       const projetosTarefasSnapshot = await getDocs(projetosTarefasRef);
 
@@ -284,7 +287,17 @@ function Home() {
         }
       });
 
-      // Mapeia os projetos com seus respectivos kanbans
+      // Filtra as tarefas pelo período selecionado
+      const filtrarTarefasPorPeriodo = (tarefas) => {
+        return tarefas.filter(tarefa => {
+          if (!tarefa.dataConclusao) return true;
+          const data = new Date(tarefa.dataConclusao);
+          return data.getMonth() + 1 === periodoFiltro.mes && 
+                 data.getFullYear() === periodoFiltro.ano;
+        });
+      };
+
+      // Aplica o filtro em cada coluna do kanban
       const projetosData = projetosSnapshot.docs.map((doc) => {
         const projetoData = doc.data();
         const kanban = kanbanPorProjeto[doc.id] || {
@@ -297,25 +310,30 @@ function Home() {
           arquivado: [],
         };
 
+        // Filtra as tarefas de cada coluna
+        const kanbanFiltrado = Object.entries(kanban).reduce((acc, [key, tarefas]) => {
+          acc[key] = Array.isArray(tarefas) ? filtrarTarefasPorPeriodo(tarefas) : [];
+          return acc;
+        }, {});
+
         return {
           id: doc.id,
           ...projetoData,
-          kanban,
+          kanban: kanbanFiltrado,
         };
       });
 
-      // Atualiza os estados
+      // Atualiza os estados com os dados filtrados
       setAllProjetos(projetosData);
       setTotalProjetos(projetosData.length);
 
-      // Calcula estatísticas
+      // Recalcula as estatísticas com os dados filtrados
       const stats = {
         total: projetosData.length,
         tipos: {},
         status: {},
       };
 
-      // Atualiza indicadores baseado no kanban
       const novosIndicadores = {
         aDefinir: 0,
         todo: 0,
@@ -529,10 +547,23 @@ function Home() {
         }
       });
 
-      // Converte o Map em array e filtra apenas analistas ativos
-      const analistasArray = Array.from(analistasMap.values()).filter(
-        (analista) => analista.status === "Ativo"
-      );
+      // Adicione a lógica de filtro por período
+      const filtrarTarefasPorPeriodo = (tarefas) => {
+        return tarefas.filter(tarefa => {
+          if (!tarefa.dataConclusao) return true;
+          const data = new Date(tarefa.dataConclusao);
+          return data.getMonth() + 1 === periodoFiltro.mes && 
+                 data.getFullYear() === periodoFiltro.ano;
+        });
+      };
+
+      // Aplique o filtro nas tarefas dos analistas
+      const analistasArray = Array.from(analistasMap.values())
+        .filter((analista) => analista.status === "Ativo")
+        .map(analista => ({
+          ...analista,
+          tarefas: filtrarTarefasPorPeriodo(analista.tarefas)
+        }));
 
       setAnalistas(analistasArray);
 
@@ -666,10 +697,23 @@ function Home() {
         }
       });
 
-      // Converte o Map em array e filtra apenas desenvolvedores ativos
-      const desenvolvedoresArray = Array.from(
-        desenvolvedoresMap.values()
-      ).filter((dev) => dev.status === "Ativo");
+      // Adicione a lógica de filtro por período
+      const filtrarTarefasPorPeriodo = (tarefas) => {
+        return tarefas.filter(tarefa => {
+          if (!tarefa.dataConclusao) return true;
+          const data = new Date(tarefa.dataConclusao);
+          return data.getMonth() + 1 === periodoFiltro.mes && 
+                 data.getFullYear() === periodoFiltro.ano;
+        });
+      };
+
+      // Aplique o filtro nas tarefas dos desenvolvedores
+      const desenvolvedoresArray = Array.from(desenvolvedoresMap.values())
+        .filter((dev) => dev.status === "Ativo")
+        .map(dev => ({
+          ...dev,
+          tarefas: filtrarTarefasPorPeriodo(dev.tarefas)
+        }));
 
       setDesenvolvedores(desenvolvedoresArray);
 
@@ -730,6 +774,12 @@ function Home() {
   useEffect(() => {
     loadDesenvolvedores();
   }, []);
+
+  useEffect(() => {
+    loadProjetos();
+    loadAnalistas();
+    loadDesenvolvedores();
+  }, [periodoFiltro]);
 
   const handleIndicadorClick = () => {
     setExpandedCard(expandedCard === "projects" ? null : "projects");
@@ -866,118 +916,139 @@ function Home() {
       };
 
       // Encontra o projeto que contém a tarefa
-      const projetoContendoTarefa = allProjetos.find((projeto) => {
-        return Object.values(projeto.kanban).some((coluna) =>
+      const projetoContendoTarefa = allProjetos.find((projeto) => 
+        Object.values(projeto.kanban).some((coluna) =>
           coluna.some((task) => task.id === selectedTask.id)
-        );
-      });
+        )
+      );
+
+      if (!projetoContendoTarefa) {
+        throw new Error("Projeto não encontrado");
+      }
+
+      // Resto do código do handleAddComment...
+      
     } catch (error) {
       console.error("Erro ao adicionar comentário:", error);
       alert("Erro ao adicionar comentário. Por favor, tente novamente.");
     }
   };
 
-  const renderTarefaCard = (tarefa) => (
-    <div
-      key={tarefa.id}
-      className={`task-card ${tarefa.prioridade ? `prioridade-${tarefa.prioridade}` : ''}`}
-      onClick={() => handleTaskClick(tarefa)}
-    >
-      <div className="task-header">
-        <div className="task-id">
-          <FontAwesomeIcon icon={faHashtag} className="id-icon" />
-          {tarefa.taskId}
-        </div>
-        <div className="task-title">{tarefa.titulo}</div>
-      </div>
+  const renderTarefaCard = (tarefa) => {
+    // Verifica se a tarefa está no período selecionado
+    const tarefaNoPeriodo = () => {
+      if (!tarefa.dataConclusao) return true;
+      const data = new Date(tarefa.dataConclusao);
+      return data.getMonth() + 1 === periodoFiltro.mes && 
+             data.getFullYear() === periodoFiltro.ano;
+    };
 
-      {tarefa.numeroChamado && (
-        <div className="task-chamado">
-          <span className="chamado-label">Chamado:</span>
-          <span className="chamado-number">{tarefa.numeroChamado}</span>
-        </div>
-      )}
+    if (!tarefaNoPeriodo()) return null;
 
-      <div className="task-metadata">
-        {tarefa.prioridade && (
-          <span className={`task-priority priority-${tarefa.prioridade}`}>
+    return (
+      <div
+        key={tarefa.id}
+        className={`task-card ${tarefa.prioridade ? `prioridade-${tarefa.prioridade}` : ''}`}
+        onClick={() => handleTaskClick(tarefa)}
+      >
+        <div className="task-header">
+          <div className="task-id">
+            <FontAwesomeIcon icon={faHashtag} className="id-icon" />
+            {tarefa.taskId}
+          </div>
+          <div className="task-title">{tarefa.titulo}</div>
+        </div>
+
+        {tarefa.numeroChamado && (
+          <div className="task-chamado">
+            <span className="chamado-label">Chamado:</span>
+            <span className="chamado-number">{tarefa.numeroChamado}</span>
+          </div>
+        )}
+
+        <div className="task-metadata">
+          {tarefa.prioridade && (
+            <span className={`task-priority priority-${tarefa.prioridade}`}>
             {tarefa.prioridade.charAt(0).toUpperCase() + tarefa.prioridade.slice(1)}
           </span>
-        )}
+          )}
 
-        {tarefa.tags && tarefa.tags.length > 0 && (
-          <div className="task-tags-list">
-            {tarefa.tags.map((tag) => (
-              <span
-                key={tag.id}
-                className="task-tag"
-                style={{ backgroundColor: tag.cor }}
-              >
-                {tag.texto}
-              </span>
-            ))}
-          </div>
-        )}
+          {tarefa.tags && tarefa.tags.length > 0 && (
+            <div className="task-tags-list">
+              {tarefa.tags.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="task-tag"
+                  style={{ backgroundColor: tag.cor }}
+                >
+                  {tag.texto}
+                </span>
+              ))}
+            </div>
+          )}
 
-        {tarefa.comentarios?.length > 0 && (
-          <div className="task-chat-icon">
-            <FontAwesomeIcon
-              icon={faComments}
-              className={`chat-icon ${tarefa.comentariosNaoLidos ? "has-unread" : ""}`}
-            />
-            {tarefa.comentariosNaoLidos && <div className="unread-indicator" />}
-          </div>
-        )}
-      </div>
-
-      <div className="task-content">{tarefa.content}</div>
-
-      {tarefa.testes && tarefa.testes.length > 0 && (
-        <div className="task-topicos-progresso">
-          <div className="progresso-info">
-            <span>Tópicos</span>
-            <span>{Math.round((tarefa.testes.filter(teste => teste.concluido).length / tarefa.testes.length) * 100)}%</span>
-          </div>
-          <div className="progresso-barra-container">
-            <div 
-              className="progresso-barra"
-              style={{ 
-                width: `${Math.round(
-                  (tarefa.testes.filter(teste => teste.concluido).length / 
-                  tarefa.testes.length) * 100
-                )}%` 
-              }}
-            />
-          </div>
-        </div>
-      )}
-
-      <div className="task-footer">
-        <div className="task-assignee">
-          {Array.isArray(tarefa.responsavel)
-            ? tarefa.responsavel.map((r) => r.label || r).join(", ")
-            : tarefa.responsavel?.label ||
-              tarefa.responsavel ||
-              "Não atribuído"}
-        </div>
-
-        <div className="task-dates">
-          {tarefa.dataConclusao && (
-            <div
-              className={`task-date ${
-                new Date(tarefa.dataConclusao) < new Date() ? "vencida" : ""
-              }`}
-            >
-              <span className="date-label">Conclusão:</span>
-              <span>
-                {format(new Date(tarefa.dataConclusao), "dd/MM/yyyy")}
-              </span>
+          {tarefa.comentarios?.length > 0 && (
+            <div className="task-chat-icon">
+              <FontAwesomeIcon
+                icon={faComments}
+                className={`chat-icon ${tarefa.comentariosNaoLidos ? "has-unread" : ""}`}
+              />
+              {tarefa.comentariosNaoLidos && <div className="unread-indicator" />}
             </div>
           )}
         </div>
+
+        <div className="task-content">{tarefa.content}</div>
+
+        {tarefa.testes && tarefa.testes.length > 0 && (
+          <div className="task-topicos-progresso">
+            <div className="progresso-info">
+              <span>Tópicos</span>
+              <span>
+                {Math.round((tarefa.testes.filter(teste => teste.concluido).length / tarefa.testes.length) * 100)}%
+              </span>
+            </div>
+            <div className="progresso-barra-container">
+              <div 
+                className="progresso-barra"
+                style={{ 
+                  width: `${Math.round(
+                    (tarefa.testes.filter(teste => teste.concluido).length / 
+                    tarefa.testes.length) * 100
+                  )}%` 
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        <div className="task-footer">
+          <div className="task-assignee">
+            {Array.isArray(tarefa.responsavel)
+              ? tarefa.responsavel.map((r) => r.label || r).join(", ")
+              : tarefa.responsavel?.label ||
+                tarefa.responsavel ||
+                "Não atribuído"}
+          </div>
+
+          <div className="task-dates">
+            {tarefa.dataConclusao && (
+              <div
+                className={`task-date ${
+                  new Date(tarefa.dataConclusao) < new Date() ? "vencida" : ""
+                }`}
+              >
+                <span className="date-label">Conclusão:</span>
+                <span>
+                  {format(new Date(tarefa.dataConclusao), "dd/MM/yyyy")}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderProjetoCard = (projeto, statusClass) => {
     const tarefas = Object.values(projeto.kanban || {})
@@ -1027,15 +1098,8 @@ function Home() {
   };
 
   const renderProjetoSimples = (projeto) => {
-    const matchesFiltro =
-      (!filtroAtual.tipo && !filtroAtual.status) ||
-      (filtroAtual.tipo && projeto.tipo === filtroAtual.tipo) ||
-      (filtroAtual.status && projeto.status === filtroAtual.status);
-
-    if (!matchesFiltro) return null;
-
-    const isExpanded = expandedProjects.has(projeto.id);
     const stats = calcularEstatisticasProjeto(projeto);
+    const isExpanded = expandedProjects.has(projeto.id);
 
     return (
       <div 
@@ -1048,11 +1112,6 @@ function Home() {
         <div className="projeto-info">
           <span className="tipo">{projeto.tipo || "Não definido"}</span>
           <span className="status">{projeto.status || "Em Andamento"}</span>
-        </div>
-        <div className="responsavel">
-          <span>
-            Responsável: {getResponsavelNome(projeto.analistaPrincipal)}
-          </span>
         </div>
 
         {/* Resumo das tarefas sempre visível */}
@@ -1067,84 +1126,82 @@ function Home() {
 
         {/* Conteúdo expandido */}
         {isExpanded && (
-          <>
-            <div className="kanban-stats">
-              <div className="stats-grid">
-                <div className="stat-item">
-                  <div className="stat-value">{stats.totalTarefas}</div>
-                  <div className="stat-label">Total de Tarefas</div>
+          <div className="kanban-stats">
+            <div className="stats-grid">
+              <div className="stat-item">
+                <div className="stat-value">{stats.totalTarefas}</div>
+                <div className="stat-label">Total de Tarefas</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-value">{stats.todo}</div>
+                <div className="stat-label">A Fazer</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-value">{stats.doing}</div>
+                <div className="stat-label">Em Andamento</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-value">{stats.done}</div>
+                <div className="stat-label">Concluídas</div>
+              </div>
+              <div className="stat-item warning">
+                <div className="stat-value">{stats.tarefasVencidas}</div>
+                <div className="stat-label">Vencidas</div>
+              </div>
+            </div>
+
+            <div className="progress-bars">
+              <div className="progress-item">
+                <div className="progress-header">
+                  <span>A Fazer</span>
+                  <span>{stats.todoPercent.toFixed(1)}%</span>
                 </div>
-                <div className="stat-item">
-                  <div className="stat-value">{stats.todo}</div>
-                  <div className="stat-label">A Fazer</div>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-value">{stats.doing}</div>
-                  <div className="stat-label">Em Andamento</div>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-value">{stats.done}</div>
-                  <div className="stat-label">Concluídas</div>
-                </div>
-                <div className="stat-item warning">
-                  <div className="stat-value">{stats.tarefasVencidas}</div>
-                  <div className="stat-label">Vencidas</div>
+                <div className="progress-bar">
+                  <div
+                    className="progress-fill todo"
+                    style={{ width: `${stats.todoPercent}%` }}
+                  />
                 </div>
               </div>
 
-              <div className="progress-bars">
-                <div className="progress-item">
-                  <div className="progress-header">
-                    <span>A Fazer</span>
-                    <span>{stats.todoPercent.toFixed(1)}%</span>
-                  </div>
-                  <div className="progress-bar">
-                    <div
-                      className="progress-fill todo"
-                      style={{ width: `${stats.todoPercent}%` }}
-                    />
-                  </div>
+              <div className="progress-item">
+                <div className="progress-header">
+                  <span>Em Andamento</span>
+                  <span>{stats.doingPercent.toFixed(1)}%</span>
                 </div>
-
-                <div className="progress-item">
-                  <div className="progress-header">
-                    <span>Em Andamento</span>
-                    <span>{stats.doingPercent.toFixed(1)}%</span>
-                  </div>
-                  <div className="progress-bar">
-                    <div
-                      className="progress-fill doing"
-                      style={{ width: `${stats.doingPercent}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="progress-item">
-                  <div className="progress-header">
-                    <span>Concluídas</span>
-                    <span>{stats.donePercent.toFixed(1)}%</span>
-                  </div>
-                  <div className="progress-bar">
-                    <div
-                      className="progress-fill done"
-                      style={{ width: `${stats.donePercent}%` }}
-                    />
-                  </div>
+                <div className="progress-bar">
+                  <div
+                    className="progress-fill doing"
+                    style={{ width: `${stats.doingPercent}%` }}
+                  />
                 </div>
               </div>
 
-              {/* Lista de tarefas recentes */}
-              <div className="projeto-tarefas">
-                <h6>Tarefas Recentes</h6>
-                <div className="tarefas-list">
-                  {projeto.kanban && Object.values(projeto.kanban)
-                    .flat()
-                    .slice(0, 3)
-                    .map(tarefa => renderTarefaCard(tarefa))}
+              <div className="progress-item">
+                <div className="progress-header">
+                  <span>Concluídas</span>
+                  <span>{stats.donePercent.toFixed(1)}%</span>
+                </div>
+                <div className="progress-bar">
+                  <div
+                    className="progress-fill done"
+                    style={{ width: `${stats.donePercent}%` }}
+                  />
                 </div>
               </div>
             </div>
-          </>
+
+            {/* Lista de tarefas recentes */}
+            <div className="projeto-tarefas">
+              <h6>Tarefas Recentes</h6>
+              <div className="tarefas-list">
+                {projeto.kanban && Object.values(projeto.kanban)
+                  .flat()
+                  .slice(0, 3)
+                  .map(tarefa => renderTarefaCard(tarefa))}
+              </div>
+            </div>
+          </div>
         )}
       </div>
     );
@@ -1160,42 +1217,38 @@ function Home() {
     };
 
     if (projeto.kanban) {
-      // Contagem de tarefas por status
-      if (Array.isArray(projeto.kanban.aDefinir)) {
-        stats.todo += projeto.kanban.aDefinir.length;
-      }
-      if (Array.isArray(projeto.kanban.todo)) {
-        stats.todo += projeto.kanban.todo.length;
-      }
-      if (Array.isArray(projeto.kanban.inProgress)) {
-        stats.doing += projeto.kanban.inProgress.length;
-      }
-      if (Array.isArray(projeto.kanban.testing)) {
-        stats.doing += projeto.kanban.testing.length;
-      }
-      if (Array.isArray(projeto.kanban.prontoDeploy)) {
-        stats.doing += projeto.kanban.prontoDeploy.length;
-      }
-      if (Array.isArray(projeto.kanban.done)) {
-        stats.done += projeto.kanban.done.length;
-      }
-      if (Array.isArray(projeto.kanban.arquivado)) {
-        stats.done += projeto.kanban.arquivado.length;
-      }
+      // Função para verificar se a tarefa está no período selecionado
+      const tarefaNoPeriodo = (tarefa) => {
+        if (!tarefa.dataConclusao) return true;
+        const data = new Date(tarefa.dataConclusao);
+        return data.getMonth() + 1 === periodoFiltro.mes && 
+               data.getFullYear() === periodoFiltro.ano;
+      };
 
-      // Calcula o total de tarefas
-      stats.totalTarefas = stats.todo + stats.doing + stats.done;
+      // Contagem de tarefas por status, considerando o período
+      Object.entries(projeto.kanban).forEach(([status, tarefas]) => {
+        if (Array.isArray(tarefas)) {
+          const tarefasFiltradas = tarefas.filter(tarefaNoPeriodo);
+          
+          if (["aDefinir", "todo"].includes(status)) {
+            stats.todo += tarefasFiltradas.length;
+          } else if (["inProgress", "testing", "prontoDeploy"].includes(status)) {
+            stats.doing += tarefasFiltradas.length;
+          } else if (["done", "arquivado"].includes(status)) {
+            stats.done += tarefasFiltradas.length;
+          }
 
-      // Conta tarefas vencidas
-      Object.values(projeto.kanban).forEach(coluna => {
-        if (Array.isArray(coluna)) {
-          coluna.forEach(tarefa => {
+          // Conta tarefas vencidas no período
+          tarefasFiltradas.forEach(tarefa => {
             if (tarefa.dataConclusao && new Date(tarefa.dataConclusao) < new Date()) {
               stats.tarefasVencidas++;
             }
           });
         }
       });
+
+      // Calcula o total de tarefas
+      stats.totalTarefas = stats.todo + stats.doing + stats.done;
     }
 
     // Calcula as porcentagens
@@ -2066,7 +2119,7 @@ function Home() {
       analistas.forEach(analista => {
         analista.projetos.forEach(projeto => {
           const totalTarefas = Object.values(projeto.kanban || {}).reduce((total, coluna) => {
-            return total + (Array.isArray(coluna) ? coluna.length : 0);
+            return total + (Array.isArray(coluna) ? coluna.length : 0); // Corrigido: fechamento correto dos parênteses
           }, 0);
 
           if (totalTarefas > 0) {
@@ -2958,11 +3011,147 @@ function Home() {
     });
   };
 
+  // Adicione esta função para gerar as opções de meses
+  const mesesOptions = [
+    { value: 1, label: 'Janeiro' },
+    { value: 2, label: 'Fevereiro' },
+    { value: 3, label: 'Março' },
+    { value: 4, label: 'Abril' },
+    { value: 5, label: 'Maio' },
+    { value: 6, label: 'Junho' },
+    { value: 7, label: 'Julho' },
+    { value: 8, label: 'Agosto' },
+    { value: 9, label: 'Setembro' },
+    { value: 10, label: 'Outubro' },
+    { value: 11, label: 'Novembro' },
+    { value: 12, label: 'Dezembro' }
+  ];
+
+  // Adicione esta função para gerar as opções de anos (5 anos para trás e 5 para frente)
+  const gerarAnosOptions = () => {
+    const anoAtual = new Date().getFullYear();
+    const anos = [];
+    for (let i = anoAtual - 5; i <= anoAtual + 5; i++) {
+      anos.push({ value: i, label: i.toString() });
+    }
+    return anos;
+  };
+
+  // Adicione esta função para lidar com a mudança de período
+  const handlePeriodoChange = (tipo, valor) => {
+    setPeriodoFiltro(prev => ({
+      ...prev,
+      [tipo]: valor
+    }));
+    // Os loads serão chamados pelo useEffect
+  };
+
+  // Adicione a função de exportação
+  const exportToExcel = () => {
+    // Prepara os dados para exportação
+    const dadosExportacao = allProjetos.map(projeto => {
+      // Calcula as estatísticas do projeto
+      const stats = calcularEstatisticasProjeto(projeto);
+      
+      // Conta tarefas por status
+      const tarefasPorStatus = Object.entries(projeto.kanban || {}).reduce((acc, [status, tarefas]) => {
+        if (Array.isArray(tarefas)) {
+          acc[status] = tarefas.filter(tarefa => {
+            if (!tarefa.dataConclusao) return true;
+            const data = new Date(tarefa.dataConclusao);
+            return data.getMonth() + 1 === periodoFiltro.mes && 
+                   data.getFullYear() === periodoFiltro.ano;
+          }).length;
+        }
+        return acc;
+      }, {});
+
+      return {
+        'Nome do Projeto': projeto.nome,
+        'Tipo': projeto.tipo || 'Não definido',
+        'Status': projeto.status || 'Não definido',
+        'Cliente': projeto.cliente || 'Não definido',
+        'Analista Principal': projeto.analistaPrincipal?.map(a => a.label).join(', ') || 'Não definido',
+        'Desenvolvedor Principal': projeto.desenvolvedorPrincipal?.map(d => d.label).join(', ') || 'Não definido',
+        'Total de Tarefas': stats.totalTarefas,
+        'Tarefas a Fazer': stats.todo,
+        'Tarefas em Andamento': stats.doing,
+        'Tarefas Concluídas': stats.done,
+        'Tarefas Vencidas': stats.tarefasVencidas,
+        'A Definir': tarefasPorStatus.aDefinir || 0,
+        'Todo': tarefasPorStatus.todo || 0,
+        'Em Andamento': tarefasPorStatus.inProgress || 0,
+        'Em Teste': tarefasPorStatus.testing || 0,
+        'Pronto para Deploy': tarefasPorStatus.prontoDeploy || 0,
+        'Concluído': tarefasPorStatus.done || 0,
+        'Arquivado': tarefasPorStatus.arquivado || 0,
+        'Período': `${mesesOptions.find(m => m.value === periodoFiltro.mes)?.label} ${periodoFiltro.ano}`
+      };
+    });
+
+    // Cria a planilha
+    const ws = XLSX.utils.json_to_sheet(dadosExportacao);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Projetos");
+
+    // Ajusta a largura das colunas
+    const colunas = Object.keys(dadosExportacao[0]);
+    const largurasColunas = {};
+    colunas.forEach(col => {
+      largurasColunas[col] = Math.max(
+        col.length,
+        ...dadosExportacao.map(row => String(row[col]).length)
+      );
+    });
+
+    ws['!cols'] = colunas.map(col => ({ wch: largurasColunas[col] }));
+
+    // Salva o arquivo
+    const nomeArquivo = `Projetos_${periodoFiltro.mes}_${periodoFiltro.ano}.xlsx`;
+    XLSX.writeFile(wb, nomeArquivo);
+  };
+
   return (
     <div className="home-container">
       <Sidebar />
       <div className="home-content">
-        <h1 className="page-title">Início</h1>
+        <div className="header-with-filters">
+          <h1 className="page-title">Início</h1>
+        </div>
+
+        <div className="export-section">
+          <div className="periodo-filtro">
+            <span className="filtro-label">Filtrar por período:</span>
+            <div className="filtro-grupo">
+              <select 
+                value={periodoFiltro.mes}
+                onChange={(e) => handlePeriodoChange('mes', parseInt(e.target.value))}
+                className="filtro-select"
+              >
+                {mesesOptions.map(mes => (
+                  <option key={mes.value} value={mes.value}>
+                    {mes.label}
+                  </option>
+                ))}
+              </select>
+              <select 
+                value={periodoFiltro.ano}
+                onChange={(e) => handlePeriodoChange('ano', parseInt(e.target.value))}
+                className="filtro-select"
+              >
+                {gerarAnosOptions().map(ano => (
+                  <option key={ano.value} value={ano.value}>
+                    {ano.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <button className="export-btn" onClick={exportToExcel}>
+            <FontAwesomeIcon icon={faFileExcel} />
+            Exportar para Excel
+          </button>
+        </div>
 
         <div className="cards-container">
           <div className="card" onClick={handleEventosClick}>

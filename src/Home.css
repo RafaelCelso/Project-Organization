@@ -2189,3 +2189,202 @@
   background-color: #ffffff; /* Branco sólido */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Sombra sutil */
 }
+
+/* Adicione estes estilos */
+.header-with-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  background: white;
+  padding: 16px 24px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.periodo-filtro {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  padding: 8px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.periodo-filtro::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+}
+
+.periodo-filtro:hover::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+.filtro-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+}
+
+.filtro-select {
+  padding: 6px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1f2937; /* Texto preto */
+  background-color: white; /* Fundo branco */
+  cursor: pointer;
+  min-width: 120px;
+  height: 32px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231f2937'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  padding-right: 32px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.filtro-select:focus {
+  outline: none;
+  border-color: #3949ab;
+  box-shadow: 0 0 0 2px rgba(57, 73, 171, 0.1);
+}
+
+.filtro-select option {
+  background-color: white;
+  color: #1f2937;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .header-with-filters {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .periodo-filtro {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtro-grupo {
+    flex-direction: row;
+    gap: 8px;
+  }
+  
+  .filtro-select {
+    flex: 1;
+  }
+  
+  .export-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Estilos para a seção de exportação */
+.export-section {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.export-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(90deg, #107C41 0%, #185C37 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.export-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+}
+
+.export-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    0 0 15px rgba(16, 124, 65, 0.3),
+    0 0 30px rgba(24, 92, 55, 0.2);
+}
+
+.export-btn:hover::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+.export-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .export-section {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .periodo-filtro {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtro-grupo {
+    flex-direction: row;
+    gap: 8px;
+  }
+  
+  .filtro-select {
+    flex: 1;
+  }
+  
+  .export-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
