@@ -5559,3 +5559,47 @@
 }
 
 /* ... resto do código existente ... */
+
+/* Estilos para o modal de aviso */
+.warning-modal {
+  max-width: 500px;
+  text-align: center;
+}
+
+.warning-modal .warning-icon {
+  color: #f59e0b;
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.warning-modal h2 {
+  color: #1f2937;
+  margin-bottom: 16px;
+}
+
+.warning-modal p {
+  color: #4b5563;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.warning-modal .ok-btn {
+  background-color: #3b82f6;
+  color: white;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.warning-modal .ok-btn:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.warning-modal .ok-btn:active {
+  transform: translateY(0);
+}

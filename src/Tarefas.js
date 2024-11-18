@@ -435,6 +435,13 @@ function Tarefas() {
     });
   };
 
+  // Adicione este estado para controlar o modal de aviso
+  const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
+  const [draggedTask, setDraggedTask] = useState(null);
+  const [draggedSource, setDraggedSource] = useState(null);
+  const [draggedDestination, setDraggedDestination] = useState(null);
+
+  // Modifique a função onDragEnd
   const onDragEnd = async (result) => {
     const { source, destination } = result;
 
@@ -444,18 +451,36 @@ function Tarefas() {
         source.index === destination.index) return;
 
     try {
-      // Lógica para mover tarefas entre colunas
       const sourceColumn = Array.isArray(tasks[source.droppableId]) ? tasks[source.droppableId] : [];
-      const destColumn = Array.isArray(tasks[destination.droppableId]) ? tasks[destination.droppableId] : [];
-      
       const taskToMove = sourceColumn[source.index];
+
+      // Verifica se está movendo para "Pronto para Deploy" ou "Concluído"
+      if ((destination.droppableId === 'prontoDeploy' || destination.droppableId === 'done') && 
+          taskToMove.testes && 
+          taskToMove.testes.length > 0) {
+        
+        // Verifica se todos os tópicos estão concluídos
+        const allTopicsDone = taskToMove.testes.every(teste => teste.concluido);
+        
+        if (!allTopicsDone) {
+          // Armazena os dados do drag para usar depois que o usuário corrigir
+          setDraggedTask(taskToMove);
+          setDraggedSource(source);
+          setDraggedDestination(destination);
+          setIsWarningModalOpen(true);
+          return;
+        }
+      }
+
+      // Se chegou aqui, pode mover a tarefa
+      const destColumn = Array.isArray(tasks[destination.droppableId]) ? tasks[destination.droppableId] : [];
       
       const [removed] = sourceColumn.splice(source.index, 1);
       destColumn.splice(destination.index, 0, {
         ...removed,
         status: destination.droppableId,
         log: [
-          ...(removed.log || []), // Preserva os logs existentes
+          ...(removed.log || []),
           {
             tipo: 'movimentacao',
             data: new Date().toISOString(),
@@ -3924,6 +3949,31 @@ function Tarefas() {
                   onClick={confirmDeleteArchivedTask}
                 >
                   Confirmar Exclusão
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isWarningModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal-content warning-modal">
+              <div className="warning-icon">
+                <FontAwesomeIcon icon={faExclamationTriangle} />
+              </div>
+              <h2>Atenção</h2>
+              <p>Para mover esta tarefa para {draggedDestination?.droppableId === 'prontoDeploy' ? '"Pronto para Deploy"' : '"Concluído"'}, todos os tópicos precisam estar concluídos.</p>
+              <div className="modal-buttons">
+                <button 
+                  className="ok-btn"
+                  onClick={() => {
+                    setIsWarningModalOpen(false);
+                    setDraggedTask(null);
+                    setDraggedSource(null);
+                    setDraggedDestination(null);
+                  }}
+                >
+                  Entendi
                 </button>
               </div>
             </div>
