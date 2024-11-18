@@ -1688,3 +1688,251 @@
   align-items: center;
   gap: 8px;
 }
+
+.kanban-graficos {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  background: linear-gradient(to bottom, #f8fafc, #ffffff);
+  border-radius: 16px;
+  padding: 32px;
+}
+
+.graficos-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+  margin-top: 16px;
+}
+
+.grafico-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.grafico-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #6366f1, #2196f3, #10b981);
+  border-radius: 4px 4px 0 0;
+}
+
+.grafico-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.grafico-card h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 24px;
+  text-align: center;
+  position: relative;
+  padding-bottom: 12px;
+}
+
+.grafico-card h4::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #2196f3);
+  border-radius: 2px;
+}
+
+.grafico-wrapper {
+  position: relative;
+  height: 350px;
+  width: 100%;
+  padding: 16px;
+}
+
+.grafico-info {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 14px;
+  color: #6b7280;
+  text-align: center;
+}
+
+@media (max-width: 992px) {
+  .graficos-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .grafico-card {
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .kanban-graficos {
+    padding: 20px;
+  }
+  
+  .grafico-wrapper {
+    height: 300px;
+  }
+  
+  .grafico-card h4 {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .grafico-wrapper {
+    height: 250px;
+    padding: 8px;
+  }
+  
+  .grafico-card {
+    padding: 16px;
+  }
+}
+
+.graficos-header {
+  margin-bottom: 32px;
+}
+
+.metricas-resumo {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding: 24px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.metrica-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px;
+  background: linear-gradient(to bottom right, rgba(99, 102, 241, 0.05), rgba(33, 150, 243, 0.05));
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.metrica-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.metrica-valor {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.metrica-label {
+  font-size: 14px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.graficos-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+}
+
+@media (max-width: 1200px) {
+  .metricas-resumo {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .graficos-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .metricas-resumo {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .metrica-item {
+    padding: 12px;
+  }
+  
+  .metrica-valor {
+    font-size: 20px;
+  }
+  
+  .metrica-label {
+    font-size: 12px;
+  }
+}
+
+/* Adicione animações para os valores das métricas */
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.metrica-valor {
+  animation: countUp 0.5s ease-out forwards;
+}
+
+/* Estilize o hover dos cards de gráfico */
+.grafico-card:hover::before {
+  height: 6px;
+}
+
+.grafico-card:hover .grafico-info {
+  color: #4b5563;
+  background-color: rgba(99, 102, 241, 0.05);
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.grafico-subinfo {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+  font-size: 12px;
+}
+
+.grafico-subinfo span {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.05);
+  color: #4b5563;
+}
+
+.grafico-card:hover .grafico-subinfo span {
+  background: rgba(255, 255, 255, 0.1);
+  color: #4b5563;
+}

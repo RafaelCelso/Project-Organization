@@ -30,6 +30,36 @@ import {
   doc,
 } from "firebase/firestore";
 import { format } from "date-fns";
+import { 
+  Chart as ChartJS, 
+  ArcElement, 
+  Tooltip, 
+  Legend, 
+  CategoryScale, 
+  LinearScale, 
+  BarElement, 
+  Title,
+  PointElement,
+  LineElement,
+  RadialLinearScale,
+  Filler
+} from 'chart.js';
+import { Pie, Bar, Line, Radar } from 'react-chartjs-2';
+
+// Atualize o registro do ChartJS
+ChartJS.register(
+  ArcElement, 
+  CategoryScale, 
+  LinearScale, 
+  BarElement, 
+  Title, 
+  Tooltip, 
+  Legend,
+  PointElement,
+  LineElement,
+  RadialLinearScale,
+  Filler
+);
 
 function Home() {
   const navigate = useNavigate();
@@ -79,6 +109,142 @@ function Home() {
     done: [],
     arquivado: []
   });
+
+  // Adicione estas configurações logo após a declaração dos estados no início do componente
+
+  const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          padding: 20,
+          usePointStyle: true,
+          pointStyle: 'circle',
+          font: {
+            size: 12,
+            family: "'Inter', sans-serif"
+          }
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        padding: 12,
+        titleFont: {
+          size: 14,
+          family: "'Inter', sans-serif"
+        },
+        bodyFont: {
+          size: 13,
+          family: "'Inter', sans-serif"
+        },
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
+        displayColors: true,
+        boxPadding: 6
+      }
+    }
+  };
+
+  const barOptions = {
+    ...commonOptions,
+    plugins: {
+      ...commonOptions.plugins,
+      title: {
+        display: false
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(0, 0, 0, 0.05)',
+          drawBorder: false
+        },
+        ticks: {
+          stepSize: 1,
+          font: {
+            size: 12,
+            family: "'Inter', sans-serif"
+          },
+          padding: 10
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        },
+        ticks: {
+          font: {
+            size: 12,
+            family: "'Inter', sans-serif"
+          },
+          padding: 10
+        }
+      }
+    }
+  };
+
+  const pieOptions = {
+    ...commonOptions,
+    cutout: '60%',
+    plugins: {
+      ...commonOptions.plugins,
+      title: {
+        display: false
+      }
+    }
+  };
+
+  const lineOptions = {
+    ...commonOptions,
+    plugins: {
+      ...commonOptions.plugins,
+      title: {
+        display: false
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(0, 0, 0, 0.05)',
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        }
+      }
+    }
+  };
+
+  const lineData = {
+    labels: ['A Definir', 'A Fazer', 'Em Andamento', 'Em Teste', 'Pronto Deploy', 'Concluído'],
+    datasets: [
+      {
+        label: 'Fluxo de Tarefas',
+        data: [
+          indicadores.aDefinir,
+          indicadores.todo,
+          indicadores.inProgress,
+          indicadores.testing,
+          indicadores.prontoDeploy,
+          indicadores.done
+        ],
+        borderColor: '#2196f3',
+        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#ffffff',
+        pointBorderColor: '#2196f3',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      }
+    ]
+  };
 
   const loadProjetos = async () => {
     try {
@@ -1533,6 +1699,262 @@ function Home() {
     );
   };
 
+  const renderKanbanGraficos = () => {
+    // Função para calcular o total de tarefas de todos os projetos
+    const calcularTotalTarefas = () => {
+      let total = 0;
+      allProjetos.forEach(projeto => {
+        Object.values(projeto.kanban || {}).forEach(coluna => {
+          if (Array.isArray(coluna)) {
+            total += coluna.length;
+          }
+        });
+      });
+      return total;
+    };
+
+    // Calcule o total de tarefas usando a nova função
+    const totalTarefas = calcularTotalTarefas();
+
+    // Calcule o total de tarefas vencidas
+    const calcularTarefasVencidas = () => {
+      let vencidas = 0;
+      let proximasVencer = 0;
+      const hoje = new Date();
+      const emUmaSemana = new Date();
+      emUmaSemana.setDate(hoje.getDate() + 7);
+
+      allProjetos.forEach(projeto => {
+        Object.values(projeto.kanban || {}).forEach(coluna => {
+          if (Array.isArray(coluna)) {
+            coluna.forEach(tarefa => {
+              if (tarefa.dataConclusao) {
+                const dataLimite = new Date(tarefa.dataConclusao);
+                if (dataLimite < hoje) {
+                  vencidas++;
+                } else if (dataLimite <= emUmaSemana) {
+                  proximasVencer++;
+                }
+              }
+            });
+          }
+        });
+      });
+
+      return { vencidas, proximasVencer };
+    };
+
+    // Função para calcular distribuição por prioridade
+    const calcularDistribuicaoPrioridade = () => {
+      const distribuicao = {
+        alta: 0,
+        media: 0,
+        baixa: 0,
+        indefinida: 0
+      };
+
+      allProjetos.forEach(projeto => {
+        Object.values(projeto.kanban || {}).forEach(coluna => {
+          if (Array.isArray(coluna)) {
+            coluna.forEach(tarefa => {
+              const prioridade = tarefa.prioridade?.toLowerCase() || 'indefinida';
+              distribuicao[prioridade]++;
+            });
+          }
+        });
+      });
+
+      return distribuicao;
+    };
+
+    // Função para calcular distribuição por responsável
+    const calcularDistribuicaoPorResponsavel = () => {
+      const distribuicao = {};
+
+      allProjetos.forEach(projeto => {
+        Object.values(projeto.kanban || {}).forEach(coluna => {
+          if (Array.isArray(coluna)) {
+            coluna.forEach(tarefa => {
+              if (Array.isArray(tarefa.responsavel)) {
+                tarefa.responsavel.forEach(resp => {
+                  const nome = resp.label || resp;
+                  distribuicao[nome] = (distribuicao[nome] || 0) + 1;
+                });
+              } else if (tarefa.responsavel) {
+                const nome = tarefa.responsavel.label || tarefa.responsavel;
+                distribuicao[nome] = (distribuicao[nome] || 0) + 1;
+              }
+            });
+          }
+        });
+      });
+
+      // Pega os 5 responsáveis com mais tarefas
+      return Object.entries(distribuicao)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 5)
+        .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {});
+    };
+
+    // Calcule as estatísticas
+    const { vencidas, proximasVencer } = calcularTarefasVencidas();
+    const distribuicaoPrioridade = calcularDistribuicaoPrioridade();
+    const distribuicaoResponsavel = calcularDistribuicaoPorResponsavel();
+
+    // Atualize os dados dos gráficos
+    const trendData = {
+      labels: ['Backlog', 'Em Progresso', 'Concluídas', 'Vencidas', 'Próximas a Vencer'],
+      datasets: [
+        {
+          label: 'Tarefas',
+          data: [
+            indicadores.aDefinir + indicadores.todo,
+            indicadores.inProgress + indicadores.testing + indicadores.prontoDeploy,
+            indicadores.done,
+            vencidas,
+            proximasVencer
+          ],
+          backgroundColor: [
+            'rgba(99, 102, 241, 0.2)',
+            'rgba(33, 150, 243, 0.2)',
+            'rgba(16, 185, 129, 0.2)',
+            'rgba(239, 68, 68, 0.2)',
+            'rgba(245, 158, 11, 0.2)'
+          ],
+          borderColor: [
+            '#6366f1',
+            '#2196f3',
+            '#10b981',
+            '#ef4444',
+            '#f59e0b'
+          ],
+          borderWidth: 2,
+        }
+      ]
+    };
+
+    // Gráfico de prioridades
+    const prioridadesData = {
+      labels: ['Alta', 'Média', 'Baixa', 'Indefinida'],
+      datasets: [{
+        data: [
+          distribuicaoPrioridade.alta,
+          distribuicaoPrioridade.media,
+          distribuicaoPrioridade.baixa,
+          distribuicaoPrioridade.indefinida
+        ],
+        backgroundColor: [
+          'rgba(239, 68, 68, 0.2)',
+          'rgba(245, 158, 11, 0.2)',
+          'rgba(16, 185, 129, 0.2)',
+          'rgba(107, 114, 128, 0.2)'
+        ],
+        borderColor: [
+          '#ef4444',
+          '#f59e0b',
+          '#10b981',
+          '#6b7280'
+        ],
+        borderWidth: 2,
+      }]
+    };
+
+    // Gráfico de responsáveis
+    const responsaveisData = {
+      labels: Object.keys(distribuicaoResponsavel),
+      datasets: [{
+        label: 'Tarefas por Responsável',
+        data: Object.values(distribuicaoResponsavel),
+        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+        borderColor: '#6366f1',
+        borderWidth: 2,
+      }]
+    };
+
+    return (
+      <div className="kanban-graficos">
+        <div className="graficos-header">
+          <div className="metricas-resumo">
+            <div className="metrica-item">
+              <span className="metrica-valor">{totalTarefas}</span>
+              <span className="metrica-label">Total de Tarefas</span>
+            </div>
+            <div className="metrica-item warning">
+              <span className="metrica-valor">{vencidas}</span>
+              <span className="metrica-label">Tarefas Vencidas</span>
+            </div>
+            <div className="metrica-item alert">
+              <span className="metrica-valor">{proximasVencer}</span>
+              <span className="metrica-label">Próximas ao Vencimento</span>
+            </div>
+            <div className="metrica-item success">
+              <span className="metrica-valor">
+                {totalTarefas ? ((indicadores.done / totalTarefas) * 100).toFixed(1) : 0}%
+              </span>
+              <span className="metrica-label">Taxa de Conclusão</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="graficos-container">
+          <div className="grafico-card">
+            <h4>Status das Tarefas</h4>
+            <div className="grafico-wrapper">
+              <Bar data={trendData} options={barOptions} />
+            </div>
+            <div className="grafico-info">
+              {vencidas > 0 && (
+                <div className="alerta-vencimento">
+                  Atenção: {vencidas} tarefas vencidas
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="grafico-card">
+            <h4>Distribuição por Prioridade</h4>
+            <div className="grafico-wrapper">
+              <Pie data={prioridadesData} options={pieOptions} />
+            </div>
+            <div className="grafico-info">
+              Prioridade mais comum: {
+                Object.entries(distribuicaoPrioridade)
+                  .reduce((a, b) => a[1] > b[1] ? a : b)[0]
+                  .charAt(0).toUpperCase() + 
+                Object.entries(distribuicaoPrioridade)
+                  .reduce((a, b) => a[1] > b[1] ? a : b)[0]
+                  .slice(1)
+              }
+            </div>
+          </div>
+
+          <div className="grafico-card">
+            <h4>Top 5 Responsáveis</h4>
+            <div className="grafico-wrapper">
+              <Bar data={responsaveisData} options={barOptions} />
+            </div>
+            <div className="grafico-info">
+              Total de responsáveis ativos: {Object.keys(distribuicaoResponsavel).length}
+            </div>
+          </div>
+
+          <div className="grafico-card">
+            <h4>Evolução do Fluxo</h4>
+            <div className="grafico-wrapper">
+              <Line data={lineData} options={lineOptions} />
+            </div>
+            <div className="grafico-info">
+              Taxa de progresso: {
+                totalTarefas ? 
+                (((indicadores.inProgress + indicadores.testing + indicadores.prontoDeploy) / totalTarefas) * 100).toFixed(1) : 0
+              }%
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="home-container">
       <Sidebar />
@@ -1680,6 +2102,7 @@ function Home() {
                 <FontAwesomeIcon icon={faProjectDiagram} /> Visão Geral do Kanban
               </h3>
               {renderKanbanGeral()}
+              {renderKanbanGraficos()}
             </div>
           </div>
         )}
