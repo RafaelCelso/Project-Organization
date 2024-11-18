@@ -1656,6 +1656,9 @@ function Home() {
             <div className="modal-content">
               <div className="task-details">
                 <div className="task-header">
+                  <div className="task-id-header">
+                    <span className="task-id">#{selectedTask.taskId}</span>
+                  </div>
                   <h2>{selectedTask.titulo}</h2>
                   {selectedTask.numeroChamado && (
                     <span className="task-chamado">Chamado: {selectedTask.numeroChamado}</span>
