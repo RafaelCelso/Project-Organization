@@ -735,6 +735,9 @@ function Home() {
       setShowAllProjects(false);
       setShowAnalistas(false);
       setShowDesenvolvedores(false);
+      setTimeout(() => {
+        document.querySelector('.projetos-relacionados')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     } else {
       setShowProjects(false);
     }
@@ -751,6 +754,9 @@ function Home() {
       setShowProjects(false);
       setShowAnalistas(false);
       setShowDesenvolvedores(false);
+      setTimeout(() => {
+        document.querySelector('.projetos-relacionados')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     } else {
       setShowAllProjects(false);
     }
@@ -763,20 +769,24 @@ function Home() {
       setShowProjects(false);
       setShowAllProjects(false);
       setShowDesenvolvedores(false);
+      setTimeout(() => {
+        document.querySelector('.projetos-relacionados')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     } else {
       setShowAnalistas(false);
     }
   };
 
   const handleDesenvolvedoresClick = () => {
-    setExpandedCard(
-      expandedCard === "desenvolvedores" ? null : "desenvolvedores"
-    );
+    setExpandedCard(expandedCard === "desenvolvedores" ? null : "desenvolvedores");
     if (expandedCard !== "desenvolvedores") {
       setShowDesenvolvedores(true);
       setShowProjects(false);
       setShowAllProjects(false);
       setShowAnalistas(false);
+      setTimeout(() => {
+        document.querySelector('.projetos-relacionados')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     } else {
       setShowDesenvolvedores(false);
     }
