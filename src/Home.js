@@ -109,6 +109,7 @@ function Home() {
     done: [],
     arquivado: []
   });
+  const [expandedCard, setExpandedCard] = useState(null); // 'projects', 'analistas', 'desenvolvedores', ou null
 
   // Adicione estas configurações logo após a declaração dos estados no início do componente
 
@@ -696,7 +697,15 @@ function Home() {
   }, []);
 
   const handleIndicadorClick = () => {
-    setShowProjects(!showProjects);
+    setExpandedCard(expandedCard === 'projects' ? null : 'projects');
+    if (expandedCard !== 'projects') {
+      setShowProjects(true);
+      setShowAllProjects(false);
+      setShowAnalistas(false);
+      setShowDesenvolvedores(false);
+    } else {
+      setShowProjects(false);
+    }
   };
 
   const handleEventosClick = () => {
@@ -704,7 +713,39 @@ function Home() {
   };
 
   const handleProjetosCardClick = () => {
-    setShowAllProjects(!showAllProjects);
+    setExpandedCard(expandedCard === 'allProjects' ? null : 'allProjects');
+    if (expandedCard !== 'allProjects') {
+      setShowAllProjects(true);
+      setShowProjects(false);
+      setShowAnalistas(false);
+      setShowDesenvolvedores(false);
+    } else {
+      setShowAllProjects(false);
+    }
+  };
+
+  const handleAnalistasClick = () => {
+    setExpandedCard(expandedCard === 'analistas' ? null : 'analistas');
+    if (expandedCard !== 'analistas') {
+      setShowAnalistas(true);
+      setShowProjects(false);
+      setShowAllProjects(false);
+      setShowDesenvolvedores(false);
+    } else {
+      setShowAnalistas(false);
+    }
+  };
+
+  const handleDesenvolvedoresClick = () => {
+    setExpandedCard(expandedCard === 'desenvolvedores' ? null : 'desenvolvedores');
+    if (expandedCard !== 'desenvolvedores') {
+      setShowDesenvolvedores(true);
+      setShowProjects(false);
+      setShowAllProjects(false);
+      setShowAnalistas(false);
+    } else {
+      setShowDesenvolvedores(false);
+    }
   };
 
   const handleIndicadorItemClick = (e, tipo, valor) => {
@@ -1022,7 +1063,11 @@ function Home() {
         todo,
         doing,
         done,
-        vencidas
+        vencidas,
+        todoPercent: total > 0 ? (todo / total) * 100 : 0,
+        doingPercent: total > 0 ? (doing / total) * 100 : 0,
+        donePercent: total > 0 ? (done / total) * 100 : 0,
+        vencidasPercent: total > 0 ? (vencidas / total) * 100 : 0
       };
     };
 
@@ -1078,12 +1123,12 @@ function Home() {
             <div className="progress-item">
               <div className="progress-header">
                 <span>A Definir/A Fazer</span>
-                <span>{((stats.todo / stats.total) * 100).toFixed(1)}%</span>
+                <span>{stats.todoPercent.toFixed(1)}%</span>
               </div>
               <div className="progress-bar">
                 <div
                   className="progress-fill todo"
-                  style={{ width: `${(stats.todo / stats.total) * 100}%` }}
+                  style={{ width: `${stats.todoPercent}%` }}
                 />
               </div>
             </div>
@@ -1091,12 +1136,12 @@ function Home() {
             <div className="progress-item">
               <div className="progress-header">
                 <span>Em Andamento/Teste/Deploy</span>
-                <span>{((stats.doing / stats.total) * 100).toFixed(1)}%</span>
+                <span>{stats.doingPercent.toFixed(1)}%</span>
               </div>
               <div className="progress-bar">
                 <div
                   className="progress-fill doing"
-                  style={{ width: `${(stats.doing / stats.total) * 100}%` }}
+                  style={{ width: `${stats.doingPercent}%` }}
                 />
               </div>
             </div>
@@ -1104,12 +1149,12 @@ function Home() {
             <div className="progress-item">
               <div className="progress-header">
                 <span>Concluídas/Arquivadas</span>
-                <span>{((stats.done / stats.total) * 100).toFixed(1)}%</span>
+                <span>{stats.donePercent.toFixed(1)}%</span>
               </div>
               <div className="progress-bar">
                 <div
                   className="progress-fill done"
-                  style={{ width: `${(stats.done / stats.total) * 100}%` }}
+                  style={{ width: `${stats.donePercent}%` }}
                 />
               </div>
             </div>
@@ -1117,12 +1162,12 @@ function Home() {
             <div className="progress-item">
               <div className="progress-header">
                 <span>Vencidas</span>
-                <span>{((stats.vencidas / stats.total) * 100).toFixed(1)}%</span>
+                <span>{stats.vencidasPercent.toFixed(1)}%</span>
               </div>
               <div className="progress-bar">
                 <div
                   className="progress-fill warning"
-                  style={{ width: `${(stats.vencidas / stats.total) * 100}%` }}
+                  style={{ width: `${stats.vencidasPercent}%` }}
                 />
               </div>
             </div>
@@ -1288,56 +1333,6 @@ function Home() {
     );
   };
 
-  const renderAnalistasCard = () => (
-    <div className={`card ${showAnalistas ? "expanded" : ""}`} onClick={() => setShowAnalistas(!showAnalistas)}>
-      <h2>
-        <FontAwesomeIcon icon={faUsers} /> Analistas
-      </h2>
-      <div className="indicadores">
-        <div className="indicador">
-          <FontAwesomeIcon icon={faUsers} className="icon success" />
-          <span>Total de Analistas: {analistas.length}</span>
-        </div>
-
-        <div className="indicador-grupo">
-          <h3>Filtrar por Analista:</h3>
-          {analistas.map((analista) => (
-            <div
-              key={analista.nome}
-              className={`indicador-item ${analistaFiltrado === analista.nome ? "active" : ""}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                setAnalistaFiltrado(analistaFiltrado === analista.nome ? null : analista.nome);
-                setShowAnalistas(true);
-              }}
-            >
-              <span>{analista.nome}</span>
-              <span>{analista.projetos.length} projetos</span>
-            </div>
-          ))}
-        </div>
-
-        {analistaFiltrado && (
-          <div
-            className="indicador limpar-filtro"
-            onClick={(e) => {
-              e.stopPropagation();
-              setAnalistaFiltrado(null);
-            }}
-          >
-            <small>Limpar filtro</small>
-          </div>
-        )}
-
-        {showAnalistas && (
-          <div className="indicador">
-            <small>Clique para ver os detalhes dos analistas</small>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
   const renderDesenvolvedorCard = (desenvolvedor) => {
     const stats = desenvolvedor.stats;
     const todoPercent = stats.total > 0 ? (stats.todo / stats.total) * 100 : 0;
@@ -1493,56 +1488,6 @@ function Home() {
       </div>
     );
   };
-
-  const renderDesenvolvedoresCard = () => (
-    <div className={`card ${showDesenvolvedores ? "expanded" : ""}`} onClick={() => setShowDesenvolvedores(!showDesenvolvedores)}>
-      <h2>
-        <FontAwesomeIcon icon={faUsers} /> Desenvolvedores
-      </h2>
-      <div className="indicadores">
-        <div className="indicador">
-          <FontAwesomeIcon icon={faUsers} className="icon success" />
-          <span>Total de Desenvolvedores: {desenvolvedores.length}</span>
-        </div>
-
-        <div className="indicador-grupo">
-          <h3>Filtrar por Desenvolvedor:</h3>
-          {desenvolvedores.map((dev) => (
-            <div
-              key={dev.nome}
-              className={`indicador-item ${desenvolvedorFiltrado === dev.nome ? "active" : ""}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                setDesenvolvedorFiltrado(desenvolvedorFiltrado === dev.nome ? null : dev.nome);
-                setShowDesenvolvedores(true);
-              }}
-            >
-              <span>{dev.nome}</span>
-              <span>{dev.projetos.length} projetos</span>
-            </div>
-          ))}
-        </div>
-
-        {desenvolvedorFiltrado && (
-          <div
-            className="indicador limpar-filtro"
-            onClick={(e) => {
-              e.stopPropagation();
-              setDesenvolvedorFiltrado(null);
-            }}
-          >
-            <small>Limpar filtro</small>
-          </div>
-        )}
-
-        {showDesenvolvedores && (
-          <div className="indicador">
-            <small>Clique para ver os detalhes dos desenvolvedores</small>
-          </div>
-        )}
-      </div>
-    </div>
-  );
 
   const renderAnalistasSection = () => {
     const analistasParaMostrar = analistaFiltrado
@@ -1983,7 +1928,7 @@ function Home() {
           </div>
 
           <div
-            className={`card ${showProjects ? "expanded" : ""}`}
+            className={`card ${expandedCard === 'projects' ? "expanded" : ""}`}
             onClick={handleIndicadorClick}
           >
             <h2>
@@ -2022,7 +1967,7 @@ function Home() {
           </div>
 
           <div
-            className={`card ${showAllProjects ? "expanded" : ""}`}
+            className={`card ${expandedCard === 'allProjects' ? "expanded" : ""}`}
             onClick={handleProjetosCardClick}
           >
             <h2>
@@ -2091,11 +2036,110 @@ function Home() {
             </div>
           </div>
 
-          {renderAnalistasCard()}
-          {renderDesenvolvedoresCard()}
+          <div
+            className={`card ${expandedCard === 'analistas' ? "expanded" : ""}`}
+            onClick={handleAnalistasClick}
+          >
+            <h2>
+              <FontAwesomeIcon icon={faUsers} /> Analistas
+            </h2>
+            <div className="indicadores">
+              <div className="indicador">
+                <FontAwesomeIcon icon={faUsers} className="icon success" />
+                <span>Total de Analistas: {analistas.length}</span>
+              </div>
+
+              <div className="indicador-grupo">
+                <h3>Filtrar por Analista:</h3>
+                {analistas.map((analista) => (
+                  <div
+                    key={analista.nome}
+                    className={`indicador-item ${analistaFiltrado === analista.nome ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setAnalistaFiltrado(analistaFiltrado === analista.nome ? null : analista.nome);
+                      setShowAnalistas(true);
+                    }}
+                  >
+                    <span>{analista.nome}</span>
+                    <span>{analista.projetos.length} projetos</span>
+                  </div>
+                ))}
+              </div>
+
+              {analistaFiltrado && (
+                <div
+                  className="indicador limpar-filtro"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setAnalistaFiltrado(null);
+                  }}
+                >
+                  <small>Limpar filtro</small>
+                </div>
+              )}
+
+              {showAnalistas && (
+                <div className="indicador">
+                  <small>Clique para ver os detalhes dos analistas</small>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div
+            className={`card ${expandedCard === 'desenvolvedores' ? "expanded" : ""}`}
+            onClick={handleDesenvolvedoresClick}
+          >
+            <h2>
+              <FontAwesomeIcon icon={faUsers} /> Desenvolvedores
+            </h2>
+            <div className="indicadores">
+              <div className="indicador">
+                <FontAwesomeIcon icon={faUsers} className="icon success" />
+                <span>Total de Desenvolvedores: {desenvolvedores.length}</span>
+              </div>
+
+              <div className="indicador-grupo">
+                <h3>Filtrar por Desenvolvedor:</h3>
+                {desenvolvedores.map((dev) => (
+                  <div
+                    key={dev.nome}
+                    className={`indicador-item ${desenvolvedorFiltrado === dev.nome ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDesenvolvedorFiltrado(desenvolvedorFiltrado === dev.nome ? null : dev.nome);
+                      setShowDesenvolvedores(true);
+                    }}
+                  >
+                    <span>{dev.nome}</span>
+                    <span>{dev.projetos.length} projetos</span>
+                  </div>
+                ))}
+              </div>
+
+              {desenvolvedorFiltrado && (
+                <div
+                  className="indicador limpar-filtro"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDesenvolvedorFiltrado(null);
+                  }}
+                >
+                  <small>Limpar filtro</small>
+                </div>
+              )}
+
+              {showDesenvolvedores && (
+                <div className="indicador">
+                  <small>Clique para ver os detalhes dos desenvolvedores</small>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        {showProjects && (
+        {expandedCard === 'projects' && (
           <div className="projetos-relacionados">
             <div className="projetos-section">
               <h3>
@@ -2107,7 +2151,7 @@ function Home() {
           </div>
         )}
 
-        {showAllProjects && (
+        {expandedCard === 'allProjects' && (
           <div className="projetos-relacionados">
             <div className="projetos-section">
               <h3>
@@ -2129,8 +2173,8 @@ function Home() {
           </div>
         )}
 
-        {showAnalistas && renderAnalistasSection()}
-        {showDesenvolvedores && renderDesenvolvedoresSection()}
+        {expandedCard === 'analistas' && renderAnalistasSection()}
+        {expandedCard === 'desenvolvedores' && renderDesenvolvedoresSection()}
 
         {isViewModalOpen && selectedTask && (
           <div className="modal-overlay">
