@@ -110,6 +110,7 @@ function Home() {
     arquivado: [],
   });
   const [expandedCard, setExpandedCard] = useState(null); // 'projects', 'analistas', 'desenvolvedores', ou null
+  const [expandedProjects, setExpandedProjects] = useState(new Set());
 
   // Adicione estas configurações logo após a declaração dos estados no início do componente
 
@@ -1031,92 +1032,16 @@ function Home() {
 
     if (!matchesFiltro) return null;
 
-    return <ProjetoCard key={projeto.id} projeto={projeto} />;
-  };
-
-  const ProjetoCard = ({ projeto }) => {
-    const calcularEstatisticas = () => {
-      let todo = 0;
-      let doing = 0;
-      let done = 0;
-      let vencidas = 0;
-      let total = 0;
-
-      // Verifica se o kanban existe
-      if (projeto.kanban) {
-        const kanban = projeto.kanban;
-
-        // A Fazer
-        if (Array.isArray(kanban.aDefinir)) {
-          todo += kanban.aDefinir.length;
-        }
-        if (Array.isArray(kanban.todo)) {
-          todo += kanban.todo.length;
-        }
-
-        // Em Andamento
-        if (Array.isArray(kanban.inProgress)) {
-          doing += kanban.inProgress.length;
-        }
-        if (Array.isArray(kanban.testing)) {
-          doing += kanban.testing.length;
-        }
-        if (Array.isArray(kanban.prontoDeploy)) {
-          doing += kanban.prontoDeploy.length;
-        }
-
-        // Concluídas
-        if (Array.isArray(kanban.done)) {
-          done += kanban.done.length;
-        }
-        if (Array.isArray(kanban.arquivado)) {
-          done += kanban.arquivado.length;
-        }
-
-        // Conta tarefas vencidas em todas as colunas
-        Object.values(kanban).forEach((coluna) => {
-          if (Array.isArray(coluna)) {
-            coluna.forEach((tarefa) => {
-              if (
-                tarefa.dataConclusao &&
-                new Date(tarefa.dataConclusao) < new Date()
-              ) {
-                vencidas++;
-              }
-            });
-          }
-        });
-
-        // Calcula o total
-        total = todo + doing + done;
-      }
-
-      return {
-        total,
-        todo,
-        doing,
-        done,
-        vencidas,
-        todoPercent: total > 0 ? (todo / total) * 100 : 0,
-        doingPercent: total > 0 ? (doing / total) * 100 : 0,
-        donePercent: total > 0 ? (done / total) * 100 : 0,
-        vencidasPercent: total > 0 ? (vencidas / total) * 100 : 0,
-      };
-    };
-
-    const getResponsavelNome = (responsavel) => {
-      if (!responsavel) return "Não definido";
-      if (typeof responsavel === "string") return responsavel;
-      if (Array.isArray(responsavel)) {
-        return responsavel.map((r) => r.label || r).join(", ");
-      }
-      return responsavel.label || responsavel.value || "Não definido";
-    };
-
-    const stats = calcularEstatisticas();
+    const isExpanded = expandedProjects.has(projeto.id);
+    const stats = calcularEstatisticasProjeto(projeto);
 
     return (
-      <div className="projeto-card">
+      <div 
+        key={projeto.id} 
+        className={`projeto-card ${isExpanded ? 'expanded' : ''}`}
+        onClick={() => handleProjectCardClick(projeto.id)}
+      >
+        {/* Informações básicas sempre visíveis */}
         <h5>{projeto.nome}</h5>
         <div className="projeto-info">
           <span className="tipo">{projeto.tipo || "Não definido"}</span>
@@ -1128,86 +1053,155 @@ function Home() {
           </span>
         </div>
 
-        <div className="kanban-stats">
-          <div className="stats-grid">
-            <div className="stat-item">
-              <div className="stat-value">{stats.total}</div>
-              <div className="stat-label">Total de Tarefas</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-value">{stats.todo}</div>
-              <div className="stat-label">A Definir/A Fazer</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-value">{stats.doing}</div>
-              <div className="stat-label">Em Andamento/Teste/Deploy</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-value">{stats.done}</div>
-              <div className="stat-label">Concluídas/Arquivadas</div>
-            </div>
-            <div className="stat-item warning">
-              <div className="stat-value">{stats.vencidas}</div>
-              <div className="stat-label">Vencidas</div>
-            </div>
-          </div>
-
-          <div className="progress-bars">
-            <div className="progress-item">
-              <div className="progress-header">
-                <span>A Definir/A Fazer</span>
-                <span>{stats.todoPercent.toFixed(1)}%</span>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-fill todo"
-                  style={{ width: `${stats.todoPercent}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="progress-item">
-              <div className="progress-header">
-                <span>Em Andamento/Teste/Deploy</span>
-                <span>{stats.doingPercent.toFixed(1)}%</span>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-fill doing"
-                  style={{ width: `${stats.doingPercent}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="progress-item">
-              <div className="progress-header">
-                <span>Concluídas/Arquivadas</span>
-                <span>{stats.donePercent.toFixed(1)}%</span>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-fill done"
-                  style={{ width: `${stats.donePercent}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="progress-item">
-              <div className="progress-header">
-                <span>Vencidas</span>
-                <span>{stats.vencidasPercent.toFixed(1)}%</span>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-fill warning"
-                  style={{ width: `${stats.vencidasPercent}%` }}
-                />
-              </div>
-            </div>
+        {/* Resumo das tarefas sempre visível */}
+        <div className="task-summary">
+          <div className="task-count">
+            <span>Total de Tarefas: {stats.totalTarefas}</span>
+            {stats.tarefasVencidas > 0 && (
+              <span className="warning">Vencidas: {stats.tarefasVencidas}</span>
+            )}
           </div>
         </div>
+
+        {/* Conteúdo expandido */}
+        {isExpanded && (
+          <>
+            <div className="kanban-stats">
+              <div className="stats-grid">
+                <div className="stat-item">
+                  <div className="stat-value">{stats.totalTarefas}</div>
+                  <div className="stat-label">Total de Tarefas</div>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-value">{stats.todo}</div>
+                  <div className="stat-label">A Fazer</div>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-value">{stats.doing}</div>
+                  <div className="stat-label">Em Andamento</div>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-value">{stats.done}</div>
+                  <div className="stat-label">Concluídas</div>
+                </div>
+                <div className="stat-item warning">
+                  <div className="stat-value">{stats.tarefasVencidas}</div>
+                  <div className="stat-label">Vencidas</div>
+                </div>
+              </div>
+
+              <div className="progress-bars">
+                <div className="progress-item">
+                  <div className="progress-header">
+                    <span>A Fazer</span>
+                    <span>{stats.todoPercent.toFixed(1)}%</span>
+                  </div>
+                  <div className="progress-bar">
+                    <div
+                      className="progress-fill todo"
+                      style={{ width: `${stats.todoPercent}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="progress-item">
+                  <div className="progress-header">
+                    <span>Em Andamento</span>
+                    <span>{stats.doingPercent.toFixed(1)}%</span>
+                  </div>
+                  <div className="progress-bar">
+                    <div
+                      className="progress-fill doing"
+                      style={{ width: `${stats.doingPercent}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="progress-item">
+                  <div className="progress-header">
+                    <span>Concluídas</span>
+                    <span>{stats.donePercent.toFixed(1)}%</span>
+                  </div>
+                  <div className="progress-bar">
+                    <div
+                      className="progress-fill done"
+                      style={{ width: `${stats.donePercent}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Lista de tarefas recentes */}
+              <div className="projeto-tarefas">
+                <h6>Tarefas Recentes</h6>
+                <div className="tarefas-list">
+                  {projeto.kanban && Object.values(projeto.kanban)
+                    .flat()
+                    .slice(0, 3)
+                    .map(tarefa => renderTarefaCard(tarefa))}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     );
+  };
+
+  const calcularEstatisticasProjeto = (projeto) => {
+    const stats = {
+      totalTarefas: 0,
+      todo: 0,
+      doing: 0,
+      done: 0,
+      tarefasVencidas: 0
+    };
+
+    if (projeto.kanban) {
+      // Contagem de tarefas por status
+      if (Array.isArray(projeto.kanban.aDefinir)) {
+        stats.todo += projeto.kanban.aDefinir.length;
+      }
+      if (Array.isArray(projeto.kanban.todo)) {
+        stats.todo += projeto.kanban.todo.length;
+      }
+      if (Array.isArray(projeto.kanban.inProgress)) {
+        stats.doing += projeto.kanban.inProgress.length;
+      }
+      if (Array.isArray(projeto.kanban.testing)) {
+        stats.doing += projeto.kanban.testing.length;
+      }
+      if (Array.isArray(projeto.kanban.prontoDeploy)) {
+        stats.doing += projeto.kanban.prontoDeploy.length;
+      }
+      if (Array.isArray(projeto.kanban.done)) {
+        stats.done += projeto.kanban.done.length;
+      }
+      if (Array.isArray(projeto.kanban.arquivado)) {
+        stats.done += projeto.kanban.arquivado.length;
+      }
+
+      // Calcula o total de tarefas
+      stats.totalTarefas = stats.todo + stats.doing + stats.done;
+
+      // Conta tarefas vencidas
+      Object.values(projeto.kanban).forEach(coluna => {
+        if (Array.isArray(coluna)) {
+          coluna.forEach(tarefa => {
+            if (tarefa.dataConclusao && new Date(tarefa.dataConclusao) < new Date()) {
+              stats.tarefasVencidas++;
+            }
+          });
+        }
+      });
+    }
+
+    // Calcula as porcentagens
+    stats.todoPercent = stats.totalTarefas > 0 ? (stats.todo / stats.totalTarefas) * 100 : 0;
+    stats.doingPercent = stats.totalTarefas > 0 ? (stats.doing / stats.totalTarefas) * 100 : 0;
+    stats.donePercent = stats.totalTarefas > 0 ? (stats.done / stats.totalTarefas) * 100 : 0;
+
+    return stats;
   };
 
   const renderAnalistaCard = (analista) => {
@@ -3045,6 +3039,37 @@ function Home() {
         }
       }
     }
+  };
+
+  // Adicione esta função para gerenciar o clique no card do projeto
+  const handleProjectCardClick = (projectId) => {
+    setExpandedProjects(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(projectId)) {
+        newSet.delete(projectId);
+      } else {
+        newSet.add(projectId);
+      }
+      return newSet;
+    });
+  };
+
+  // Adicione esta função junto com as outras funções auxiliares
+  const getResponsavelNome = (responsavel) => {
+    if (!responsavel) return "Não definido";
+    
+    // Se for um array de responsáveis
+    if (Array.isArray(responsavel)) {
+      return responsavel.map(r => r.label || r.nome || r).join(", ");
+    }
+    
+    // Se for um objeto único
+    if (typeof responsavel === 'object') {
+      return responsavel.label || responsavel.nome || "Não definido";
+    }
+    
+    // Se for uma string
+    return responsavel;
   };
 
   return (

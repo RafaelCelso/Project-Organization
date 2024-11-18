@@ -1996,3 +1996,196 @@
 .task-footer {
   margin-top: 0; /* Remove a margem superior para usar o gap do flex */
 }
+
+.projeto-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.projeto-card.expanded {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.task-summary {
+  margin-top: 12px;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 6px;
+}
+
+.task-count {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.task-count .warning {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.projeto-card .kanban-stats {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.projeto-card:not(.expanded) .kanban-stats {
+  display: none;
+}
+
+.projeto-card.expanded {
+  padding-bottom: 24px;
+}
+
+.projeto-card .progress-bars {
+  margin-top: 16px;
+}
+
+.projeto-card:hover .task-summary {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.projeto-card:hover .task-count {
+  color: white;
+}
+
+.projeto-card:hover .task-count .warning {
+  color: #fecaca;
+}
+
+/* Ajuste para as task cards dentro dos cards de projeto */
+.projeto-card .task-card {
+  background-color: #fff;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+/* Efeito de brilho */
+.projeto-card .task-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+  z-index: 2;
+}
+
+/* Hover específico para task cards dentro do projeto-card */
+.projeto-card .task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  color: white;
+}
+
+/* Ajustes de cores no hover da task card para melhor contraste */
+.projeto-card .task-card:hover .task-title {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+}
+
+.projeto-card .task-card:hover .task-content {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.projeto-card .task-card:hover .task-assignee {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+}
+
+.projeto-card .task-card:hover .task-date:not(.vencida) {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.projeto-card .task-card:hover .task-id {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+}
+
+/* Ajuste para o número do chamado quando o projeto card estiver em hover */
+.projeto-card:hover .task-card .task-chamado {
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #1f2937;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.projeto-card:hover .task-card .chamado-label,
+.projeto-card:hover .task-card .chamado-number {
+  color: #1f2937 !important; /* Força a cor preta */
+  font-weight: 500;
+}
+
+/* Ajuste para prioridades quando o projeto card estiver em hover */
+.projeto-card:hover .task-card .task-priority {
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #1f2937 !important; /* Força a cor preta */
+  font-weight: 600;
+}
+
+/* Ajustes específicos para cada nível de prioridade quando o projeto card estiver em hover */
+.projeto-card:hover .task-card .priority-baixa {
+  color: #166534 !important; /* Verde escuro */
+  background-color: #dcfce7;
+  font-weight: 600;
+}
+
+.projeto-card:hover .task-card .priority-media {
+  color: #854d0e !important; /* Amarelo escuro */
+  background-color: #fef9c3;
+  font-weight: 600;
+}
+
+.projeto-card:hover .task-card .priority-alta {
+  color: #991b1b !important; /* Vermelho escuro */
+  background-color: #fee2e2;
+  font-weight: 600;
+}
+
+.projeto-card:hover .task-card .priority-urgente {
+  color: #7f1d1d !important; /* Vermelho mais escuro */
+  background-color: #fef2f2;
+  font-weight: 600;
+}
+
+/* Ajuste para o background dos elementos quando o projeto card estiver em hover */
+.projeto-card:hover .task-card .task-chamado,
+.projeto-card:hover .task-card .task-priority {
+  background-color: #ffffff; /* Branco sólido */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Sombra sutil */
+}
