@@ -11,6 +11,10 @@ import {
   faProjectDiagram,
   faHashtag,
   faUsers,
+  faComments,
+  faComment,
+  faHistory,
+  faExchange,
 } from "@fortawesome/free-solid-svg-icons";
 import "./Home.css";
 import { db } from "./firebaseConfig";
@@ -21,6 +25,8 @@ import {
   where,
   orderBy,
   limit,
+  updateDoc,
+  doc,
 } from "firebase/firestore";
 import { format } from "date-fns";
 
@@ -54,6 +60,21 @@ function Home() {
   const [desenvolvedores, setDesenvolvedores] = useState([]);
   const [showDesenvolvedores, setShowDesenvolvedores] = useState(false);
   const [desenvolvedorFiltrado, setDesenvolvedorFiltrado] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [showCommentInput, setShowCommentInput] = useState(false);
+  const [comentario, setComentario] = useState('');
+  const [comentarios, setComentarios] = useState({});
+  const [activeCommentTab, setActiveCommentTab] = useState('comentarios');
+  const [tasks, setTasks] = useState({
+    aDefinir: [],
+    todo: [],
+    inProgress: [],
+    testing: [],
+    prontoDeploy: [],
+    done: [],
+    arquivado: []
+  });
 
   const loadProjetos = async () => {
     try {
@@ -518,43 +539,191 @@ function Home() {
     });
   };
 
+  const handleTaskClick = (task) => {
+    setSelectedTask(task);
+    setComentarios({
+      [task.id]: task.log || []
+    });
+    setIsViewModalOpen(true);
+  };
+
+  const getLogMessage = (log) => {
+    switch (log.tipo) {
+      case 'criacao':
+        return 'Tarefa criada';
+      case 'edicao':
+        return 'Tarefa editada';
+      case 'movimentacao':
+        const [origem, destino] = log.detalhes.split('Movida de')[1].split('para').map(s => s.trim());
+        return `Movida de ${getStatusDisplay(origem)} para ${getStatusDisplay(destino)}`;
+      case 'comentario':
+        return log.detalhes;
+      default:
+        return log.detalhes;
+    }
+  };
+
+  const getStatusDisplay = (status) => {
+    switch (status) {
+      case 'aDefinir':
+        return 'A Definir';
+      case 'todo':
+        return 'A Fazer';
+      case 'inProgress':
+        return 'Em Andamento';
+      case 'testing':
+        return 'Em Teste';
+      case 'prontoDeploy':
+        return 'Pronto para Deploy';
+      case 'done':
+        return 'Concluído';
+      case 'arquivado':
+        return 'Arquivado';
+      default:
+        return status;
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (!comentario.trim() || !selectedTask) return;
+
+    try {
+      const novoComentario = {
+        tipo: "comentario",
+        data: new Date().toISOString(),
+        usuario: "Usuário Atual",
+        detalhes: comentario.trim()
+      };
+
+      // Encontra o projeto que contém a tarefa
+      const projetoContendoTarefa = allProjetos.find(projeto => {
+        return Object.values(projeto.kanban).some(coluna => 
+          coluna.some(task => task.id === selectedTask.id)
+        );
+      });
+
+      if (!projetoContendoTarefa) {
+        throw new Error('Projeto não encontrado');
+      }
+
+      // Cria uma cópia atualizada da tarefa
+      const tarefaAtualizada = {
+        ...selectedTask,
+        log: [...(selectedTask.log || []), novoComentario]
+      };
+
+      // Atualiza o Firebase
+      const projetoRef = doc(db, 'projetosTarefas', projetoContendoTarefa.id);
+      const novoKanban = { ...projetoContendoTarefa.kanban };
+      
+      // Encontra e atualiza a tarefa no kanban
+      Object.keys(novoKanban).forEach(coluna => {
+        novoKanban[coluna] = novoKanban[coluna].map(task => 
+          task.id === selectedTask.id ? tarefaAtualizada : task
+        );
+      });
+
+      // Atualiza o documento no Firebase
+      await updateDoc(projetoRef, {
+        kanban: novoKanban
+      });
+
+      // Atualiza os estados locais
+      const projetosAtualizados = allProjetos.map(proj => 
+        proj.id === projetoContendoTarefa.id 
+          ? { ...proj, kanban: novoKanban }
+          : proj
+      );
+      setAllProjetos(projetosAtualizados);
+      setSelectedTask(tarefaAtualizada);
+      
+      // Atualiza o estado dos comentários
+      setComentarios(prev => ({
+        ...prev,
+        [selectedTask.id]: tarefaAtualizada.log
+      }));
+
+      // Limpa o campo de comentário e fecha o input
+      setComentario('');
+      setShowCommentInput(false);
+
+    } catch (error) {
+      console.error('Erro ao adicionar comentário:', error);
+      alert('Erro ao adicionar comentário. Por favor, tente novamente.');
+    }
+  };
+
   const renderTarefaCard = (tarefa) => (
-    <div
-      key={tarefa.id}
-      className={`tarefa-card prioridade-${tarefa.prioridade}`}
+    <div 
+      key={tarefa.id} 
+      className={`task-card ${tarefa.prioridade ? `prioridade-${tarefa.prioridade}` : ''}`}
+      onClick={() => handleTaskClick(tarefa)}
     >
-      <div className="tarefa-header">
-        <div className="tarefa-id-titulo">
-          <span className="tarefa-id">
-            <FontAwesomeIcon icon={faHashtag} className="id-icon" />
-            {tarefa.taskId}
-          </span>
-          <span className="tarefa-titulo">{tarefa.titulo}</span>
+      <div className="task-header">
+        <div className="task-id">
+          <FontAwesomeIcon icon={faHashtag} className="id-icon" />
+          {tarefa.taskId}
         </div>
-        <span
-          className={`tarefa-status status-${tarefa.status
-            .toLowerCase()
-            .replace(" ", "-")}`}
-        >
-          {tarefa.status === "done"
-            ? "Concluído"
-            : tarefa.status === "inProgress"
-            ? "Em Andamento"
-            : tarefa.status === "todo"
-            ? "A Fazer"
-            : tarefa.status}
-        </span>
+        <div className="task-title">{tarefa.titulo}</div>
       </div>
-      <div className="tarefa-footer">
-        <span className="tarefa-responsavel">
-          {Array.isArray(tarefa.responsavel)
-            ? tarefa.responsavel.join(", ")
-            : tarefa.responsavel}
-        </span>
-        <span className={`tarefa-prioridade prioridade-${tarefa.prioridade}`}>
-          {tarefa.prioridade?.charAt(0).toUpperCase() +
-            tarefa.prioridade?.slice(1)}
-        </span>
+
+      {tarefa.numeroChamado && (
+        <div className="task-chamado">
+          <span className="chamado-label">Chamado:</span>
+          <span className="chamado-number">{tarefa.numeroChamado}</span>
+        </div>
+      )}
+
+      <div className="task-content">{tarefa.descricao}</div>
+
+      <div className="task-metadata">
+        {tarefa.prioridade && (
+          <span className={`task-priority priority-${tarefa.prioridade}`}>
+            {tarefa.prioridade.charAt(0).toUpperCase() + tarefa.prioridade.slice(1)}
+          </span>
+        )}
+
+        {tarefa.tags && tarefa.tags.length > 0 && (
+          <div className="task-tags-list">
+            {tarefa.tags.map(tag => (
+              <span 
+                key={tag.id}
+                className="task-tag"
+                style={{ backgroundColor: tag.cor }}
+              >
+                {tag.texto}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="task-footer">
+        <div className="task-assignee">
+          {Array.isArray(tarefa.responsavel) 
+            ? tarefa.responsavel.map(r => r.label || r).join(", ")
+            : tarefa.responsavel?.label || tarefa.responsavel || "Não atribuído"
+          }
+        </div>
+        
+        <div className="task-dates">
+          {tarefa.dataConclusao && (
+            <div className={`task-date ${new Date(tarefa.dataConclusao) < new Date() ? 'vencida' : ''}`}>
+              <span className="date-label">Conclusão:</span>
+              <span>{format(new Date(tarefa.dataConclusao), 'dd/MM/yyyy')}</span>
+            </div>
+          )}
+        </div>
+
+        {tarefa.comentarios?.length > 0 && (
+          <div className="task-chat-icon">
+            <FontAwesomeIcon 
+              icon={faComments} 
+              className={`chat-icon ${tarefa.comentariosNaoLidos ? 'has-unread' : ''}`}
+            />
+            {tarefa.comentariosNaoLidos && <div className="unread-indicator" />}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -671,22 +840,12 @@ function Home() {
         total = todo + doing + done;
       }
 
-      // Calcula as porcentagens
-      const todoPercent = total > 0 ? (todo / total) * 100 : 0;
-      const doingPercent = total > 0 ? (doing / total) * 100 : 0;
-      const donePercent = total > 0 ? (done / total) * 100 : 0;
-      const vencidasPercent = total > 0 ? (vencidas / total) * 100 : 0;
-
       return {
         total,
         todo,
         doing,
         done,
-        vencidas,
-        todoPercent,
-        doingPercent,
-        donePercent,
-        vencidasPercent
+        vencidas
       };
     };
 
@@ -742,12 +901,12 @@ function Home() {
             <div className="progress-item">
               <div className="progress-header">
                 <span>A Definir/A Fazer</span>
-                <span>{stats.todoPercent.toFixed(1)}%</span>
+                <span>{((stats.todo / stats.total) * 100).toFixed(1)}%</span>
               </div>
               <div className="progress-bar">
                 <div
                   className="progress-fill todo"
-                  style={{ width: `${stats.todoPercent}%` }}
+                  style={{ width: `${(stats.todo / stats.total) * 100}%` }}
                 />
               </div>
             </div>
@@ -755,12 +914,12 @@ function Home() {
             <div className="progress-item">
               <div className="progress-header">
                 <span>Em Andamento/Teste/Deploy</span>
-                <span>{stats.doingPercent.toFixed(1)}%</span>
+                <span>{((stats.doing / stats.total) * 100).toFixed(1)}%</span>
               </div>
               <div className="progress-bar">
                 <div
                   className="progress-fill doing"
-                  style={{ width: `${stats.doingPercent}%` }}
+                  style={{ width: `${(stats.doing / stats.total) * 100}%` }}
                 />
               </div>
             </div>
@@ -768,12 +927,12 @@ function Home() {
             <div className="progress-item">
               <div className="progress-header">
                 <span>Concluídas/Arquivadas</span>
-                <span>{stats.donePercent.toFixed(1)}%</span>
+                <span>{((stats.done / stats.total) * 100).toFixed(1)}%</span>
               </div>
               <div className="progress-bar">
                 <div
                   className="progress-fill done"
-                  style={{ width: `${stats.donePercent}%` }}
+                  style={{ width: `${(stats.done / stats.total) * 100}%` }}
                 />
               </div>
             </div>
@@ -781,12 +940,12 @@ function Home() {
             <div className="progress-item">
               <div className="progress-header">
                 <span>Vencidas</span>
-                <span>{stats.vencidasPercent.toFixed(1)}%</span>
+                <span>{((stats.vencidas / stats.total) * 100).toFixed(1)}%</span>
               </div>
               <div className="progress-bar">
                 <div
                   className="progress-fill warning"
-                  style={{ width: `${stats.vencidasPercent}%` }}
+                  style={{ width: `${(stats.vencidas / stats.total) * 100}%` }}
                 />
               </div>
             </div>
@@ -1256,6 +1415,69 @@ function Home() {
     );
   };
 
+  const renderKanbanGeral = () => {
+    const colunas = {
+      aDefinir: { titulo: 'A Definir', cor: '#6366f1' },
+      todo: { titulo: 'A Fazer', cor: '#8b5cf6' },
+      inProgress: { titulo: 'Em Andamento', cor: '#2196f3' },
+      testing: { titulo: 'Em Teste', cor: '#f59e0b' },
+      prontoDeploy: { titulo: 'Pronto para Deploy', cor: '#10b981' },
+      done: { titulo: 'Concluído', cor: '#4caf50' },
+      arquivado: { titulo: 'Arquivado', cor: '#6b7280' }
+    };
+
+    const projetosPorColuna = {};
+    
+    // Inicializa as colunas
+    Object.keys(colunas).forEach(coluna => {
+      projetosPorColuna[coluna] = [];
+    });
+
+    // Organiza os projetos por coluna
+    allProjetos.forEach(projeto => {
+      Object.entries(colunas).forEach(([key, _]) => {
+        if (projeto.kanban?.[key]?.length > 0) {
+          projetosPorColuna[key].push({
+            ...projeto,
+            tarefas: projeto.kanban[key]
+          });
+        }
+      });
+    });
+
+    return (
+      <div className="kanban-board">
+        {Object.entries(colunas).map(([key, coluna]) => {
+          const projetosDaColuna = projetosPorColuna[key];
+          
+          if (projetosDaColuna.length === 0) return null;
+
+          return (
+            <div key={key} className="kanban-coluna-container">
+              <div className="kanban-coluna-header" style={{ borderColor: coluna.cor }}>
+                <h4 style={{ color: coluna.cor }}>{coluna.titulo}</h4>
+                <span className="coluna-contador">{projetosDaColuna.reduce((total, p) => total + p.tarefas.length, 0)} tarefas</span>
+              </div>
+              <div className="kanban-coluna-content">
+                {projetosDaColuna.map(projeto => (
+                  <div key={`${key}-${projeto.id}`} className="projeto-card-kanban">
+                    <div className="projeto-card-header">
+                      <h5>{projeto.nome}</h5>
+                      <span className="tipo-badge">{projeto.tipo || "Não definido"}</span>
+                    </div>
+                    <div className="tarefas-list">
+                      {projeto.tarefas.map(tarefa => renderTarefaCard(tarefa))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="home-container">
       <Sidebar />
@@ -1397,43 +1619,9 @@ function Home() {
           <div className="projetos-relacionados">
             <div className="projetos-section">
               <h3>
-                <FontAwesomeIcon icon={faProjectDiagram} /> Projetos por Status
+                <FontAwesomeIcon icon={faProjectDiagram} /> Visão Geral do Kanban
               </h3>
-
-              <div className="projetos-grid">
-                <div className="projeto-categoria">
-                  <h4 className="success">
-                    Concluídos ({projetos.concluidas?.length || 0})
-                  </h4>
-                  <div className="projeto-cards">
-                    {projetos.concluidas?.map((projeto) =>
-                      renderProjetoCard(projeto, "success")
-                    )}
-                  </div>
-                </div>
-
-                <div className="projeto-categoria">
-                  <h4 className="warning">
-                    Vencidos ({projetos.vencidas?.length || 0})
-                  </h4>
-                  <div className="projeto-cards">
-                    {projetos.vencidas?.map((projeto) =>
-                      renderProjetoCard(projeto, "warning")
-                    )}
-                  </div>
-                </div>
-
-                <div className="projeto-categoria">
-                  <h4 className="info">
-                    Em Andamento ({projetos.emAndamento?.length || 0})
-                  </h4>
-                  <div className="projeto-cards">
-                    {projetos.emAndamento?.map((projeto) =>
-                      renderProjetoCard(projeto, "info")
-                    )}
-                  </div>
-                </div>
-              </div>
+              {renderKanbanGeral()}
             </div>
           </div>
         )}
@@ -1462,6 +1650,246 @@ function Home() {
 
         {showAnalistas && renderAnalistasSection()}
         {showDesenvolvedores && renderDesenvolvedoresSection()}
+
+        {isViewModalOpen && selectedTask && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <div className="task-details">
+                <div className="task-header">
+                  <h2>{selectedTask.titulo}</h2>
+                  {selectedTask.numeroChamado && (
+                    <span className="task-chamado">Chamado: {selectedTask.numeroChamado}</span>
+                  )}
+                </div>
+
+                {selectedTask.tags && selectedTask.tags.length > 0 && (
+                  <div className="tags-container">
+                    {selectedTask.tags.map(tag => (
+                      <span 
+                        key={tag.id} 
+                        className="tag" 
+                        style={{ backgroundColor: tag.cor }}
+                      >
+                        {tag.texto}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="task-info-cards">
+                  <div className="info-card">
+                    <div className="info-card-header">
+                      <i className="material-icons">person</i>
+                      <h3>Responsáveis</h3>
+                    </div>
+                    <div className="info-card-content">
+                      {Array.isArray(selectedTask.responsavel) ? 
+                        selectedTask.responsavel.join(', ') : 
+                        selectedTask.responsavel || 'Não atribuído'}
+                    </div>
+                  </div>
+
+                  <div className="info-card">
+                    <div className="info-card-header">
+                      <i className="material-icons">flag</i>
+                      <h3>Status</h3>
+                    </div>
+                    <div className="info-card-content">
+                      <span className={`status-badge status-${selectedTask.status}`}>
+                        {getStatusDisplay(selectedTask.status)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="info-card">
+                    <div className="info-card-header">
+                      <i className="material-icons">priority_high</i>
+                      <h3>Prioridade</h3>
+                    </div>
+                    <div className="info-card-content">
+                      <span className={`priority-badge priority-${selectedTask.prioridade}`}>
+                        {selectedTask.prioridade || 'Não definida'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="info-card">
+                    <div className="info-card-header">
+                      <i className="material-icons">event</i>
+                      <h3>Data Início</h3>
+                    </div>
+                    <div className="info-card-content">
+                      {selectedTask.dataInicio || 'Não definida'}
+                    </div>
+                  </div>
+
+                  <div className="info-card">
+                    <div className="info-card-header">
+                      <i className="material-icons">event_available</i>
+                      <h3>Data Conclusão</h3>
+                    </div>
+                    <div className="info-card-content">
+                      {selectedTask.dataConclusao ? 
+                        format(new Date(selectedTask.dataConclusao + 'T00:00:00'), 'dd/MM/yyyy') 
+                        : 'Não definida'}
+                    </div>
+                  </div>
+
+                  <div className="info-card">
+                    <div className="info-card-header">
+                      <i className="material-icons">trending_up</i>
+                      <h3>Progresso</h3>
+                    </div>
+                    <div className="info-card-content">
+                      {selectedTask.progresso || 'Não iniciada'}
+                    </div>
+                  </div>
+                </div>
+
+                {selectedTask.content && (
+                  <div className="task-description-section">
+                    <div className="section-header">
+                      <i className="material-icons">description</i>
+                      <h3>Descrição</h3>
+                    </div>
+                    <div className="description-content">
+                      <p>{selectedTask.content}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Seção de Comentários */}
+                <div className="comments-section">
+                  <div className="section-header">
+                    <div className="comments-tabs">
+                      <button 
+                        className={`tab-button ${activeCommentTab === 'comentarios' ? 'active' : ''}`}
+                        onClick={() => setActiveCommentTab('comentarios')}
+                      >
+                        <FontAwesomeIcon icon={faComment} />
+                        Comentários
+                      </button>
+                      <button 
+                        className={`tab-button ${activeCommentTab === 'logs' ? 'active' : ''}`}
+                        onClick={() => setActiveCommentTab('logs')}
+                      >
+                        <FontAwesomeIcon icon={faHistory} />
+                        Logs
+                      </button>
+                    </div>
+                    {activeCommentTab === 'comentarios' && selectedTask.status !== 'arquivado' && (
+                      <button 
+                        className="add-comment-btn"
+                        onClick={() => setShowCommentInput(!showCommentInput)}
+                      >
+                        <FontAwesomeIcon icon={faComment} />
+                        Comentar
+                      </button>
+                    )}
+                  </div>
+
+                  {activeCommentTab === 'comentarios' && (
+                    <>
+                      {showCommentInput && (
+                        <div className="comment-input-container">
+                          <textarea
+                            value={comentario}
+                            onChange={(e) => setComentario(e.target.value)}
+                            placeholder="Digite seu comentário..."
+                            rows="3"
+                          />
+                          <div className="comment-actions">
+                            <button 
+                              className="comment-cancel-btn"
+                              onClick={() => {
+                                setShowCommentInput(false);
+                                setComentario('');
+                              }}
+                            >
+                              Cancelar
+                            </button>
+                            <button 
+                              className="comment-submit-btn"
+                              onClick={handleAddComment}
+                            >
+                              Enviar
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Lista de Comentários */}
+                      <div className="comments-list">
+                        {comentarios[selectedTask.id]
+                          ?.filter(comment => comment.tipo === 'comentario')
+                          .sort((a, b) => new Date(b.data) - new Date(a.data))
+                          .map(comment => (
+                            <div 
+                              key={comment.data} 
+                              className="comment-item user-comment"
+                            >
+                              <div className="comment-header">
+                                <div className="comment-user-info">
+                                  <FontAwesomeIcon icon={faComment} className="comment-icon" />
+                                  <span className="comment-user">{comment.usuario}</span>
+                                </div>
+                                <span className="comment-date">
+                                  {format(new Date(comment.data), "dd/MM/yyyy 'às' HH:mm")}
+                                </span>
+                              </div>
+                              <p className="comment-text">{comment.detalhes}</p>
+                            </div>
+                          ))}
+                      </div>
+                    </>
+                  )}
+
+                  {activeCommentTab === 'logs' && (
+                    <div className="comments-list">
+                      {comentarios[selectedTask.id]
+                        ?.filter(comment => comment.tipo !== 'comentario')
+                        .sort((a, b) => new Date(b.data) - new Date(a.data))
+                        .map(log => (
+                          <div 
+                            key={log.data} 
+                            className={`comment-item system-log ${log.tipo === 'teste' ? 'teste-log' : ''}`}
+                          >
+                            <div className="comment-header">
+                              <div className="comment-user-info">
+                                <FontAwesomeIcon 
+                                  icon={
+                                    log.tipo === 'teste' ? faCheckCircle :
+                                    log.tipo === 'movimentacao' ? faExchange :
+                                    faHistory
+                                  } 
+                                  className="log-icon" 
+                                />
+                                <span className="comment-user">{log.usuario}</span>
+                              </div>
+                              <span className="comment-date">
+                                {format(new Date(log.data), "dd/MM/yyyy 'às' HH:mm")}
+                              </span>
+                            </div>
+                            <p className="log-message">{getLogMessage(log)}</p>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="modal-buttons">
+                <button 
+                  type="button" 
+                  className="cancel-btn" 
+                  onClick={() => setIsViewModalOpen(false)}
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
