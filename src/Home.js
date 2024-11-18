@@ -111,6 +111,8 @@ function Home() {
   });
   const [expandedCard, setExpandedCard] = useState(null); // 'projects', 'analistas', 'desenvolvedores', ou null
   const [expandedProjects, setExpandedProjects] = useState(new Set());
+  const [expandedAnalistas, setExpandedAnalistas] = useState(new Set());
+  const [expandedDesenvolvedores, setExpandedDesenvolvedores] = useState(new Set());
 
   // Adicione estas configurações logo após a declaração dos estados no início do componente
 
@@ -1206,12 +1208,12 @@ function Home() {
 
   const renderAnalistaCard = (analista) => {
     const stats = analista.stats;
-    const todoPercent = stats.total > 0 ? (stats.todo / stats.total) * 100 : 0;
-    const doingPercent =
-      stats.total > 0 ? (stats.doing / stats.total) * 100 : 0;
-    const donePercent = stats.total > 0 ? (stats.done / stats.total) * 100 : 0;
-    const vencidasPercent =
-      stats.total > 0 ? (stats.vencidas / stats.total) * 100 : 0;
+    const isExpanded = expandedAnalistas.has(analista.id);
+    
+    // Calcula as porcentagens evitando divisão por zero
+    const todoPercent = stats.total > 0 ? ((stats.todo / stats.total) * 100).toFixed(1) : 0;
+    const doingPercent = stats.total > 0 ? ((stats.doing / stats.total) * 100).toFixed(1) : 0;
+    const donePercent = stats.total > 0 ? ((stats.done / stats.total) * 100).toFixed(1) : 0;
 
     // Ordena as tarefas por data de conclusão (vencidas primeiro)
     const tarefasOrdenadas = [...analista.tarefas].sort((a, b) => {
@@ -1227,201 +1229,116 @@ function Home() {
     });
 
     return (
-      <div key={analista.nome} className="projeto-card">
+      <div 
+        key={analista.id} 
+        className={`projeto-card ${isExpanded ? 'expanded' : ''}`}
+        onClick={() => handleAnalistaCardClick(analista.id)}
+      >
+        {/* Informações básicas sempre visíveis */}
         <h5>{analista.nome}</h5>
         <div className="projeto-info">
           <span className="tipo">Analista</span>
           <span className="status">{analista.projetos.length} projetos</span>
         </div>
 
-        <div className="kanban-stats">
-          <div className="stats-grid">
-            <div className="stat-item">
-              <div className="stat-value">{stats.total}</div>
-              <div className="stat-label">Total de Tarefas</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-value">{stats.todo}</div>
-              <div className="stat-label">A Definir/A Fazer</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-value">{stats.doing}</div>
-              <div className="stat-label">Em Andamento/Teste/Deploy</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-value">{stats.done}</div>
-              <div className="stat-label">Concluídas/Arquivadas</div>
-            </div>
-            <div className="stat-item warning">
-              <div className="stat-value">{stats.vencidas}</div>
-              <div className="stat-label">Vencidas</div>
-            </div>
-          </div>
-
-          <div className="progress-bars">
-            <div className="progress-item">
-              <div className="progress-header">
-                <span>A Definir/A Fazer</span>
-                <span>{todoPercent.toFixed(1)}%</span>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-fill todo"
-                  style={{ width: `${todoPercent}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="progress-item">
-              <div className="progress-header">
-                <span>Em Andamento/Teste/Deploy</span>
-                <span>{doingPercent.toFixed(1)}%</span>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-fill doing"
-                  style={{ width: `${doingPercent}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="progress-item">
-              <div className="progress-header">
-                <span>Concluídas/Arquivadas</span>
-                <span>{donePercent.toFixed(1)}%</span>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-fill done"
-                  style={{ width: `${donePercent}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="progress-item">
-              <div className="progress-header">
-                <span>Vencidas</span>
-                <span>{vencidasPercent.toFixed(1)}%</span>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-fill warning"
-                  style={{ width: `${vencidasPercent}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Lista de Tarefas */}
-          <div className="projeto-tarefas">
-            <h6>Tarefas Recentes</h6>
-            <div className="tarefas-list">
-              {tarefasOrdenadas.slice(0, 5).map((tarefa) => (
-                <div
-                  key={tarefa.id}
-                  className={`tarefa-card ${
-                    tarefa.dataConclusao &&
-                    new Date(tarefa.dataConclusao) < new Date()
-                      ? "vencida"
-                      : `prioridade-${tarefa.prioridade?.toLowerCase()}`
-                  }`}
-                >
-                  <div className="tarefa-header">
-                    <div className="tarefa-id-titulo">
-                      <span className="tarefa-id">
-                        <FontAwesomeIcon icon={faHashtag} className="id-icon" />
-                        {tarefa.taskId}
-                      </span>
-                      <span className="tarefa-titulo">{tarefa.titulo}</span>
-                    </div>
-                    <span className={`tarefa-status status-${tarefa.status}`}>
-                      {tarefa.status === "todo"
-                        ? "A Fazer"
-                        : tarefa.status === "inProgress"
-                        ? "Em Andamento"
-                        : tarefa.status === "done"
-                        ? "Concluído"
-                        : tarefa.status === "testing"
-                        ? "Em Teste"
-                        : tarefa.status === "prontoDeploy"
-                        ? "Pronto Deploy"
-                        : tarefa.status}
-                    </span>
-                  </div>
-                  <div className="tarefa-footer">
-                    <span className="tarefa-projeto">{tarefa.projetoNome}</span>
-                    {tarefa.dataConclusao && (
-                      <span
-                        className={`tarefa-data ${
-                          new Date(tarefa.dataConclusao) < new Date()
-                            ? "vencida"
-                            : ""
-                        }`}
-                      >
-                        {format(new Date(tarefa.dataConclusao), "dd/MM/yyyy")}
-                      </span>
-                    )}
-                  </div>
-                  {tarefa.tags && tarefa.tags.length > 0 && (
-                    <div className="tarefa-tags">
-                      {tarefa.tags.map((tag) => (
-                        <span
-                          key={tag.id}
-                          className="tag-mini"
-                          style={{ backgroundColor: tag.cor }}
-                        >
-                          {tag.texto}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Adicione a barra de progresso dos tópicos */}
-                  {tarefa.testes && tarefa.testes.length > 0 && (
-                    <div className="task-topicos-progresso">
-                      <div className="progresso-info">
-                        <span>Tópicos</span>
-                        <span>
-                          {Math.round(
-                            (tarefa.testes.filter((teste) => teste.concluido)
-                              .length /
-                              tarefa.testes.length) *
-                            100
-                          )}%
-                        </span>
-                      </div>
-                      <div className="progresso-barra-container">
-                        <div
-                          className="progresso-barra"
-                          style={{
-                            width: `${Math.round(
-                              (tarefa.testes.filter((teste) => teste.concluido)
-                                .length /
-                                tarefa.testes.length) *
-                                100
-                            )}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+        {/* Resumo das tarefas sempre visível */}
+        <div className="task-summary">
+          <div className="task-count">
+            <span>Total de Tarefas: {stats.total}</span>
+            {stats.vencidas > 0 && (
+              <span className="warning">Vencidas: {stats.vencidas}</span>
+            )}
           </div>
         </div>
+
+        {/* Conteúdo expandido */}
+        {isExpanded && (
+          <div className="kanban-stats">
+            <div className="stats-grid">
+              <div className="stat-item">
+                <div className="stat-value">{stats.total}</div>
+                <div className="stat-label">Total de Tarefas</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-value">{stats.todo}</div>
+                <div className="stat-label">A Definir/A Fazer</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-value">{stats.doing}</div>
+                <div className="stat-label">Em Andamento/Teste/Deploy</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-value">{stats.done}</div>
+                <div className="stat-label">Concluídas/Arquivadas</div>
+              </div>
+              <div className="stat-item warning">
+                <div className="stat-value">{stats.vencidas}</div>
+                <div className="stat-label">Vencidas</div>
+              </div>
+            </div>
+
+            <div className="progress-bars">
+              <div className="progress-item">
+                <div className="progress-header">
+                  <span>A Fazer</span>
+                  <span>{todoPercent}%</span>
+                </div>
+                <div className="progress-bar">
+                  <div
+                    className="progress-fill todo"
+                    style={{ width: `${todoPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="progress-item">
+                <div className="progress-header">
+                  <span>Em Andamento</span>
+                  <span>{doingPercent}%</span>
+                </div>
+                <div className="progress-bar">
+                  <div
+                    className="progress-fill doing"
+                    style={{ width: `${doingPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="progress-item">
+                <div className="progress-header">
+                  <span>Concluídas</span>
+                  <span>{donePercent}%</span>
+                </div>
+                <div className="progress-bar">
+                  <div
+                    className="progress-fill done"
+                    style={{ width: `${donePercent}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Lista de tarefas recentes */}
+            <div className="projeto-tarefas">
+              <h6>Tarefas Recentes</h6>
+              <div className="tarefas-list">
+                {tarefasOrdenadas.slice(0, 3).map(tarefa => renderTarefaCard(tarefa))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
 
   const renderDesenvolvedorCard = (desenvolvedor) => {
     const stats = desenvolvedor.stats;
-    const todoPercent = stats.total > 0 ? (stats.todo / stats.total) * 100 : 0;
-    const doingPercent =
-      stats.total > 0 ? (stats.doing / stats.total) * 100 : 0;
-    const donePercent = stats.total > 0 ? (stats.done / stats.total) * 100 : 0;
-    const vencidasPercent =
-      stats.total > 0 ? (stats.vencidas / stats.total) * 100 : 0;
+    const isExpanded = expandedDesenvolvedores.has(desenvolvedor.id);
+    
+    // Calcula as porcentagens evitando divisão por zero
+    const todoPercent = stats.total > 0 ? ((stats.todo / stats.total) * 100).toFixed(1) : 0;
+    const doingPercent = stats.total > 0 ? ((stats.doing / stats.total) * 100).toFixed(1) : 0;
+    const donePercent = stats.total > 0 ? ((stats.done / stats.total) * 100).toFixed(1) : 0;
 
     // Ordena as tarefas por data de conclusão (vencidas primeiro)
     const tarefasOrdenadas = [...desenvolvedor.tarefas].sort((a, b) => {
@@ -1437,161 +1354,104 @@ function Home() {
     });
 
     return (
-      <div key={desenvolvedor.nome} className="projeto-card">
+      <div 
+        key={desenvolvedor.id} 
+        className={`projeto-card ${isExpanded ? 'expanded' : ''}`}
+        onClick={() => handleDesenvolvedorCardClick(desenvolvedor.id)}
+      >
+        {/* Informações básicas sempre visíveis */}
         <h5>{desenvolvedor.nome}</h5>
         <div className="projeto-info">
           <span className="tipo">Desenvolvedor</span>
-          <span className="status">
-            {desenvolvedor.projetos.length} projetos
-          </span>
+          <span className="status">{desenvolvedor.projetos.length} projetos</span>
         </div>
 
-        <div className="kanban-stats">
-          <div className="stats-grid">
-            <div className="stat-item">
-              <div className="stat-value">{stats.total}</div>
-              <div className="stat-label">Total de Tarefas</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-value">{stats.todo}</div>
-              <div className="stat-label">A Definir/A Fazer</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-value">{stats.doing}</div>
-              <div className="stat-label">Em Andamento/Teste/Deploy</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-value">{stats.done}</div>
-              <div className="stat-label">Concluídas/Arquivadas</div>
-            </div>
-            <div className="stat-item warning">
-              <div className="stat-value">{stats.vencidas}</div>
-              <div className="stat-label">Vencidas</div>
-            </div>
+        {/* Resumo das tarefas sempre visível */}
+        <div className="task-summary">
+          <div className="task-count">
+            <span>Total de Tarefas: {stats.total}</span>
+            {stats.vencidas > 0 && (
+              <span className="warning">Vencidas: {stats.vencidas}</span>
+            )}
           </div>
+        </div>
 
-          <div className="progress-bars">
-            <div className="progress-item">
-              <div className="progress-header">
-                <span>A Definir/A Fazer</span>
-                <span>{todoPercent.toFixed(1)}%</span>
+        {/* Conteúdo expandido */}
+        {isExpanded && (
+          <div className="kanban-stats">
+            <div className="stats-grid">
+              <div className="stat-item">
+                <div className="stat-value">{stats.total}</div>
+                <div className="stat-label">Total de Tarefas</div>
               </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-fill todo"
-                  style={{ width: `${todoPercent}%` }}
-                />
+              <div className="stat-item">
+                <div className="stat-value">{stats.todo}</div>
+                <div className="stat-label">A Definir/A Fazer</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-value">{stats.doing}</div>
+                <div className="stat-label">Em Andamento/Teste/Deploy</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-value">{stats.done}</div>
+                <div className="stat-label">Concluídas/Arquivadas</div>
+              </div>
+              <div className="stat-item warning">
+                <div className="stat-value">{stats.vencidas}</div>
+                <div className="stat-label">Vencidas</div>
               </div>
             </div>
 
-            <div className="progress-item">
-              <div className="progress-header">
-                <span>Em Andamento/Teste/Deploy</span>
-                <span>{doingPercent.toFixed(1)}%</span>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-fill doing"
-                  style={{ width: `${doingPercent}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="progress-item">
-              <div className="progress-header">
-                <span>Concluídas/Arquivadas</span>
-                <span>{donePercent.toFixed(1)}%</span>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-fill done"
-                  style={{ width: `${donePercent}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="progress-item">
-              <div className="progress-header">
-                <span>Vencidas</span>
-                <span>{vencidasPercent.toFixed(1)}%</span>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-fill warning"
-                  style={{ width: `${vencidasPercent}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Lista de Tarefas */}
-          <div className="projeto-tarefas">
-            <h6>Tarefas Recentes</h6>
-            <div className="tarefas-list">
-              {tarefasOrdenadas.slice(0, 5).map((tarefa) => (
-                <div
-                  key={tarefa.id}
-                  className={`tarefa-card ${
-                    tarefa.dataConclusao &&
-                    new Date(tarefa.dataConclusao) < new Date()
-                      ? "vencida"
-                      : `prioridade-${tarefa.prioridade?.toLowerCase()}`
-                  }`}
-                >
-                  <div className="tarefa-header">
-                    <div className="tarefa-id-titulo">
-                      <span className="tarefa-id">
-                        <FontAwesomeIcon icon={faHashtag} className="id-icon" />
-                        {tarefa.taskId}
-                      </span>
-                      <span className="tarefa-titulo">{tarefa.titulo}</span>
-                    </div>
-                    <span className={`tarefa-status status-${tarefa.status}`}>
-                      {tarefa.status === "todo"
-                        ? "A Fazer"
-                        : tarefa.status === "inProgress"
-                        ? "Em Andamento"
-                        : tarefa.status === "done"
-                        ? "Concluído"
-                        : tarefa.status === "testing"
-                        ? "Em Teste"
-                        : tarefa.status === "prontoDeploy"
-                        ? "Pronto Deploy"
-                        : tarefa.status}
-                    </span>
-                  </div>
-                  <div className="tarefa-footer">
-                    <span className="tarefa-projeto">{tarefa.projetoNome}</span>
-                    {tarefa.dataConclusao && (
-                      <span
-                        className={`tarefa-data ${
-                          new Date(tarefa.dataConclusao) < new Date()
-                            ? "vencida"
-                            : ""
-                        }`}
-                      >
-                        {format(new Date(tarefa.dataConclusao), "dd/MM/yyyy")}
-                      </span>
-                    )}
-                  </div>
-                  {tarefa.tags && tarefa.tags.length > 0 && (
-                    <div className="tarefa-tags">
-                      {tarefa.tags.map((tag) => (
-                        <span
-                          key={tag.id}
-                          className="tag-mini"
-                          style={{ backgroundColor: tag.cor }}
-                        >
-                          {tag.texto}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+            <div className="progress-bars">
+              <div className="progress-item">
+                <div className="progress-header">
+                  <span>A Fazer</span>
+                  <span>{todoPercent}%</span>
                 </div>
-              ))}
+                <div className="progress-bar">
+                  <div
+                    className="progress-fill todo"
+                    style={{ width: `${todoPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="progress-item">
+                <div className="progress-header">
+                  <span>Em Andamento</span>
+                  <span>{doingPercent}%</span>
+                </div>
+                <div className="progress-bar">
+                  <div
+                    className="progress-fill doing"
+                    style={{ width: `${doingPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="progress-item">
+                <div className="progress-header">
+                  <span>Concluídas</span>
+                  <span>{donePercent}%</span>
+                </div>
+                <div className="progress-bar">
+                  <div
+                    className="progress-fill done"
+                    style={{ width: `${donePercent}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Lista de tarefas recentes */}
+            <div className="projeto-tarefas">
+              <h6>Tarefas Recentes</h6>
+              <div className="tarefas-list">
+                {tarefasOrdenadas.slice(0, 3).map(tarefa => renderTarefaCard(tarefa))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     );
   };
@@ -3070,6 +2930,32 @@ function Home() {
     
     // Se for uma string
     return responsavel;
+  };
+
+  // Adicione esta função para gerenciar o clique no card do analista
+  const handleAnalistaCardClick = (analistaId) => {
+    setExpandedAnalistas(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(analistaId)) {
+        newSet.delete(analistaId);
+      } else {
+        newSet.add(analistaId);
+      }
+      return newSet;
+    });
+  };
+
+  // Adicione esta função para gerenciar o clique no card do desenvolvedor
+  const handleDesenvolvedorCardClick = (devId) => {
+    setExpandedDesenvolvedores(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(devId)) {
+        newSet.delete(devId);
+      } else {
+        newSet.add(devId);
+      }
+      return newSet;
+    });
   };
 
   return (
