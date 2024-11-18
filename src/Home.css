@@ -1936,3 +1936,66 @@
   background: rgba(255, 255, 255, 0.1);
   color: #4b5563;
 }
+
+/* Adicione os estilos para a barra de progresso no card */
+.task-topicos-progresso {
+  margin: 8px 0;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+}
+
+.task-topicos-progresso .progresso-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #4b5563;
+  margin-bottom: 4px;
+}
+
+.task-topicos-progresso .progresso-barra-container {
+  width: 100%;
+  height: 4px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.task-topicos-progresso .progresso-barra {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Ajuste as cores quando o card estiver em hover */
+.task-card:hover .task-topicos-progresso {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.task-card:hover .task-topicos-progresso .progresso-info {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.task-card:hover .task-topicos-progresso .progresso-barra-container {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.task-card:hover .task-topicos-progresso .progresso-barra {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+/* Ajuste o espaçamento entre os elementos do card */
+.task-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-content {
+  margin-bottom: 0; /* Remove a margem inferior para usar o gap do flex */
+}
+
+.task-footer {
+  margin-top: 0; /* Remove a margem superior para usar o gap do flex */
+}

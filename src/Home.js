@@ -867,9 +867,7 @@ function Home() {
   const renderTarefaCard = (tarefa) => (
     <div
       key={tarefa.id}
-      className={`task-card ${
-        tarefa.prioridade ? `prioridade-${tarefa.prioridade}` : ""
-      }`}
+      className={`task-card ${tarefa.prioridade ? `prioridade-${tarefa.prioridade}` : ''}`}
       onClick={() => handleTaskClick(tarefa)}
     >
       <div className="task-header">
@@ -887,13 +885,10 @@ function Home() {
         </div>
       )}
 
-      <div className="task-content">{tarefa.descricao}</div>
-
       <div className="task-metadata">
         {tarefa.prioridade && (
           <span className={`task-priority priority-${tarefa.prioridade}`}>
-            {tarefa.prioridade.charAt(0).toUpperCase() +
-              tarefa.prioridade.slice(1)}
+            {tarefa.prioridade.charAt(0).toUpperCase() + tarefa.prioridade.slice(1)}
           </span>
         )}
 
@@ -910,7 +905,39 @@ function Home() {
             ))}
           </div>
         )}
+
+        {tarefa.comentarios?.length > 0 && (
+          <div className="task-chat-icon">
+            <FontAwesomeIcon
+              icon={faComments}
+              className={`chat-icon ${tarefa.comentariosNaoLidos ? "has-unread" : ""}`}
+            />
+            {tarefa.comentariosNaoLidos && <div className="unread-indicator" />}
+          </div>
+        )}
       </div>
+
+      <div className="task-content">{tarefa.content}</div>
+
+      {tarefa.testes && tarefa.testes.length > 0 && (
+        <div className="task-topicos-progresso">
+          <div className="progresso-info">
+            <span>Tópicos</span>
+            <span>{Math.round((tarefa.testes.filter(teste => teste.concluido).length / tarefa.testes.length) * 100)}%</span>
+          </div>
+          <div className="progresso-barra-container">
+            <div 
+              className="progresso-barra"
+              style={{ 
+                width: `${Math.round(
+                  (tarefa.testes.filter(teste => teste.concluido).length / 
+                  tarefa.testes.length) * 100
+                )}%` 
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="task-footer">
         <div className="task-assignee">
@@ -935,18 +962,6 @@ function Home() {
             </div>
           )}
         </div>
-
-        {tarefa.comentarios?.length > 0 && (
-          <div className="task-chat-icon">
-            <FontAwesomeIcon
-              icon={faComments}
-              className={`chat-icon ${
-                tarefa.comentariosNaoLidos ? "has-unread" : ""
-              }`}
-            />
-            {tarefa.comentariosNaoLidos && <div className="unread-indicator" />}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -1354,6 +1369,36 @@ function Home() {
                           {tag.texto}
                         </span>
                       ))}
+                    </div>
+                  )}
+
+                  {/* Adicione a barra de progresso dos tópicos */}
+                  {tarefa.testes && tarefa.testes.length > 0 && (
+                    <div className="task-topicos-progresso">
+                      <div className="progresso-info">
+                        <span>Tópicos</span>
+                        <span>
+                          {Math.round(
+                            (tarefa.testes.filter((teste) => teste.concluido)
+                              .length /
+                              tarefa.testes.length) *
+                            100
+                          )}%
+                        </span>
+                      </div>
+                      <div className="progresso-barra-container">
+                        <div
+                          className="progresso-barra"
+                          style={{
+                            width: `${Math.round(
+                              (tarefa.testes.filter((teste) => teste.concluido)
+                                .length /
+                                tarefa.testes.length) *
+                                100
+                            )}%`,
+                          }}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>

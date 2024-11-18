@@ -2550,6 +2550,26 @@ function Tarefas() {
                                       )}
                                     </div>
                                   </div>
+
+                                  {task.testes && task.testes.length > 0 && (
+                                    <div className="task-topicos-progresso">
+                                      <div className="progresso-info">
+                                        <span>Tópicos</span>
+                                        <span>{Math.round((task.testes.filter(teste => teste.concluido).length / task.testes.length) * 100)}%</span>
+                                      </div>
+                                      <div className="progresso-barra-container">
+                                        <div 
+                                          className="progresso-barra"
+                                          style={{ 
+                                            width: `${Math.round(
+                                              (task.testes.filter(teste => teste.concluido).length / 
+                                              task.testes.length) * 100
+                                            )}%` 
+                                          }}
+                                        />
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </Draggable>
@@ -2684,6 +2704,26 @@ function Tarefas() {
                                         )}
                                       </div>
                                     </div>
+
+                                    {task.testes && task.testes.length > 0 && (
+                                      <div className="task-topicos-progresso">
+                                        <div className="progresso-info">
+                                          <span>Tópicos</span>
+                                          <span>{Math.round((task.testes.filter(teste => teste.concluido).length / task.testes.length) * 100)}%</span>
+                                        </div>
+                                        <div className="progresso-barra-container">
+                                          <div 
+                                            className="progresso-barra"
+                                            style={{ 
+                                              width: `${Math.round(
+                                                (task.testes.filter(teste => teste.concluido).length / 
+                                                task.testes.length) * 100
+                                              )}%` 
+                                            }}
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
                                 )}
                               </Draggable>
