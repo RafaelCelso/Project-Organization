@@ -1,0 +1,5696 @@
+.tarefas-container {
+  display: flex;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f8fafc;
+}
+
+.tarefas-content {
+  flex: 1;
+  padding: 24px 32px;
+  background-color: #f8fafc;
+  margin-left: var(--sidebar-width);
+  overflow-y: auto;
+  height: 100vh;
+  transition: all 0.3s ease;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
+}
+
+.tarefas-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tarefas-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 100px;
+  margin: 4px 0;
+}
+
+.tarefas-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 100px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.tarefas-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.kanban-board {
+  display: flex;
+  gap: 24px;
+  padding: 24px 0;
+  overflow-x: auto;
+  height: calc(100vh - 280px);
+  margin: 0 -12px;
+  padding: 0 12px;
+  scroll-padding: 12px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
+}
+
+.kanban-board::-webkit-scrollbar {
+  height: 6px; /* Reduzido de 8px para 6px */
+  width: 6px;
+}
+
+.kanban-board::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 100px; /* Aumentado para ficar mais arredondado */
+  margin: 0 10px; /* Adiciona margem nas laterais */
+}
+
+.kanban-board::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 100px; /* Aumentado para ficar mais arredondado */
+  border: 2px solid transparent; /* Adiciona uma borda transparente */
+  background-clip: padding-box; /* Faz a borda não afetar o background */
+}
+
+.kanban-board::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.kanban-column {
+  flex: 1;
+  min-width: 320px;
+  background: linear-gradient(135deg, #f0f7ff 0%, #cae3fc 100%);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+
+  max-height: 100%;
+}
+
+.kanban-column:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.1),
+    0 3px 6px -1px rgba(0, 0, 0, 0.06);
+}
+
+.column-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.column-title .column-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.task-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  min-height: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  margin: 12px;
+  border-radius: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
+}
+
+.task-list::-webkit-scrollbar {
+  width: 4px; /* Reduzido de 6px para 4px */
+}
+
+.task-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 100px; /* Aumentado para ficar mais arredondado */
+  margin: 4px 0; /* Adiciona margem no topo e base */
+}
+
+.task-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 100px; /* Aumentado para ficar mais arredondado */
+  border: 1px solid transparent; /* Adiciona uma borda transparente */
+  background-clip: padding-box; /* Faz a borda não afetar o background */
+}
+
+.task-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.task-list.dragging-over {
+  background-color: rgba(59, 130, 246, 0.15);
+  box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.task-card {
+  background-color: #fff;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+}
+
+.task-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+  z-index: 2;
+}
+
+/* Adiciona uma camada de blur por trás do card */
+.task-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.task-card:hover::after {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Adiciona um efeito de brilho ao redor do card */
+.task-card:hover {
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),  /* Cor do início do gradiente */
+    0 0 30px rgba(65, 185, 160, 0.2); /* Cor do fim do gradiente */
+}
+
+/* Ajuste específico para cada elemento */
+.task-card:hover .task-title,
+.task-card:hover .task-content,
+.task-card:hover .task-date,
+.task-card:hover .task-assignee {
+  color: white;
+}
+
+/* Mantenha o número do chamado em preto */
+.task-card:hover .task-chamado {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #000;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.task-card:hover .chamado-label {
+  color: #000;
+  font-weight: normal;
+}
+
+.task-card:hover .chamado-number {
+  color: #000;
+  font-weight: normal;
+}
+
+/* Ajuste para as prioridades */
+.task-card:hover .task-priority {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #000;
+  font-weight: 600;
+}
+
+/* Mantenha as cores específicas para cada nível de prioridade */
+.task-card:hover .priority-baixa {
+  color: #166534;
+  background-color: #dcfce7;
+}
+
+.task-card:hover .priority-media {
+  color: #854d0e;
+  background-color: #fef9c3;
+}
+
+.task-card:hover .priority-alta {
+  color: #991b1b;
+  background-color: #fee2e2;
+}
+
+.task-card:hover .priority-urgente {
+  color: #7f1d1d;
+  background-color: #fef2f2;
+}
+
+.task-card:hover::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+/* Mantenha o efeito especial para quando estiver arrastando */
+.task-card.dragging {
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+}
+
+.task-card:active {
+  cursor: grabbing;
+}
+
+.task-card.dragging {
+  cursor: grabbing;
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  width: 300px; /* Largura fixa para manter consistência */
+  transform: rotate(2deg) scale(1.02);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  opacity: 0.9;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.task-content {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.task-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+}
+
+.task-dates {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.task-date,
+.archived-date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #666;
+  font-size: 12px;
+}
+
+.date-label {
+  color: #374151;
+  font-weight: 500;
+}
+
+.task-project {
+  background-color: #e3f2fd;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #1976d2;
+}
+
+.task-assignee {
+  background-color: #f3f4f6;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.new-task-btn {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.new-task-btn:hover {
+  background-color: #45a049;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+  .kanban-column {
+    min-width: 250px;
+  }
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.06);
+}
+
+.column-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.column-title .column-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.add-task-btn {
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  color: white;
+  padding: 8px 16px; /* Reduzido de 12px 24px para 8px 16px */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.add-task-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+}
+
+.add-task-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Efeito de brilho no hover */
+.add-task-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+}
+
+.add-task-btn:hover::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+.column-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.edit-stage-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 16px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.edit-stage-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+/* Ajuste no header da coluna */
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.column-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+/* Estilo para o select de posição */
+.form-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #4caf50;
+}
+
+.project-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Reduzido de 240px para 200px */
+  gap: 12px; /* Reduzido de 16px para 12px */
+  padding: 4px;
+  margin-bottom: 20px; /* Reduzido de 24px para 20px */
+}
+
+.project-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px; /* Reduzido de 12px para 10px */
+  padding: 12px; /* Reduzido de 16px para 12px */
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.2) 100%
+  );
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
+}
+
+.project-card:hover::before {
+  opacity: 1;
+}
+
+.project-card.selected {
+  background: rgba(59, 130, 246, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(59, 130, 246, 0.2);
+}
+
+.project-card-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px; /* Reduzido de 12px para 8px */
+}
+
+.project-card-header h3 {
+  font-size: 14px; /* Reduzido de 16px para 14px */
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.project-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Reduzido de 12px para 8px */
+}
+
+.project-type {
+  background: rgba(25, 118, 210, 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: #1976d2;
+  padding: 3px 8px; /* Reduzido de 4px 10px para 3px 8px */
+  border-radius: 12px;
+  font-size: 10px; /* Reduzido de 11px para 10px */
+  white-space: nowrap;
+  border: 1px solid rgba(25, 118, 210, 0.2);
+}
+
+.edit-project-btn {
+  background: rgba(100, 116, 139, 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px; /* Reduzido de 6px para 4px */
+  border-radius: 8px; /* Reduzido de 10px para 8px */
+  min-width: 24px; /* Reduzido de 28px para 24px */
+  height: 24px; /* Reduzido de 28px para 24px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  min-width: 32px;
+  height: 32px;
+}
+
+.edit-project-btn:hover {
+  background: rgba(100, 116, 139, 0.2);
+  color: #1f2937;
+}
+
+.project-card-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.project-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Reduzido de 6px para 4px */
+  font-size: 12px; /* Reduzido de 13px para 12px */
+}
+
+.project-info span {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* Reduzido de 6px para 4px */
+  padding: 1px 0; /* Reduzido de 2px para 1px */
+}
+
+.task-count {
+  margin-top: 8px; /* Reduzido de 10px para 8px */
+  padding-top: 8px; /* Reduzido de 10px para 8px */
+  border-top: 1px solid rgba(229, 231, 235, 0.5);
+  font-size: 11px; /* Reduzido de 12px para 11px */
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Ajuste o background do container para melhor contraste */
+.projetos-content {
+  background: linear-gradient(135deg, #f0f2f5 0%, #e5e7eb 100%);
+}
+
+/* Ajuste o grid de projetos */
+.project-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  padding: 4px;
+  margin-bottom: 32px;
+}
+
+.kanban-section {
+  margin-top: 30px;
+}
+
+.kanban-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #eee;
+}
+
+/* Ajuste no Kanban quando há projeto selecionado */
+.kanban-board {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.3s ease forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .project-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Estilos para os novos campos do formulário */
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-group.half {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* Estilo para o campo de progresso */
+.form-group input[type="range"] {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  -webkit-appearance: none;
+  background: #f0f0f0;
+  outline: none;
+  margin-top: 8px;
+}
+
+.form-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4caf50;
+  cursor: pointer;
+  border: none;
+}
+
+.form-group input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4caf50;
+  cursor: pointer;
+  border: none;
+}
+
+.progress-value {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 14px;
+  color: #666;
+  vertical-align: middle;
+}
+
+/* Estilos para inputs de data */
+.form-group input[type="date"] {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+}
+
+.form-group input[type="date"]:focus {
+  outline: none;
+  border-color: #4caf50;
+}
+
+/* Cores para as prioridades no select */
+.form-group select option[value="baixa"] {
+  color: #4caf50;
+}
+
+.form-group select option[value="media"] {
+  color: #2196f3;
+}
+
+.form-group select option[value="alta"] {
+  color: #ff9800;
+}
+
+.form-group select option[value="urgente"] {
+  color: #f44336;
+}
+
+/* Estilos para os ícones no formulário */
+.form-icon {
+  margin-right: 8px;
+  color: #666;
+}
+
+/* Estilos para o select de progresso */
+.select-nao_iniciada {
+  color: #666;
+}
+
+.select-em_andamento {
+  color: #2196f3;
+}
+
+.select-concluida {
+  color: #4caf50;
+}
+
+/* Ajustes nos labels com ícones */
+.form-group label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Animação do ícone de spinner */
+.fa-spin {
+  animation: fa-spin 2s infinite linear;
+}
+
+@keyframes fa-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.task-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-content {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 12px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ajuste no input do título */
+.form-group input[type="text"] {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+}
+
+.form-group input[type="text"]:focus {
+  outline: none;
+  border-color: #4caf50;
+}
+
+/* Estilos para o modal de visualização */
+.view-modal {
+  max-width: 600px;
+}
+
+.view-modal-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.view-modal-header h2 {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.task-badges {
+  display: flex;
+  gap: 8px;
+}
+
+.priority-badge,
+.progress-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.priority-baixa {
+  background-color: #dcfce7;
+  color: #166534;
+}
+.priority-media {
+  background-color: #fef9c3;
+  color: #854d0e;
+}
+.priority-alta {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+.priority-urgente {
+  background-color: #fef2f2;
+  color: #7f1d1d;
+}
+
+.progress-nao_iniciada {
+  background-color: #f5f5f5;
+  color: #616161;
+}
+.progress-em_andamento {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+.progress-concluida {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.view-modal-content {
+  margin-bottom: 24px;
+}
+
+.info-section {
+  margin-bottom: 24px;
+}
+
+.info-section h3 {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.info-section p {
+  color: #333;
+  line-height: 1.5;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.info-item {
+  background-color: #f8f9fa;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.info-item label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.info-item span {
+  color: #333;
+  font-weight: 500;
+}
+
+/* Ajuste no card para indicar que é clicável */
+.task-card {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para o modal de exclusão de tarefa */
+.delete-modal .info-section {
+  background-color: #f8f9fa;
+  padding: 12px;
+  border-radius: 4px;
+  margin: 16px 0;
+}
+
+.delete-modal .info-section p {
+  margin: 4px 0;
+  color: #666;
+}
+
+.delete-modal .info-section strong {
+  color: #333;
+}
+
+/* Ajuste nos botões do modal de visualização */
+.view-modal .modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.view-modal .delete-btn {
+  background-color: #f44336;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.view-modal .delete-btn:hover {
+  background-color: #d32f2f;
+}
+
+.view-modal .edit-btn {
+  background-color: #2196f3;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.view-modal .edit-btn:hover {
+  background-color: #1976d2;
+}
+
+.selected-project-card {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  border-left: 4px solid #4caf50;
+}
+
+.selected-project-card .project-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.selected-project-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.selected-project-card .project-type {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.selected-project-card .project-members {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: #666;
+}
+
+.selected-project-card .member-label {
+  font-weight: 500;
+  color: #333;
+}
+
+/* Ajuste no modal para o novo card */
+.modal-content {
+  padding-top: 16px;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+}
+
+/* Estilos para a seção de comentários */
+.comments-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.comments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.comments-header h3 {
+  font-size: 16px;
+  color: #374151;
+  margin: 0;
+}
+
+.add-comment-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-comment-btn:hover {
+  background-color: #2563eb;
+}
+
+.add-comment-btn i {
+  font-size: 18px;
+}
+
+.comment-input-container {
+  margin-bottom: 16px;
+}
+
+.comment-input-container textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 80px;
+  margin-bottom: 12px;
+}
+
+.comment-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.comment-item {
+  background-color: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.comment-user {
+  font-weight: 500;
+  color: #374151;
+}
+
+.comment-date {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.comment-text {
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Ajuste na largura do modal */
+.modal-content {
+  width: 800px; /* Aumenta a largura do modal */
+  max-width: 90%;
+  padding: 24px;
+}
+
+/* Ajuste no layout do formulário */
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-group.triple {
+  flex: 1; /* Cada campo ocupa 1/3 do espaço */
+  margin-bottom: 0;
+}
+
+/* Ajuste no campo de descrição */
+.form-group.description {
+  margin-top: 16px; /* Espaço extra antes da descrição */
+}
+
+.form-group.description textarea {
+  min-height: 120px; /* Altura mínima para o campo de descrição */
+}
+
+.description-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.upload-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #f0f2f5;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  color: #666;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.upload-btn:hover {
+  background-color: #e4e6e9;
+  border-color: #999;
+}
+
+.uploaded-files {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.uploaded-file {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.uploaded-file img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.remove-file-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.uploaded-file:hover .remove-file-btn {
+  opacity: 1;
+}
+
+.remove-file-btn:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Ajuste no tamanho das imagens no card da tarefa */
+.task-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+/* Estilos para a grade de imagens na visualização */
+.task-images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.task-image-item {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.task-image-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.2s;
+}
+
+.task-image-item:hover img {
+  transform: scale(1.05);
+}
+
+/* Ajuste no tamanho do modal de visualização para comportar as imagens */
+.view-modal {
+  max-width: 800px;
+  width: 90%;
+}
+
+/* Ajuste na seção de informações */
+.info-section + .info-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #eee;
+}
+
+.info-section h3 {
+  margin-bottom: 16px;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.task-image-item {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.task-image-item:hover .download-image-btn {
+  opacity: 1;
+}
+
+.download-image-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.download-image-btn:hover {
+  background-color: white;
+  transform: scale(1.1);
+}
+
+.task-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.task-id {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  background-color: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  min-width: 45px;
+  text-align: center;
+}
+
+.task-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filtros-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.filtros-grupo {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.filtro-busca {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 2;
+}
+
+.filtro-tipo-busca {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #666;
+  background-color: white;
+  height: 38px;
+}
+
+.busca-input-container {
+  position: relative;
+  flex: 1;
+}
+
+.busca-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+}
+
+.busca-input-container input {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  height: 38px;
+}
+
+.filtro-datas {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 2;
+}
+
+.filtro-datas label {
+  white-space: nowrap;
+  color: #666;
+  font-size: 14px;
+}
+
+.filtro-datas input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  height: 38px;
+}
+
+.filtro-prioridade,
+.filtro-tag {
+  flex: 1;
+}
+
+.filtro-prioridade select,
+.filtro-tag select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+  color: #666;
+  height: 38px;
+}
+
+.filtros-acoes {
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.filtrar-btn,
+.limpar-filtros-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Estilos específicos para cada coluna */
+.kanban-column[data-column="aDefinir"] {
+  background: linear-gradient(135deg, #f0f7ff 0%, #e1f0ff 100%);
+  border-left: 4px solid #3b82f6;
+}
+
+.kanban-column[data-column="todo"] {
+  background: linear-gradient(135deg, #f0fdf4 0%, #e1f9e7 100%);
+  border-left: 4px solid #22c55e;
+}
+
+.kanban-column[data-column="inProgress"] {
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+  border-left: 4px solid #ef4444;
+}
+
+.kanban-column[data-column="testing"] {
+  background: linear-gradient(135deg, #fdf4ff 0%, #f5e8ff 100%);
+  border-left: 4px solid #d946ef;
+}
+
+.kanban-column[data-column="prontoDeploy"] {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e1f5fe 100%);
+  border-left: 4px solid #0ea5e9;
+}
+
+.kanban-column[data-column="done"] {
+  background: linear-gradient(135deg, #f7fee7 0%, #eefcd5 100%);
+  border-left: 4px solid #84cc16;
+}
+
+.kanban-column[data-column="arquivado"] {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-left: 4px solid #64748b;
+}
+
+/* Ajuste no título das colunas */
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+.column-title {
+  font-size: 14px; /* Aumentado o tamanho da fonte */
+  font-weight: 600;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+  margin-right: 8px;
+  text-transform: uppercase; /* Adicionado para dar mais destaque */
+  letter-spacing: 0.5px; /* Melhor legibilidade */
+}
+
+/* Melhorias nos cards */
+.task-metadata {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+  padding: 4px 0;
+}
+
+.task-priority {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.task-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.task-tag {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.task-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Efeito de loading ao arrastar */
+.task-card.dragging::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .kanban-column {
+    min-width: 280px;
+  }
+}
+
+/* Estilos para o formulrio simplificado */
+.simplified-form {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.simplified-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  background-color: #f9fafb;
+}
+
+.simplified-input:focus {
+  border-color: #3b82f6;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.simplified-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: vertical;
+  transition: all 0.2s ease;
+  background-color: #f9fafb;
+}
+
+.simplified-textarea:focus {
+  border-color: #3b82f6;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.upload-btn.simplified {
+  background-color: #f3f4f6;
+  border: 1px dashed #d1d5db;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #4b5563;
+  transition: all 0.2s ease;
+}
+
+.upload-btn.simplified:hover {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.uploaded-files.simplified {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.tags-section.simplified {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.tags-container.simplified {
+  background-color: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.tags-actions.simplified {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.existing-tags-select.simplified {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #fff;
+  color: #4b5563;
+}
+
+.add-tag-btn.simplified {
+  padding: 10px 20px;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #4b5563;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.add-tag-btn.simplified:hover {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.tag-input-container.simplified {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.tag-input.simplified {
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.tag-colors.simplified {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 8px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+}
+
+.cancel-btn.simplified,
+.add-btn.simplified {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn.simplified {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
+.add-btn.simplified {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.cancel-btn.simplified:hover {
+  background-color: #e5e7eb;
+}
+
+.add-btn.simplified:hover {
+  background-color: #2563eb;
+}
+
+/* Melhorias nos espaçamentos e organização */
+.form-group + .form-group {
+  margin-top: 24px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Animações suaves */
+.simplified-form {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tag-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 12px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+}
+
+.color-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.color-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.color-btn.selected {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+.color-btn.selected::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-size: 16px;
+}
+
+.tag-input-container {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 12px;
+}
+
+.tag-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.tag-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.tag-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* Estilos para o formulário completo */
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #374151;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.form-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.form-group.triple {
+  flex: 1;
+  min-width: 0; /* Evita overflow em containers flex */
+  margin: 0; /* Remove todas as margens */
+}
+
+/* Melhorias nos inputs e selects */
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  background-color: #f9fafb;
+  height: 45px; /* Altura consistente */
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Melhorias na seção de tags */
+.tags-section {
+  background-color: #f8fafc;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 32px;
+  border: 1px solid #e5e7eb;
+}
+
+.tags-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  min-height: 50px;
+}
+
+.tags-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.existing-tags-select {
+  flex: 2;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+  color: #4b5563;
+  height: 45px;
+}
+
+/* Melhorias no botão Nova Tag */
+.add-tag-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white !important;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 45px;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.add-tag-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white !important;
+}
+
+.add-tag-btn .fa-tag {
+  font-size: 16px;
+  color: white !important;
+}
+
+/* Melhorias na exibição das tags */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: white;
+  margin: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.tag:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.remove-tag-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  font-size: 14px;
+}
+
+.remove-tag-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Melhorias no seletor de cores */
+.tag-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.color-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.color-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.color-btn.selected {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 3px white, 0 0 0 6px currentColor;
+}
+
+/* Melhorias no input de nova tag */
+.tag-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+  margin-bottom: 16px;
+  height: 45px;
+}
+
+.tag-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Ajustes nos botões de ação das tags */
+.tag-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.tag-actions button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Melhorias no comportamento de drag and drop */
+.task-card {
+  background: white;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  cursor: grab;
+  position: relative;
+  transform-origin: 50% 50%;
+}
+
+.task-card:active {
+  cursor: grabbing;
+}
+
+.task-card.dragging {
+  cursor: grabbing;
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  width: 300px; /* Largura fixa para manter consistência */
+  transform: rotate(2deg) scale(1.02);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  opacity: 0.9;
+}
+
+/* Ajuste na área de drop */
+.task-list {
+  min-height: 200px;
+  transition: background-color 0.2s ease;
+  padding: 12px;
+}
+
+.task-list.dragging-over {
+  background-color: rgba(59, 130, 246, 0.15);
+  box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+/* Efeito de placeholder durante o drag */
+.task-card.dragging::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  border-radius: inherit;
+  z-index: -1;
+}
+
+/* Ajuste no layout do card durante o drag */
+.task-card.dragging * {
+  pointer-events: none;
+}
+
+/* Efeito de loading durante o drag */
+@keyframes loading {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Estilização da barra de rolagem das colunas */
+.task-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.task-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+}
+
+.task-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.task-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Ajuste na rolagem horizontal do Kanban */
+.kanban-board::-webkit-scrollbar {
+  height: 8px;
+}
+
+.kanban-board::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.kanban-board::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 4px;
+}
+
+.kanban-board::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
+/* Ajustes para o campo de número do chamado */
+.form-group input[type="text"]#numeroChamado {
+  font-family: monospace; /* Melhor legibilidade para números */
+  letter-spacing: 0.5px;
+}
+
+/* Ajuste no espaçamento dos campos */
+.simplified-form .form-group:first-child,
+.form-group:first-child {
+  margin-bottom: 16px;
+  margin-top: 24px;
+}
+
+.task-chamado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background-color: #f8fafc;
+  border-radius: 4px;
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+.chamado-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.chamado-number {
+  color: #0f172a;
+  font-family: monospace;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Ajuste para o número do chamado no modal */
+.task-chamado.modal {
+  background-color: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 8px 0;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.task-chamado.modal .chamado-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.task-chamado.modal .chamado-number {
+  color: #0f172a;
+  font-family: monospace;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 15px;
+}
+
+/* Ajustes no modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 12px;
+  width: 800px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 32px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Cabeçalho do modal */
+.modal-header {
+  margin-bottom: 24px;
+}
+
+.modal-header h2 {
+  font-size: 24px;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+/* Formulário dentro do modal */
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%; /* Garante que o formulário ocupe toda a largura do modal */
+}
+
+/* Grupos de campos */
+.form-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 0;
+  width: 100%; /* Garante que as linhas ocupem toda a largura */
+}
+
+.form-group {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.form-group.full-width {
+  flex: 1 1 100%; /* Garante que campos com essa classe ocupem toda a largura */
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #374151;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Campos de entrada */
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group select,
+.form-group textarea {
+  width: 100%; /* Garante que os campos ocupem toda a largura do grupo */
+  padding: 10px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1f2937;
+  background-color: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="date"]:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Campo de descrição */
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Seção de upload de imagens */
+.upload-section {
+  margin-top: 12px;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: #f3f4f6;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  color: #4b5563;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.upload-btn:hover {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+/* Grade de imagens carregadas */
+.uploaded-files {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 4px;
+}
+
+/* Botões do modal */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.modal-buttons-right {
+  display: flex;
+  gap: 12px;
+}
+
+.delete-btn {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+  background-color: #dc2626;
+}
+
+/* Estilos para o modal de confirmação de exclusão */
+.delete-modal .info-section {
+  background-color: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.delete-modal .info-section p {
+  margin: 8px 0;
+  color: #374151;
+}
+
+.delete-modal .warning-text {
+  color: #ef4444;
+  font-weight: 500;
+  margin-top: 16px;
+}
+
+.delete-modal .modal-buttons {
+  justify-content: flex-end;
+}
+
+/* Estilos para o header com botão */
+.header-with-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.export-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, #1ab69d 0%, #31b237 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(90deg, #18a38c 0%, #2a9e31 100%);
+}
+
+.export-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button svg {
+  font-size: 16px;
+}
+
+/* Ajuste responsivo */
+@media (max-width: 768px) {
+  .header-with-button {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .header-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .export-button,
+  .add-task-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.add-project-btn {
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.add-project-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+}
+
+.add-project-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Efeito de brilho no hover */
+.add-project-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+}
+
+.add-project-btn:hover::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+/* Estilos para a lista de projetos disponíveis */
+.available-projects-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.available-project-card {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.available-project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-color: #d1d5db;
+}
+
+.available-project-card.selected {
+  border-color: #3b82f6;
+  background-color: #f0f7ff;
+}
+
+.available-project-card .project-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.loading-projects {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px dashed #e5e7eb;
+  grid-column: 1 / -1;
+  gap: 12px;
+  color: #6b7280;
+}
+
+.loading-projects svg {
+  font-size: 24px;
+  color: #3b82f6;
+}
+
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background-color: #fef2f2;
+  border-radius: 8px;
+  border: 1px dashed #ef4444;
+  grid-column: 1 / -1;
+  gap: 12px;
+  color: #991b1b;
+}
+
+.error-message svg {
+  font-size: 24px;
+  color: #ef4444;
+}
+
+.retry-btn {
+  margin-top: 8px;
+  padding: 8px 16px;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retry-btn:hover {
+  background-color: #dc2626;
+}
+
+/* Ajustes no card de projeto disponível */
+.available-project-card .project-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.available-project-card .project-info span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Ajuste no botão desabilitado */
+.save-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.save-btn:disabled:hover {
+  background: #9ca3af;
+  transform: none;
+}
+
+/* Adicione estes estilos */
+.project-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.project-main-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.project-main-info h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.project-type-badge {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.status-aDefinir {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.status-todo {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.status-inProgress {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.status-testing {
+  background-color: #fae8ff;
+  color: #a21caf;
+}
+
+.status-prontoDeploy {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.status-done {
+  background-color: #bbf7d0;
+  color: #166534;
+}
+
+.status-arquivado {
+  background-color: #e5e7eb;
+  color: #4b5563;
+}
+
+.project-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.detail-item {
+  background-color: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.detail-item label {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.detail-item span {
+  font-size: 16px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.kanban-summary {
+  background-color: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 32px;
+}
+
+.kanban-summary h4 {
+  font-size: 16px;
+  color: #374151;
+  margin: 0 0 16px 0;
+}
+
+.kanban-stats {
+  display: flex;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.stat-item {
+  background-color: white;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+}
+
+.stat-item label {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.stat-item span {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Ajuste nos botões */
+.delete-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ef4444;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+  background-color: #dc2626;
+}
+
+.delete-btn svg {
+  font-size: 16px;
+}
+
+.project-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Reduzido de 16px para 12px */
+}
+
+.project-type {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 10px; /* Reduzido de 6px 14px para 4px 10px */
+  border-radius: 16px;
+  font-size: 11px; /* Reduzido de 12px para 11px */
+  white-space: nowrap;
+}
+
+.edit-project-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 6px; /* Reduzido de 8px para 6px */
+  border-radius: 10px; /* Reduzido de 12px para 10px */
+  min-width: 28px; /* Reduzido de 32px para 28px */
+  height: 28px; /* Reduzido de 32px para 28px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  min-width: 32px;
+}
+
+/* Adicione estes estilos para os filtros */
+.filtros-container {
+  position: relative;
+  z-index: 20; /* Aumenta o z-index do container de filtros */
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+}
+
+.filtros-grupo {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filtro-busca {
+  flex: 1;
+  min-width: 200px;
+}
+
+.busca-input-container {
+  position: relative;
+}
+
+.busca-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+}
+
+.filtro-busca input {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  border-radius: 8px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1f2937;
+}
+
+.filtro-select {
+  min-width: 150px;
+}
+
+.filtro-select select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  border-radius: 8px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1f2937;
+}
+
+.filtros-acoes {
+  display: flex;
+  gap: 8px;
+}
+
+.limpar-filtros-btn {
+  align-self: flex-end;
+  height: 38px;
+  padding: 8px 16px;
+  background-color: white;
+  color: #f44336;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.limpar-filtros-btn i {
+  font-size: 18px;
+}
+
+.limpar-filtros-btn:hover {
+  background-color: rgba(244, 67, 54, 0.04);
+}
+
+@media (max-width: 768px) {
+  .filtros-grupo {
+    flex-direction: column;
+  }
+
+  .filtro-busca,
+  .filtro-select {
+    width: 100%;
+  }
+
+  .limpar-filtros-btn {
+    width: 100%;
+    margin-left: 0;
+    justify-content: center;
+  }
+}
+
+/* Ajuste os estilos dos filtros para o React Select */
+.filtros-container .filtro-select {
+  min-width: 250px;
+  flex: 1;
+}
+
+.filtros-container .react-select-container {
+  position: relative;
+  z-index: 30; /* Aumenta o z-index do container do select */
+  width: 100%;
+}
+
+.filtros-container .react-select__control {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  border-radius: 8px;
+  min-height: 38px;
+  box-shadow: none;
+}
+
+.filtros-container .react-select__control:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.filtros-container .react-select__control--is-focused {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+.filtros-container .react-select__menu {
+  z-index: 40 !important; /* Força um z-index maior para o menu dropdown */
+  position: absolute;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.filtros-container .react-select__option {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.filtros-container .react-select__option--is-focused {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.filtros-container .react-select__option--is-selected {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.filtros-container .react-select__placeholder {
+  color: #6b7280;
+}
+
+.filtros-container .react-select__single-value {
+  color: #1f2937;
+}
+
+/* Ajuste o layout dos filtros */
+.filtros-grupo {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .filtros-container .filtro-select {
+    min-width: 100%;
+  }
+}
+
+/* Atualize os estilos dos filtros */
+.filtros-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 24px 0;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.filtros-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.filtros-linha {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Primeira linha - Projeto */
+.filtros-linha:first-child .filtro-grupo {
+  width: 100%;
+}
+
+/* Segunda linha - Demais filtros */
+.filtros-linha:nth-child(2) {
+  display: flex;
+  gap: 16px;
+}
+
+.filtros-linha:nth-child(2) .filtro-grupo {
+  flex: 1;
+  min-width: 150px;
+}
+
+.filtro-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filtro-grupo label {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.busca-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.busca-input-container input {
+  width: 100%;
+  padding: 8px 16px 8px 40px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+  height: 38px;
+}
+
+.busca-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 20px !important;
+}
+
+/* Estilos para o filtro de datas */
+.filtro-datas {
+  display: flex;
+  gap: 8px;
+}
+
+.filtro-datas input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  height: 38px;
+}
+
+/* Estilos para os selects */
+.filtro-grupo select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  height: 38px;
+  background-color: white;
+}
+
+/* Botão limpar filtros */
+.limpar-filtros-btn {
+  align-self: flex-end;
+  height: 38px;
+  padding: 8px 16px;
+  background-color: transparent;
+  color: #f44336;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0px;
+}
+
+.limpar-filtros-btn:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+/* Ajuste responsivo */
+@media (max-width: 1200px) {
+  .filtros-linha:nth-child(2) {
+    flex-wrap: wrap;
+  }
+
+  .filtros-linha:nth-child(2) .filtro-grupo {
+    width: calc(33.33% - 11px);
+    flex: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .filtros-linha:nth-child(2) {
+    flex-wrap: wrap;
+  }
+
+  .filtros-linha:nth-child(2) .filtro-grupo {
+    width: calc(50% - 8px);
+  }
+
+  .limpar-filtros-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filtro-datas {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .filtros-linha:nth-child(2) .filtro-grupo {
+    width: 100%;
+  }
+}
+
+/* Estilos para as guias do modal */
+.modal-tabs {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+}
+
+.tab-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-button.active {
+  color: #3b82f6;
+  border-bottom: 2px solid #3b82f6;
+  margin-bottom: -17px;
+}
+
+.tab-button i {
+  font-size: 20px;
+}
+
+/* Estilos para o log */
+.log-container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.log-entry {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.log-icon {
+  color: #6b7280;
+}
+
+.log-icon i {
+  font-size: 24px;
+}
+
+.log-content {
+  flex: 1;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.log-user {
+  font-weight: 500;
+  color: #374151;
+}
+
+.log-date {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.log-details {
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.no-logs {
+  text-align: center;
+  color: #6b7280;
+  padding: 32px;
+}
+
+/* Estilo para campos obrigatórios */
+.required {
+  color: #ef4444;
+  margin-left: 4px;
+}
+
+/* Ajuste no select de responsável */
+.form-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+  height: 38px;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Adicione estes estilos para o input com erro */
+.input-error {
+  border-color: #ef4444 !important;
+  background-color: #fff5f5 !important;
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Ajuste o estilo do React Select para responsáveis */
+.form-group .react-select-container {
+  width: 100%;
+}
+
+.form-group .react-select__control {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  min-height: 45px;
+  background-color: white;
+}
+
+.form-group .react-select__control:hover {
+  border-color: #3b82f6;
+}
+
+.form-group .react-select__control--is-focused {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group .react-select__multi-value {
+  background-color: #e3f2fd;
+  border-radius: 4px;
+}
+
+.form-group .react-select__multi-value__label {
+  color: #1976d2;
+  font-size: 14px;
+  padding: 2px 6px;
+}
+
+.form-group .react-select__multi-value__remove {
+  color: #1976d2;
+  cursor: pointer;
+}
+
+.form-group .react-select__multi-value__remove:hover {
+  background-color: #1976d2;
+  color: white;
+}
+
+.form-group .react-select__placeholder {
+  color: #6b7280;
+}
+
+/* Adicione estes estilos para o novo layout de busca */
+.busca-container {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.tipo-busca {
+  width: 120px !important;
+  min-width: 120px !important;
+}
+
+.busca-input-container {
+  flex: 1;
+  position: relative;
+}
+
+/* Ajuste responsivo */
+@media (max-width: 768px) {
+  .busca-container {
+    flex-direction: column;
+  }
+
+  .tipo-busca {
+    width: 100% !important;
+  }
+}
+
+/* Estilos para os detalhes da tarefa */
+.task-details {
+  padding: 20px 0;
+}
+
+.task-header {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.task-header h2 {
+  font-size: 24px;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.task-chamado {
+  display: block;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Tags agora ficam fora do header */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.tag {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  color: white;
+  font-weight: 500;
+}
+
+/* Adicione os estilos para os cards de informaço */
+.task-info-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.info-card {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.info-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.info-card-header i {
+  font-size: 20px;
+  color: #6b7280;
+}
+
+.info-card-header h3 {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+  margin: 0;
+}
+
+.info-card-content {
+  font-size: 16px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* Ajuste responsivo para os cards */
+@media (max-width: 1024px) {
+  .task-info-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .task-info-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mantenha os estilos existentes para badges */
+.status-badge,
+.priority-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Ajuste no layout geral do modal */
+.modal-content {
+  max-width: 900px;
+  width: 90%;
+  margin: 20px auto;
+}
+
+/* Atualize os estilos da descrição e comentários */
+.task-description-section,
+.comments-section {
+  margin-top: 32px;
+  padding: 24px;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.section-header i {
+  font-size: 24px;
+  color: white;
+}
+
+#chat-icon {
+  color: #6E7583;
+}
+
+.section-header h3 {
+  font-size: 18px;
+  color: #374151;
+  font-weight: 600;
+  margin: 0;
+}
+
+.description-content {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.description-content p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap; /* Permite quebra de linha e respeita espaços */
+  word-wrap: break-word; /* Quebra palavras longas */
+  overflow-wrap: break-word; /* Suporte adicional para quebra de palavras */
+}
+
+/* Ajuste nos comentários */
+.comments-section .section-header {
+  justify-content: space-between;
+}
+
+.add-comment-btn {
+  margin-left: auto;
+}
+
+.comment-item {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 12px;
+}
+
+.comment-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Ajuste no container de comentários */
+.comments-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Estilização da barra de rolagem dos comentários */
+.comments-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.comments-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.comments-list::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 4px;
+}
+
+.comments-list::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
+/* Atualize os estilos dos botões de comentário */
+.comment-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.comment-cancel-btn {
+  padding: 8px 16px;
+  background-color: white;
+  color: #f44336;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comment-cancel-btn:hover {
+  background-color: rgba(244, 67, 54, 0.04);
+}
+
+.comment-submit-btn {
+  padding: 8px 16px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comment-submit-btn:hover {
+  background-color: #2563eb;
+}
+
+/* Ajuste no textarea do comentário */
+.comment-input-container textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 80px;
+  margin-bottom: 0; /* Remove a margem inferior pois já temos margin-top nos botões */
+  transition: border-color 0.2s ease;
+}
+
+.comment-input-container textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Adicione estes estilos para o modal de seleção múltipla */
+.available-projects-list {
+  position: relative;
+}
+
+.selected-count {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-weight: 500;
+  color: #3b82f6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  text-align: center;
+}
+
+.available-project-card {
+  position: relative;
+  padding-right: 40px; /* Espaço para o indicador de seleção */
+}
+
+.selection-indicator {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #3b82f6;
+  font-size: 20px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.available-project-card.selected .selection-indicator {
+  opacity: 1;
+}
+
+.available-project-card.selected {
+  background-color: #f0f7ff;
+  border-color: #3b82f6;
+}
+
+.save-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.save-btn:disabled:hover {
+  background-color: #9ca3af;
+  transform: none;
+}
+
+/* Ajuste o hover dos cards */
+.available-project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.available-project-card:hover .selection-indicator {
+  opacity: 0.5;
+}
+
+.available-project-card.selected:hover .selection-indicator {
+  opacity: 1;
+}
+
+/* Remova os estilos da contagem de seleção */
+.selected-count {
+  display: none;
+}
+
+/* Ajuste a largura do modal de exclusão */
+.delete-modal {
+  width: 600px;
+  max-width: 90vw;
+}
+
+/* Estilo para o header com botão de selecionar todos */
+.modal-header-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-header-with-action h2 {
+  margin: 0;
+}
+
+.select-all-btn {
+  padding: 8px 16px;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.select-all-btn:hover {
+  background-color: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+.comment-item {
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+}
+
+.user-comment {
+  background-color: #f8f9fa;
+  border-left: 4px solid #007bff;
+}
+
+.system-log {
+  background-color: #f3f4f6;
+  border-left: 4px solid #6c757d;
+  font-style: italic;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.comment-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comment-icon {
+  color: #007bff;
+}
+
+.log-icon {
+  color: #6c757d;
+}
+
+.comment-user {
+  font-weight: 600;
+}
+
+.comment-date {
+  font-size: 0.85em;
+  color: #6c757d;
+}
+
+.comment-text {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.log-message {
+  color: #495057;
+}
+
+/* Estilo para o ícone do botão de comentário */
+.add-comment-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background-color: #3b82f6;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-comment-btn:hover {
+  background-color: #2563EB;
+}
+
+.add-comment-btn i {
+  font-size: 18px;
+}
+
+/* Estilos para os logs do sistema */
+.system-log {
+  background-color: #f8fafc;
+  border-left: 4px solid #64748b;
+  font-style: italic;
+}
+
+.system-log .log-icon {
+  color: #64748b;
+}
+
+.system-log .comment-user {
+  color: #64748b;
+}
+
+.system-log .log-message {
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* Estilos para comentários de usuário */
+.user-comment {
+  background-color: #f0f9ff;
+  border-left: 4px solid #0ea5e9;
+}
+
+.user-comment .comment-icon {
+  color: #0ea5e9;
+}
+
+.user-comment .comment-user {
+  color: #0369a1;
+}
+
+.user-comment .comment-text {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+/* Estilos comuns */
+.comment-item {
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.comment-header {
+  margin-bottom: 8px;
+}
+
+.comment-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comment-date {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Animação suave ao adicionar novos itens */
+.comment-item {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilos para a seção de testes */
+.testes-section {
+  background-color: #f8fafc;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 24px;
+}
+
+.testes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Estilos para a barra de progresso */
+.teste-progresso {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.progresso-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.progresso-barra-container {
+  width: 100%;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progresso-barra {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Estilos para os tópicos */
+.teste-topicos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.teste-topico {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.teste-topico:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.topico-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.topico-content:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Ajuste o cursor do label para evitar confusão visual */
+.topico-content label {
+  cursor: inherit;
+}
+
+/* Mantenha o cursor pointer específico para os controles interativos */
+.topico-content input[type="checkbox"],
+.edit-topico-btn,
+.remove-topico-btn {
+  cursor: pointer;
+}
+
+/* Ajuste o estilo do container de edição para não herdar o cursor pointer */
+.topico-edit-container {
+  cursor: text;
+}
+
+.topico-content input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.topico-content label {
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.topico-content label.concluido {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+.remove-topico-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 1;
+  visibility: visible;
+}
+
+.remove-topico-btn:hover {
+  background-color: #fee2e2;
+}
+
+/* Ajuste o layout do tópico durante a edição */
+.teste-topico {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.topico-edit-container {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+}
+
+.topico-edit-input {
+  flex: 1;
+}
+
+/* Estilos para adicionar novo tópico */
+.add-topico-container {
+  display: flex;
+  gap: 8px;
+}
+
+.add-topico-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.add-topico-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.add-topico-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-topico-btn:hover {
+  background-color: #2563eb;
+}
+
+/* Estilos para a visualização dos testes no card de detalhes */
+.teste-topicos.view-only .teste-topico {
+  background-color: #f8fafc;
+  border: 1px solid #e5e7eb;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none; /* Evita seleção de texto ao clicar */
+}
+
+.teste-topicos.view-only .teste-topico:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.teste-topicos.view-only .teste-topico:active {
+  transform: scale(0.99);
+}
+
+/* Ajuste o cursor quando a tarefa estiver arquivada */
+.teste-topicos.view-only .teste-topico[style*="not-allowed"] {
+  opacity: 0.7;
+}
+
+.teste-topicos.view-only .teste-topico[style*="not-allowed"]:hover {
+  background-color: #f8fafc;
+  border-color: #e5e7eb;
+  box-shadow: none;
+  transform: none;
+}
+
+.teste-topicos.view-only .topico-content input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.teste-topicos.view-only .topico-content input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.teste-topicos.view-only .topico-content label {
+  cursor: pointer;
+  user-select: none;
+}
+
+.teste-topicos.view-only .topico-content label.concluido {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+/* Adicione animação ao marcar/desmarcar */
+.teste-topico {
+  transition: transform 0.2s ease;
+}
+
+.teste-topico:active {
+  transform: scale(0.98);
+}
+
+/* Estilo para o log de teste */
+.comment-item[data-tipo="teste"] {
+  background-color: #f0fdf4;
+  border-left: 4px solid #22c55e;
+}
+
+.comment-item[data-tipo="teste"] .log-icon {
+  color: #22c55e;
+}
+
+.comment-item[data-tipo="teste"] .comment-user {
+  color: #15803d;
+}
+
+.comment-item[data-tipo="teste"] .log-message {
+  color: #166534;
+}
+
+/* Adicione estilos para a barra de progresso no card */
+.task-topicos-progresso {
+  margin: 8px 0;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+}
+
+.task-topicos-progresso .progresso-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #4b5563;
+  margin-bottom: 4px;
+}
+
+.task-topicos-progresso .progresso-barra-container {
+  width: 100%;
+  height: 4px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.task-topicos-progresso .progresso-barra {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Ajuste as cores quando o card estiver em hover */
+.task-card:hover .task-topicos-progresso {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.task-card:hover .task-topicos-progresso .progresso-info {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.task-card:hover .task-topicos-progresso .progresso-barra-container {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.task-card:hover .task-topicos-progresso .progresso-barra {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+/* Atualize o nome da seção nos estilos existentes */
+.testes-section {
+  /* Mantenha os mesmos estilos, apenas atualize o comentário */
+  /* Estilos para a seção de tópicos */
+  background-color: #f8fafc;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 24px;
+}
+
+.topico-edit-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.topico-edit-input {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.topico-edit-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.save-edit-btn,
+.cancel-edit-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.save-edit-btn {
+  color: #4caf50;
+}
+
+.cancel-edit-btn {
+  color: #f44336;
+}
+
+.save-edit-btn:hover {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.cancel-edit-btn:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.teste-topico label {
+  cursor: pointer;
+  user-select: none;
+}
+
+.teste-topico label:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+}
+
+.topico-label-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  position: relative;
+}
+
+.edit-topico-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #9ca3af;
+  opacity: 0;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.teste-topico:hover .edit-topico-btn {
+  opacity: 1;
+}
+
+.edit-topico-btn:hover {
+  color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Ajuste o espaçamento do label */
+.topico-label-container label {
+  flex: 1;
+  padding: 4px 0;
+}
+
+/* Ajuste os estilos para o modo de visualização */
+.teste-topicos.view-only .topico-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.teste-topicos.view-only .topico-content:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.teste-topicos.view-only .topico-label-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.teste-topicos.view-only .topico-label-container label {
+  flex: 1;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+}
+
+/* Ajuste o estilo quando a tarefa estiver arquivada */
+.teste-topicos.view-only .teste-topico[style*="not-allowed"] .topico-content,
+.teste-topicos.view-only .teste-topico[style*="not-allowed"] .topico-label-container,
+.teste-topicos.view-only .teste-topico[style*="not-allowed"] label {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Melhore o feedback visual ao clicar */
+.teste-topicos.view-only .topico-content:active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Adicione ou atualize estas regras CSS */
+
+.task-card {
+  /* Mantenha as propriedades existentes */
+  background-color: #fff;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.task-card:hover {
+  background-color: #f8f9ff; /* Cor de fundo suave ao passar o mouse */
+  transform: translateY(-2px); /* Leve elevação do card */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra mais pronunciada */
+  cursor: pointer;
+}
+
+/* Adicione também um efeito especial para quando estiver arrastando */
+.task-card.dragging {
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+}
+
+/* Ajuste para as tags */
+.task-card:hover .task-tag {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.task-card:hover .tag-icon {
+  color: white;
+}
+
+/* Ajuste para a palavra "Conclusão" */
+.task-card:hover .date-label {
+  color: white;
+}
+
+/* Ajuste para o responsável */
+.task-card:hover .task-assignee {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #000;
+}
+
+/* Ajuste para o número do chamado - removendo o negrito */
+.task-card:hover .chamado-label {
+  color: #000;
+  font-weight: normal;
+}
+
+.task-card:hover .chamado-number {
+  color: #000;
+  font-weight: normal;
+}
+
+/* Ajuste os estilos para o botão Adicionar na criação de tags */
+.tag-actions .add-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 45px;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.tag-actions .add-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+}
+
+.tag-actions .add-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.tag-actions .add-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.tag-actions .add-btn i {
+  font-size: 18px;
+}
+
+/* Estilos para as abas de comentários */
+.comments-tabs {
+  display: flex;
+  gap: 4px;
+  margin-right: auto;
+  background-color: #f3f4f6;
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.comments-tabs .tab-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  position: relative;
+}
+
+.comments-tabs .tab-button:hover {
+  color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.comments-tabs .tab-button.active {
+  color: #3b82f6;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.comments-tabs .tab-button svg {
+  font-size: 16px;
+}
+
+/* Atualização da seção de tópicos */
+.teste-topicos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px;
+}
+
+.teste-topico {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.teste-topico:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.topico-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+/* Novo estilo para checkboxes circulares */
+.topico-content input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #e5e7eb;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.topico-content input[type="checkbox"]:checked {
+  background-color: #22c55e; /* Verde */
+  border-color: #22c55e;
+}
+
+.topico-content input[type="checkbox"]:checked::after {
+  content: '✓'; /* Ícone de check */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* Ajuste no hover do checkbox */
+.topico-content input[type="checkbox"]:hover {
+  border-color: #22c55e;
+}
+
+/* Ajuste na transição para tornar mais suave */
+.topico-content input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #e5e7eb;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+/* Efeito de ripple ao clicar */
+.topico-content input[type="checkbox"]:active::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  background-color: rgba(34, 197, 94, 0.1);
+  border-radius: 50%;
+  animation: ripple 0.4s ease-out;
+}
+
+@keyframes ripple {
+  from {
+    width: 0px;
+    height: 0px;
+    opacity: 1;
+  }
+  to {
+    width: 32px;
+    height: 32px;
+    opacity: 0;
+  }
+}
+
+.topico-label-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topico-label-container label {
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  flex: 1;
+}
+
+.topico-label-container label.concluido {
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
+/* Botões de edição e remoção */
+.edit-topico-btn,
+.remove-topico-btn {
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.teste-topico:hover .edit-topico-btn,
+.teste-topico:hover .remove-topico-btn {
+  opacity: 1;
+}
+
+.edit-topico-btn {
+  color: #3b82f6;
+}
+
+.edit-topico-btn:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.remove-topico-btn {
+  color: #ef4444;
+}
+
+.remove-topico-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Barra de progresso dos tópicos */
+.teste-progresso {
+  background-color: white;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 16px;
+}
+
+.progresso-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.progresso-barra-container {
+  height: 8px;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progresso-barra {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* Adicionar novo tópico */
+.add-topico-container {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background-color: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.add-topico-input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.add-topico-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.add-topico-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-topico-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-1px);
+}
+
+.add-topico-btn:active {
+  transform: translateY(0);
+}
+
+/* Animação de confetes */
+@keyframes confetti {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.5);
+  }
+}
+
+@keyframes confettiParticle {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--r));
+    opacity: 0;
+  }
+}
+
+/* Container para os confetes */
+.topico-content input[type="checkbox"] {
+  position: relative;
+}
+
+/* Efeito de confete ao marcar o checkbox */
+.topico-content input[type="checkbox"]:checked::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+  animation: confetti 0.6s ease-out forwards;
+  z-index: 1;
+}
+
+/* Partículas de confete */
+.topico-content input[type="checkbox"]:checked::before {
+  background: radial-gradient(circle, transparent 30%, #22c55e 30%);
+  mix-blend-mode: screen;
+}
+
+/* Múltiplas partículas de confete */
+.topico-content input[type="checkbox"]:checked::after {
+  content: '✓';
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles {
+  position: absolute;
+  pointer-events: none;
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 2px;
+  animation: confettiParticle 0.6s ease-out forwards;
+  transform-origin: center;
+}
+
+/* Gerar 12 partículas com cores e direções diferentes */
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(1) {
+  left: 50%;
+  top: 50%;
+  background: #22c55e;
+  --tx: -20px;
+  --ty: -20px;
+  --r: -45deg;
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(2) {
+  left: 50%;
+  top: 50%;
+  background: #3b82f6;
+  --tx: 20px;
+  --ty: -20px;
+  --r: 45deg;
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(3) {
+  left: 50%;
+  top: 50%;
+  background: #eab308;
+  --tx: -20px;
+  --ty: 20px;
+  --r: 135deg;
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(4) {
+  left: 50%;
+  top: 50%;
+  background: #ec4899;
+  --tx: 20px;
+  --ty: 20px;
+  --r: -135deg;
+}
+
+/* Adicione mais partículas com diferentes direções */
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(5) {
+  left: 50%;
+  top: 50%;
+  background: #22c55e;
+  --tx: 0px;
+  --ty: -25px;
+  --r: 0deg;
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(6) {
+  left: 50%;
+  top: 50%;
+  background: #3b82f6;
+  --tx: 0px;
+  --ty: 25px;
+  --r: 180deg;
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(7) {
+  left: 50%;
+  top: 50%;
+  background: #eab308;
+  --tx: -25px;
+  --ty: 0px;
+  --r: -90deg;
+}
+
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(8) {
+  left: 50%;
+  top: 50%;
+  background: #ec4899;
+  --tx: 25px;
+  --ty: 0px;
+  --r: 90deg;
+}
+
+/* Adicione o elemento para as partículas no HTML via JavaScript */
+.confetti-particles {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Ajuste a posição do check para ficar sobre os confetes */
+.topico-content input[type="checkbox"]:checked::after {
+  z-index: 3;
+}
+
+/* Melhore a animação do checkbox */
+.topico-content input[type="checkbox"] {
+  transform-origin: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.topico-content input[type="checkbox"]:checked {
+  transform: scale(1.1);
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Ajuste nas partículas de confete para formato redondo */
+.topico-content input[type="checkbox"]:checked ~ .confetti-particles i {
+  position: absolute;
+  width: 6px; /* Aumentado um pouco para melhor visibilidade */
+  height: 6px;
+  border-radius: 50%; /* Alterado para 50% para fazer círculos perfeitos */
+  animation: confettiParticle 0.6s ease-out forwards;
+  transform-origin: center;
+  opacity: 0.9; /* Adicionada uma leve transparência */
+}
+
+/* Ajuste na animação do confete central */
+.topico-content input[type="checkbox"]:checked::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%; /* Garante que o efeito central também seja circular */
+  pointer-events: none;
+  animation: confetti 0.6s ease-out forwards;
+  z-index: 1;
+  background: radial-gradient(circle, transparent 30%, rgba(34, 197, 94, 0.2) 30%);
+  mix-blend-mode: overlay;
+}
+
+/* Ajuste na animação para movimento mais suave e circular */
+@keyframes confettiParticle {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--r)) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Ajuste na animação central para efeito mais suave */
+@keyframes confetti {
+  0% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(0.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2);
+  }
+}
+
+/* Adicione estes estilos ao seu arquivo CSS */
+
+.task-chat-icon {
+  position: relative;
+  margin-left: 8px;
+}
+
+.chat-icon {
+  color: #666;
+  font-size: 14px;
+}
+
+.chat-icon.has-unread {
+  color: #1976d2;
+}
+
+.unread-indicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background-color: #f44336;
+  border-radius: 50%;
+  border: 2px solid #fff;
+}
+
+.task-metadata {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Adicione este estilo para mudar a cor do ícone de chat no hover do card */
+.task-card:hover .chat-icon {
+  color: white;
+}
+
+/* Mantenha o indicador de não lido visível mesmo com o hover */
+.task-card:hover .unread-indicator {
+  background-color: #f44336;
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Adicione estes estilos para os elementos específicos do card de projeto */
+.project-info span.project-member {
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+.project-task-count {
+  color: #6b7280;
+  transition: color 0.3s ease;
+}
+
+.project-edit-button {
+  color: #64748b;
+  transition: color 0.3s ease;
+}
+
+/* Ajuste as cores no hover do card */
+.project-card:hover .project-member,
+.project-card:hover .project-task-count,
+.project-card:hover .project-edit-button {
+  color: white;
+}
+
+/* Ajuste o ícone de edição especificamente */
+.project-card:hover .project-edit-button {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.project-card:hover .project-edit-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Atualize os estilos para usar os IDs específicos */
+
+/* Cores padrão */
+#tarefas-member-info {
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+#tarefas-task-count {
+  color: #6b7280;
+  transition: color 0.3s ease;
+}
+
+#tarefas-edit-button {
+  color: #64748b;
+  transition: all 0.3s ease;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+/* Efeitos hover */
+#tarefas-project-card:hover #tarefas-member-info,
+#tarefas-project-card:hover #tarefas-task-count,
+#tarefas-project-card:hover #tarefas-edit-button {
+  color: white;
+}
+
+/* Efeitos especiais para o botão de edição */
+#tarefas-project-card:hover #tarefas-edit-button {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#tarefas-project-card:hover #tarefas-edit-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Garante que o label mantenha a cor correta */
+#tarefas-project-card:hover .member-label {
+  color: rgba(255, 255, 255, 0.7); /* Deixa o label levemente mais suave */
+}
+
+/* Cores padrão */
+#tarefas-member-info {
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+#tarefas-task-count {
+  color: #6b7280;
+  transition: color 0.3s ease;
+}
+
+#tarefas-edit-button {
+  color: #64748b;
+  transition: all 0.3s ease;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+/* Efeitos hover apenas quando o card não está selecionado */
+#tarefas-project-card:not(.selected):hover #tarefas-member-info,
+#tarefas-project-card:not(.selected):hover #tarefas-task-count,
+#tarefas-project-card:not(.selected):hover #tarefas-edit-button {
+  color: white;
+}
+
+/* Efeitos especiais para o botão de edição */
+#tarefas-project-card:not(.selected):hover #tarefas-edit-button {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#tarefas-project-card:not(.selected):hover #tarefas-edit-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Garante que o label mantenha a cor correta apenas quando não selecionado */
+#tarefas-project-card:not(.selected):hover .member-label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Mantém as cores originais quando o card está selecionado */
+#tarefas-project-card.selected:hover #tarefas-member-info,
+#tarefas-project-card.selected:hover #tarefas-task-count {
+  color: #666;
+}
+
+#tarefas-project-card.selected:hover #tarefas-edit-button {
+  color: #64748b;
+}
+
+#tarefas-project-card.selected:hover .member-label {
+  color: #666;
+}
+
+/* Adicione estas regras para o título do card */
+#tarefas-project-card h3 {
+  color: #1f2937;
+  transition: color 0.3s ease;
+}
+
+/* Muda a cor do título para branco no hover apenas quando não está selecionado */
+#tarefas-project-card:not(.selected):hover h3 {
+  color: white;
+}
+
+/* Mantém a cor original do título quando o card está selecionado */
+#tarefas-project-card.selected:hover h3 {
+  color: #1f2937;
+}
+
+/* Estilos para os cards no modal de Adicionar Projetos */
+.available-project-card {
+  background-color: #fff;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+/* Efeito de brilho */
+.available-project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+  z-index: 2;
+}
+
+/* Efeito hover e selecionado */
+.available-project-card:hover,
+.available-project-card.selected {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+}
+
+/* Cores do texto no hover e selecionado */
+.available-project-card:hover h3,
+.available-project-card:hover .project-info span,
+.available-project-card.selected h3,
+.available-project-card.selected .project-info span {
+  color: white;
+}
+
+/* Ajuste no tipo do projeto */
+.available-project-card:hover .project-type,
+.available-project-card.selected .project-type {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #1976d2;
+}
+
+/* Animação de brilho */
+.available-project-card:hover::before,
+.available-project-card.selected::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+/* Ajuste no indicador de seleção */
+.available-project-card .selection-indicator {
+  color: #3b82f6;
+  transition: all 0.3s ease;
+}
+
+.available-project-card:hover .selection-indicator,
+.available-project-card.selected .selection-indicator {
+  color: white;
+}
+
+/* Mantenha o efeito de brilho mesmo quando selecionado */
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+/* Estilos específicos para os cards de projeto da página Tarefas */
+.tarefas-project-card {
+  background-color: #fff;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+/* Efeito de brilho */
+.tarefas-project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+  z-index: 2;
+}
+
+/* Efeito hover e selecionado */
+.tarefas-project-card:hover,
+.tarefas-project-card.selected {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+}
+
+/* Cores do texto no hover e selecionado */
+.tarefas-project-card:hover h3,
+.tarefas-project-card:hover .project-info span,
+.tarefas-project-card.selected h3,
+.tarefas-project-card.selected .project-info span {
+  color: white;
+}
+
+/* Ajuste no tipo do projeto */
+.tarefas-project-card:hover .project-type,
+.tarefas-project-card.selected .project-type {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #1976d2;
+}
+
+/* Animação de brilho apenas no hover inicial ou seleção */
+.tarefas-project-card:hover::before {
+  animation: shimmer 1.5s ease-in-out forwards;
+}
+
+/* Ajuste no botão de edição */
+.tarefas-project-card:hover .project-edit-button,
+.tarefas-project-card.selected .project-edit-button {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.tarefas-project-card:hover .project-edit-button:hover,
+.tarefas-project-card.selected .project-edit-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ajuste na contagem de tarefas */
+.tarefas-project-card:hover .project-task-count,
+.tarefas-project-card.selected .project-task-count {
+  color: white;
+}
+
+/* Ajuste nos labels */
+.tarefas-project-card:hover .member-label,
+.tarefas-project-card.selected .member-label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Estilos específicos para os cards de projeto da página Tarefas */
+.tarefas-project-card {
+  /* ... outros estilos ... */
+}
+
+/* Cores do texto no hover e selecionado */
+.tarefas-project-card:hover .project-info span,
+.tarefas-project-card.selected .project-info span,
+.tarefas-project-card:hover .project-task-count span,
+.tarefas-project-card.selected .project-task-count span {
+  color: white !important; /* Força a cor branca */
+}
+
+/* Ajuste específico para o nome do analista e desenvolvedor */
+.tarefas-project-card:hover .project-member,
+.tarefas-project-card.selected .project-member,
+.tarefas-project-card:hover .member-label,
+.tarefas-project-card.selected .member-label {
+  color: white !important; /* Força a cor branca */
+}
+
+/* Ajuste específico para a contagem de tarefas */
+.tarefas-project-card:hover .project-task-count,
+.tarefas-project-card.selected .project-task-count {
+  color: white !important; /* Força a cor branca */
+}
+
+/* Garante que todos os textos dentro do card fiquem brancos */
+.tarefas-project-card:hover .project-card-content,
+.tarefas-project-card.selected .project-card-content {
+  color: white !important;
+}
+
+/* Ajuste para garantir que os labels também fiquem brancos */
+.tarefas-project-card:hover .member-label,
+.tarefas-project-card.selected .member-label {
+  color: white !important;
+  opacity: 0.9; /* Mantém uma leve diferenciação visual */
+}
+
+/* Ajuste no container do tópico */
+.teste-topico {
+  width: 100%;
+  word-break: break-word; /* Permite quebra de palavras longas */
+  overflow-wrap: break-word; /* Suporte adicional para quebra de palavras */
+}
+
+/* Ajuste no container do label */
+.topico-label-container {
+  width: 100%;
+  overflow: hidden; /* Previne overflow */
+}
+
+/* Ajuste no label do tópico */
+.topico-label-container label {
+  width: 100%;
+  white-space: normal; /* Permite quebra de linha */
+  word-wrap: break-word; /* Quebra palavras longas */
+  line-height: 1.4; /* Melhora o espaçamento entre linhas */
+}
+
+/* Ajuste no input de edição */
+.topico-edit-input {
+  width: 100%;
+  white-space: normal;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+/* Ajuste no input de novo tópico */
+.add-topico-input {
+  width: 100%;
+  white-space: normal;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+/* Container do formulário de tópicos */
+.teste-topicos {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden; /* Previne overflow horizontal */
+}
+
+/* Estilos para os botões do modal de Adicionar Projetos */
+.modal-buttons .save-btn {
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-buttons .save-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+}
+
+.modal-buttons .save-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Efeito de brilho no hover */
+.modal-buttons .save-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+}
+
+.modal-buttons .save-btn:hover::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+/* Ajuste para o botão desabilitado */
+.modal-buttons .save-btn:disabled {
+  background: linear-gradient(90deg, #9ca3af 0%, #9ca3af 65%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.modal-buttons .save-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.modal-buttons .save-btn:disabled::before {
+  display: none;
+}
+
+/* ... resto do código existente ... */
+
+/* Estilos para o modal de aviso */
+.warning-modal {
+  max-width: 500px;
+  text-align: center;
+}
+
+.warning-modal .warning-icon {
+  color: #f59e0b;
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.warning-modal h2 {
+  color: #1f2937;
+  margin-bottom: 16px;
+}
+
+.warning-modal p {
+  color: #4b5563;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.warning-modal .ok-btn {
+  background-color: #3b82f6;
+  color: white;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.warning-modal .ok-btn:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.warning-modal .ok-btn:active {
+  transform: translateY(0);
+}

@@ -1,0 +1,789 @@
+/* Importa os estilos base do Projetos.css */
+@import './Projetos.css';
+
+/* Sobrescreve classes específicas se necessário */
+.colaboradores-container {
+  display: flex;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.colaboradores-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f0f2f5;
+  margin-left: var(--sidebar-width);
+  overflow-y: auto;
+  height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+/* Estilos específicos para o grid de colaboradores */
+.colaboradores-grid {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.colaboradores-grid table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.colaboradores-grid th {
+  background-color: #f5f5f5;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #ddd;
+}
+
+.colaboradores-grid td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  color: #666;
+  white-space: nowrap;
+}
+
+.colaboradores-grid tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Ajustes específicos para as colunas */
+.colaboradores-grid th:last-child,
+.colaboradores-grid td:last-child {
+  width: 150px;
+  text-align: center;
+}
+
+/* Botão de novo colaborador */
+.new-colaborador-btn {
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.new-colaborador-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+}
+
+.new-colaborador-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Efeito de brilho no hover */
+.new-colaborador-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+}
+
+.new-colaborador-btn:hover::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+/* Botões de ação na tabela */
+.colaboradores-grid .edit-btn,
+.colaboradores-grid .delete-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin: 0 4px;
+  cursor: pointer;
+  border: none;
+}
+
+.colaboradores-grid .edit-btn {
+  background-color: #2196F3;
+  color: white;
+}
+
+.colaboradores-grid .delete-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.colaboradores-grid .edit-btn:hover {
+  background-color: #1976D2;
+}
+
+.colaboradores-grid .delete-btn:hover {
+  background-color: #D32F2F;
+}
+
+/* Status do colaborador */
+.colaboradores-grid td:nth-child(5) {
+  font-weight: 500;
+}
+
+.status-ativo {
+  color: #4CAF50;
+}
+
+.status-inativo {
+  color: #f44336;
+}
+
+.status-ferias {
+  color: #FF9800;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .colaboradores-grid {
+    margin: 20px -20px;
+    border-radius: 0;
+  }
+}
+
+/* Estilos melhorados para a seção de filtros */
+.filtros-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 24px 0;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.filtros-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.filtros-linha {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Primeira linha - Nome */
+.filtro-nome {
+  width: 100%;
+}
+
+/* Segunda linha - Demais filtros */
+.filtros-linha:nth-child(2) .filtro-grupo {
+  flex: 1;
+  min-width: 150px;
+}
+
+.filtro-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filtro-grupo label {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.busca-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.busca-input-container input {
+  width: 100%;
+  padding: 8px 16px 8px 40px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+  height: 38px;
+}
+
+.busca-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 20px;
+}
+
+.limpar-filtros-btn {
+  align-self: flex-end;
+  height: 38px;
+  padding: 8px 16px;
+  background-color: transparent;
+  color: #f44336;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.limpar-filtros-btn:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+/* Ajustes no React Select */
+.react-select__control {
+  border-color: #e0e0e0 !important;
+  border-radius: 4px !important;
+  min-height: 38px !important;
+  background-color: white !important;
+}
+
+.react-select__placeholder {
+  color: #666 !important;
+}
+
+/* Ajuste responsivo */
+@media (max-width: 1200px) {
+  .filtros-linha:nth-child(2) {
+    flex-wrap: wrap;
+  }
+
+  .filtros-linha:nth-child(2) .filtro-grupo {
+    width: calc(33.33% - 11px);
+    flex: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .filtros-linha:nth-child(2) .filtro-grupo {
+    width: calc(50% - 8px);
+  }
+
+  .limpar-filtros-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .filtros-linha:nth-child(2) .filtro-grupo {
+    width: 100%;
+  }
+}
+
+/* Estilos para os ícones de ação */
+.acoes-column {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.icon-button i {
+  font-size: 20px;
+}
+
+.edit-btn {
+  color: #2196F3;
+}
+
+.edit-btn:hover {
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+.delete-btn {
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+/* Remova os estilos anteriores do select-multiple e adicione os novos estilos para checkboxes */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.checkbox-label:hover {
+  background-color: #e3f2fd;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #2196F3;
+}
+
+/* Estilo para o container dos checkboxes no formulário */
+.form-group .checkbox-group {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Estilo para melhorar a aparência da célula de projetos na tabela */
+.projetos-cell {
+  max-width: 200px;
+  white-space: normal !important;
+  line-height: 1.4;
+}
+
+.close-modal-btn {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.close-modal-btn:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.modal-content {
+  position: relative;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  width: 900px;
+  max-width: 90%;
+  opacity: 0;
+  animation: modalFadeIn 0.2s ease-out forwards;
+}
+
+/* Estilos para o React Select */
+.react-select-container {
+  width: 100%;
+}
+
+.react-select__control {
+  background-color: #f8f9fa !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 6px !important;
+  min-height: 42px !important;
+  box-shadow: none !important;
+}
+
+.react-select__control:hover {
+  border-color: #2196F3 !important;
+}
+
+.react-select__control--is-focused {
+  border-color: #2196F3 !important;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1) !important;
+}
+
+.react-select__multi-value {
+  background-color: #e3f2fd !important;
+  border-radius: 4px !important;
+  margin: 2px !important;
+}
+
+.react-select__multi-value__label {
+  color: #2196F3 !important;
+  font-size: 14px !important;
+  padding: 2px 6px !important;
+}
+
+.react-select__multi-value__remove {
+  color: #2196F3 !important;
+  padding: 0 4px !important;
+  border-radius: 0 4px 4px 0 !important;
+}
+
+.react-select__multi-value__remove:hover {
+  background-color: #2196F3 !important;
+  color: white !important;
+}
+
+.react-select__menu {
+  background-color: white !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 6px !important;
+  margin-top: 4px !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.react-select__option {
+  padding: 8px 12px !important;
+  cursor: pointer !important;
+}
+
+.react-select__option--is-focused {
+  background-color: #e3f2fd !important;
+}
+
+.react-select__option--is-selected {
+  background-color: #2196F3 !important;
+  color: white !important;
+}
+
+.react-select__placeholder {
+  color: #999 !important;
+}
+
+/* Ajuste para o select de filtro */
+.filtro-grupo .react-select-container {
+  margin-top: 4px;
+}
+
+.filtro-grupo .react-select__control {
+  min-height: 38px !important;
+}
+
+.filtro-grupo .react-select__single-value {
+  color: #333 !important;
+}
+
+.filtro-grupo .react-select__placeholder {
+  color: #666 !important;
+}
+
+.limpar-filtros-btn {
+  height: 38px;
+  margin-top: 16px;
+  padding: 8px 16px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.limpar-filtros-btn i {
+  font-size: 18px;
+}
+
+.limpar-filtros-btn:hover {
+  background-color: #d32f2f;
+}
+
+.limpar-filtros-btn:active {
+  background-color: #c62828;
+}
+
+/* Ajuste responsivo */
+@media (max-width: 768px) {
+  .limpar-filtros-btn {
+    width: 100%;
+    margin-left: 0;
+    height: 42px;
+  }
+}
+
+/* Estilos para o modal de feedback */
+.feedback-modal {
+  max-width: 400px !important;
+  width: 400px !important;
+  padding: 24px !important;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: auto;
+}
+
+.feedback-modal.success .feedback-icon {
+  color: #4CAF50;
+}
+
+.feedback-modal.error .feedback-icon {
+  color: #f44336;
+}
+
+.feedback-modal .feedback-icon {
+  font-size: 48px;
+}
+
+.feedback-modal .feedback-icon i {
+  font-size: 48px;
+}
+
+.feedback-modal p {
+  font-size: 16px;
+  color: #333;
+  margin: 16px 0;
+}
+
+.feedback-modal .ok-btn {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.feedback-modal .ok-btn:hover {
+  background-color: #1976D2;
+}
+
+.feedback-modal.success .ok-btn {
+  background-color: #4CAF50;
+}
+
+.feedback-modal.success .ok-btn:hover {
+  background-color: #45a049;
+}
+
+.feedback-modal.error .ok-btn {
+  background-color: #f44336;
+}
+
+.feedback-modal.error .ok-btn:hover {
+  background-color: #d32f2f;
+}
+
+/* Ajuste da animação do modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  width: 900px;
+  max-width: 90%;
+  opacity: 0;
+  animation: modalFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Estilos para o loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-container p {
+  color: #666;
+  font-size: 16px;
+  margin: 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Modal de exclusão também mantém tamanho menor */
+.delete-modal {
+  max-width: 400px !important;
+  width: 400px !important;
+}
+
+/* Atualização apenas do estilo do título da página */
+.page-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #737274;
+  margin-bottom: 24px;
+  margin-top: 8px;
+  position: relative;
+  padding-bottom: 12px;
+  display: inline-block;
+}
+
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #41B9A0 0%, #3949ab 100%);
+  border-radius: 2px;
+}
+
+/* Atualize os estilos do header */
+.header-with-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.export-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, #1ab69d 0%, #31b237 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(90deg, #18a38c 0%, #2a9e31 100%);
+}
+
+.export-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button svg {
+  font-size: 16px;
+}
+
+/* Ajuste responsivo */
+@media (max-width: 768px) {
+  .header-with-button {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .header-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .export-button,
+  .new-colaborador-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,371 @@
+.escalas-container {
+  display: flex;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.escalas-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f0f2f5;
+  margin-left: var(--sidebar-width);
+  overflow-y: auto;
+  height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+.calendar-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+/* Customização do calendário */
+.rbc-calendar {
+  font-family: inherit;
+}
+
+.rbc-header {
+  padding: 12px;
+  font-weight: 600;
+  background-color: #f5f5f5;
+  text-transform: capitalize;
+  font-size: 14px;
+}
+
+.rbc-month-view {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.rbc-month-header {
+  background-color: #fff;
+  border-bottom: 2px solid #4CAF50;
+}
+
+.rbc-toolbar {
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.rbc-toolbar-label {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  text-transform: capitalize;
+}
+
+.rbc-today {
+  background-color: #e8f5e9 !important;
+}
+
+.rbc-off-range-bg {
+  background-color: #f8f9fa;
+}
+
+.rbc-date-cell {
+  padding: 4px;
+  font-weight: 500;
+}
+
+.rbc-event {
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 13px;
+}
+
+.rbc-show-more {
+  color: #4CAF50;
+  font-weight: 500;
+}
+
+.rbc-toolbar button {
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.rbc-toolbar button:hover {
+  background-color: #f5f5f5;
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: #4CAF50;
+  color: white;
+  border-color: #4CAF50;
+}
+
+.rbc-month-row {
+  min-height: 100px;
+}
+
+/* Estilo para o mês atual */
+.rbc-month-view .rbc-month-header .rbc-header {
+  border-bottom: none;
+  color: #333;
+}
+
+/* Melhor visibilidade para eventos */
+.rbc-event {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Hover nos dias */
+.rbc-date-cell:hover {
+  background-color: #f5f5f5;
+  cursor: pointer;
+}
+
+/* Melhor visibilidade do dia atual */
+.rbc-today .rbc-date-cell {
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+/* Estilos para o formulário no modal */
+.form-group textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+/* Legenda dos tipos de evento */
+.calendar-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: white;
+  border-radius: 4px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.cards-container {
+  margin-bottom: 24px; /* Adiciona espaçamento entre o card e o calendário */
+}
+
+.card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card ul li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  color: #555;
+}
+
+.card ul li:last-child {
+  border-bottom: none;
+}
+
+.modal-content form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1; /* Ocupa toda a largura */
+}
+
+.modal-buttons {
+  grid-column: 1 / -1; /* Botões ocupam toda a largura */
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.escalas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.export-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, #1ab69d 0%, #31b237 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(90deg, #18a38c 0%, #2a9e31 100%);
+}
+
+.export-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button svg {
+  font-size: 16px;
+}
+
+/* Ajuste responsivo */
+@media (max-width: 768px) {
+  .escalas-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .header-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .export-button,
+  .add-event-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.add-event-btn {
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.add-event-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+}
+
+.add-event-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Adicionar o efeito de brilho */
+.add-event-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+}
+
+.add-event-btn:hover::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+/* Adicionar a animação de brilho se ainda não existir */
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+.add-event-btn svg {
+  font-size: 16px;
+} 

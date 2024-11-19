@@ -1,0 +1,892 @@
+:root {
+  --sidebar-width: 200px;
+}
+
+/* Quando o sidebar estiver recolhido */
+:root[data-sidebar-collapsed="true"] {
+  --sidebar-width: 64px; /* ou o tamanho que você usa quando o menu está recolhido */
+}
+
+.projetos-container {
+  display: flex;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.projetos-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f0f2f5;
+  margin-left: var(--sidebar-width);
+  overflow-y: auto;
+  height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+.header-container {
+  background-color: white;
+  padding: 15px 20px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  margin-bottom: 20px;
+}
+
+.header-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.content-container {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  padding: 20px;
+  min-height: calc(100vh - 140px);
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #737274;
+  margin-bottom: 24px;
+  margin-top: 8px;
+  position: relative;
+  padding-bottom: 12px;
+  display: inline-block;
+}
+
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #1a237e 0%, #3949ab 100%);
+  border-radius: 2px;
+}
+
+.header-with-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.export-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, #1ab69d 0%, #31b237 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(90deg, #18a38c 0%, #2a9e31 100%);
+}
+
+.export-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button svg {
+  font-size: 16px;
+}
+
+.new-project-btn {
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.new-project-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+}
+
+.new-project-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Efeito de brilho no hover */
+.new-project-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+}
+
+.new-project-btn:hover::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+/* Estilos do Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  width: 1000px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modal-content h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 24px;
+}
+
+/* Estilos do Formulário */
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #f9fafb;
+  color: #1f2937;
+  height: 45px;
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.form-group.half {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Botões do Modal */
+.modal-buttons {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.modal-buttons button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.cancel-btn {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
+.save-btn {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.cancel-btn:hover {
+  background-color: #e5e7eb;
+}
+
+.save-btn:hover {
+  background-color: #2563eb;
+}
+
+/* Scroll personalizado para o modal */
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
+/* Animação de entrada do modal */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-content {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+/* Estilos do Grid de Projetos */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  padding: 20px 0;
+}
+
+.project-card {
+  background-color: #fff;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  cursor: pointer;
+}
+
+/* Adicione o efeito de brilho */
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+  z-index: 2;
+}
+
+/* Adicione a camada de blur */
+.project-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+
+/* Estilo hover */
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.project-card:hover::after {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Efeito de brilho ao redor do card */
+.project-card:hover {
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+}
+
+/* Ajuste das cores do texto no hover - atualize esta parte */
+.project-card:hover h3,
+.project-card:hover .info-content {
+  color: white;
+}
+
+/* Mantenha a cor preta para os labels no hover */
+.project-card:hover .info-label {
+  color: #000;
+  font-weight: 500;
+}
+
+/* Mantenha o ícone em preto também para combinar com os labels */
+.project-card:hover .info-icon {
+  color: white;
+}
+
+/* Mantenha o badge de tipo de projeto legível */
+.project-card:hover .project-type-badge {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #1976d2;
+}
+
+/* Mantenha o badge de status legível */
+.project-card:hover .status-badge {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #2e7d32;
+}
+
+.project-card:hover .status-inativo {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #c62828;
+}
+
+/* Animação de brilho */
+.project-card:hover::before {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+/* Ajuste o botão de opções no hover */
+.project-card:hover .options-btn {
+  color: white;
+}
+
+.project-card:hover .options-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.project-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.project-card-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.project-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.options-btn {
+  background: none;
+  border: none;
+  color: #666;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.options-btn:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.project-type-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  align-self: flex-start;
+}
+
+.project-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.info-icon {
+  color: #666;
+  font-size: 16px;
+  margin-top: 4px;
+}
+
+.info-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.info-label {
+  color: #666;
+  font-weight: 500;
+}
+
+.project-status {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-inativo {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.edit-btn, .delete-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-right: 8px;
+  cursor: pointer;
+  border: none;
+}
+
+.edit-btn {
+  background-color: #2196F3;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #f44336;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background-color: #D32F2F !important;
+}
+
+.edit-btn:hover {
+  background-color: #1976D2;
+}
+
+/* Estilos específicos para o modal de exclusão */
+.delete-modal {
+  max-width: 400px;
+}
+
+.delete-modal h2 {
+  color: #f44336;
+  margin-bottom: 16px;
+}
+
+.delete-modal p {
+  color: #666;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.delete-modal .modal-buttons {
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.delete-modal .delete-btn {
+  background-color: #f44336;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-modal .delete-btn:hover {
+  background-color: #d32f2f;
+}
+
+/* Ajustes no layout do formulário do modal */
+.modal-content form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Ajuste para campos que devem ocupar linha inteira */
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Ajuste para campos que devem ocupar duas colunas */
+.form-group.two-columns {
+  grid-column: span 2;
+}
+
+/* Ajuste no tamanho do modal */
+.modal-content {
+  width: 1000px;  /* Aumenta a largura do modal */
+  max-width: 90%;
+  padding: 32px;
+}
+
+/* Ajuste na altura dos inputs para manter consistência */
+.form-group input,
+.form-group select {
+  height: 45px;
+}
+
+/* Atualize os estilos dos filtros */
+.filtros-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 24px 0;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.filtros-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.filtros-linha {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Primeira linha - Nome */
+.filtros-linha:first-child .filtro-grupo {
+  width: 100%;
+}
+
+/* Segunda linha - Demais filtros */
+.filtros-linha:nth-child(2) {
+  display: flex;
+  gap: 16px;
+}
+
+.filtros-linha:nth-child(2) .filtro-grupo {
+  flex: 1;
+  min-width: 150px;
+}
+
+.filtro-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filtro-grupo label {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.busca-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.busca-input-container input {
+  width: 100%;
+  padding: 8px 16px 8px 40px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+  height: 38px;
+}
+
+.busca-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 20px !important;
+}
+
+.limpar-filtros-btn {
+  align-self: flex-end;
+  height: 38px;
+  padding: 8px 16px;
+  background-color: transparent;
+  color: #f44336;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.limpar-filtros-btn:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+/* Ajustes no React Select */
+.react-select__control {
+  border-color: #e0e0e0 !important;
+  border-radius: 4px !important;
+  min-height: 38px !important;
+  background-color: white !important;
+}
+
+.react-select__placeholder {
+  color: #666 !important;
+}
+
+/* Ajuste responsivo */
+@media (max-width: 1200px) {
+  .filtros-linha:nth-child(2) {
+    flex-wrap: wrap;
+  }
+
+  .filtros-linha:nth-child(2) .filtro-grupo {
+    width: calc(33.33% - 11px);
+    flex: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .filtros-linha:nth-child(2) .filtro-grupo {
+    width: calc(50% - 8px);
+  }
+
+  .limpar-filtros-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .filtros-linha:nth-child(2) .filtro-grupo {
+    width: 100%;
+  }
+}
+
+/* Estilos para o modal de feedback */
+.feedback-modal {
+  max-width: 400px !important;
+  padding: 24px !important;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: auto;
+}
+
+.feedback-modal.success .feedback-icon {
+  color: #4CAF50;
+}
+
+.feedback-modal.error .feedback-icon {
+  color: #f44336;
+}
+
+.feedback-modal .feedback-icon {
+  font-size: 48px;
+}
+
+.feedback-modal .feedback-icon i {
+  font-size: 48px;
+}
+
+.feedback-modal p {
+  font-size: 16px;
+  color: #333;
+  margin: 16px 0;
+}
+
+.feedback-modal .ok-btn {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.feedback-modal .ok-btn:hover {
+  background-color: #1976D2;
+}
+
+.feedback-modal.success .ok-btn {
+  background-color: #4CAF50;
+}
+
+.feedback-modal.success .ok-btn:hover {
+  background-color: #45a049;
+}
+
+.feedback-modal.error .ok-btn {
+  background-color: #f44336;
+}
+
+.feedback-modal.error .ok-btn:hover {
+  background-color: #d32f2f;
+}
+
+/* Ajuste responsivo */
+@media (max-width: 768px) {
+  .header-with-button {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .header-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .export-button,
+  .new-project-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
