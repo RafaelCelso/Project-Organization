@@ -2605,7 +2605,7 @@
   }
   
   .export-button,
-  .add-project-btn {
+  .add-task-btn {
     width: 100%;
     justify-content: center;
   }
@@ -5775,7 +5775,8 @@
   }
   
   .export-button,
-  .add-project-btn {
+  .add-project-btn,
+  .add-task-btn {
     width: 100%;
     justify-content: center;
   }

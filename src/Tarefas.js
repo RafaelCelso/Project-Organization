@@ -2498,6 +2498,10 @@ function Tarefas() {
               <FontAwesomeIcon icon={faPlus} />
               Adicionar Projeto
             </button>
+            <button className="add-task-btn" onClick={handleAddTask}>
+              <FontAwesomeIcon icon={faPlus} />
+              Nova Tarefa
+            </button>
           </div>
         </div>
 
