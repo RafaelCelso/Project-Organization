@@ -424,21 +424,56 @@
 }
 
 .add-task-btn {
-  background: none;
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  color: white;
+  padding: 8px 16px; /* Reduzido de 12px 24px para 8px 16px */
   border: none;
-  color: #4caf50;
+  border-radius: 8px;
   cursor: pointer;
-  padding: 4px 8px;
-  font-size: 16px;
-  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
 }
 
 .add-task-btn:hover {
-  background-color: rgba(76, 175, 80, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+}
+
+.add-task-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Efeito de brilho no hover */
+.add-task-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+}
+
+.add-task-btn:hover::before {
+  animation: shimmer 1.5s ease-in-out;
 }
 
 .column-actions {
@@ -2520,6 +2555,62 @@
   margin-bottom: 24px;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.export-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, #1ab69d 0%, #31b237 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(90deg, #18a38c 0%, #2a9e31 100%);
+}
+
+.export-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button svg {
+  font-size: 16px;
+}
+
+/* Ajuste responsivo */
+@media (max-width: 768px) {
+  .header-with-button {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .header-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .export-button,
+  .add-task-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .add-project-btn {
   background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
   color: white;
@@ -3119,7 +3210,7 @@
 
 .filtro-grupo {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 6px;
 }
 

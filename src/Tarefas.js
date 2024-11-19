@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEllipsisV, faClipboardList, faUser, faCalendarAlt, faExclamationTriangle, faSpinner, faCheckCircle, faProjectDiagram, faComment, faImage, faDownload, faSearch, faFilter, faTimes, faTag, faTrash, faHistory, faPen, faExchange } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEllipsisV, faClipboardList, faUser, faCalendarAlt, faExclamationTriangle, faSpinner, faCheckCircle, faProjectDiagram, faComment, faImage, faDownload, faSearch, faFilter, faTimes, faTag, faTrash, faHistory, faPen, faExchange, faFileExcel } from '@fortawesome/free-solid-svg-icons';
 import Sidebar from './Sidebar';
 import './Tarefas.css';
 import { format } from 'date-fns';
@@ -9,6 +9,7 @@ import { useLocation } from 'react-router-dom'; // Adicione este import
 import { db } from './firebaseConfig'; // Ao invés de '../firebase'
 import { collection, getDocs, addDoc, query, where, deleteDoc, doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import Select from 'react-select';
+import * as XLSX from 'xlsx';
 
 const initialTasks = {
   todo: [
@@ -2415,18 +2416,89 @@ function Tarefas() {
     loadUnreadMessages();
   }, [selectedProject?.id]);
 
+  // Adicione esta função antes do return do componente
+  const exportToExcel = () => {
+    try {
+      // Prepara os dados para exportação
+      const data = Object.entries(tasks).flatMap(([status, tarefas]) => 
+        tarefas.map(task => ({
+          'ID': task.taskId || '',
+          'Título': task.titulo || '',
+          'Descrição': task.content || '',
+          'Status': getStatusDisplay(status),
+          'Projeto': selectedProject?.nome || '',
+          'Responsável': Array.isArray(task.responsavel) 
+            ? task.responsavel.join(', ') 
+            : task.responsavel || '',
+          'Prioridade': task.prioridade || '',
+          'Data Início': task.dataInicio || '',
+          'Data Conclusão': task.dataConclusao || '',
+          'Número Chamado': task.numeroChamado || '',
+          'Tags': task.tags?.map(tag => tag.texto).join(', ') || '',
+          'Progresso': task.progresso || '',
+          'Tópicos Total': task.testes?.length || 0,
+          'Tópicos Concluídos': task.testes?.filter(t => t.concluido).length || 0,
+          'Data Criação': task.createdAt 
+            ? format(new Date(task.createdAt), 'dd/MM/yyyy HH:mm')
+            : '',
+          'Última Atualização': task.updatedAt 
+            ? format(new Date(task.updatedAt), 'dd/MM/yyyy HH:mm')
+            : ''
+        }))
+      );
+
+      // Cria uma nova planilha
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Tarefas");
+
+      // Ajusta a largura das colunas
+      const colWidths = [
+        { wch: 10 },  // ID
+        { wch: 40 },  // Título
+        { wch: 50 },  // Descrição
+        { wch: 15 },  // Status
+        { wch: 30 },  // Projeto
+        { wch: 30 },  // Responsável
+        { wch: 15 },  // Prioridade
+        { wch: 15 },  // Data Início
+        { wch: 15 },  // Data Conclusão
+        { wch: 15 },  // Número Chamado
+        { wch: 30 },  // Tags
+        { wch: 15 },  // Progresso
+        { wch: 15 },  // Tópicos Total
+        { wch: 15 },  // Tópicos Concluídos
+        { wch: 20 },  // Data Criação
+        { wch: 20 },  // Última Atualização
+      ];
+      ws['!cols'] = colWidths;
+
+      // Gera o arquivo e faz o download
+      const fileName = `tarefas_${format(new Date(), 'dd-MM-yyyy_HH-mm')}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+    } catch (error) {
+      console.error('Erro ao exportar para Excel:', error);
+      alert('Erro ao exportar os dados. Por favor, tente novamente.');
+    }
+  };
+
+  // No return do componente, atualize a estrutura do header
   return (
     <div className="tarefas-container">
       <Sidebar />
       <div className="tarefas-content">
         <div className="header-with-button">
           <h1 className="page-title">Tarefas</h1>
-          <button 
-            className="add-project-btn"
-            onClick={handleOpenAddProjectModal}
-          >
-            <FontAwesomeIcon icon={faPlus} /> Adicionar Projeto
-          </button>
+          <div className="header-buttons">
+            <button className="export-button" onClick={exportToExcel}>
+              <FontAwesomeIcon icon={faFileExcel} />
+              Exportar para Excel
+            </button>
+            <button className="add-task-btn" onClick={handleAddTask}>
+              <FontAwesomeIcon icon={faPlus} />
+              Nova Tarefa
+            </button>
+          </div>
         </div>
 
         {renderFiltrosProjetos()}

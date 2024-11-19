@@ -9,9 +9,10 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Sidebar from './Sidebar';
 import './Escalas.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt, faUser, faClock, faStickyNote } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarAlt, faUser, faClock, faStickyNote, faFileExcel } from '@fortawesome/free-solid-svg-icons';
 import { addDoc, collection, getDocs, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
+import * as XLSX from 'xlsx';
 
 const locales = {
   'pt-BR': ptBR,
@@ -282,15 +283,62 @@ function Escalas() {
     setIsModalOpen(true);
   };
 
+  const exportToExcel = () => {
+    try {
+      // Prepara os dados para exportação
+      const data = eventos.map(evento => ({
+        'Título': evento.title,
+        'Colaborador': evento.colaborador 
+          ? colaboradores.find(c => c.id === evento.colaborador)?.nome || 'Não definido'
+          : 'Não definido',
+        'Tipo': tiposEvento.find(t => t.id === parseInt(evento.tipo))?.nome || 'Não definido',
+        'Data Início': format(new Date(evento.start), 'dd/MM/yyyy HH:mm'),
+        'Data Fim': format(new Date(evento.end), 'dd/MM/yyyy HH:mm'),
+        'Observação': evento.observacao || '',
+        'Status': new Date(evento.end) < new Date() ? 'Concluído' : 'Pendente'
+      }));
+
+      // Cria uma nova planilha
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Escalas");
+
+      // Ajusta a largura das colunas
+      const colWidths = [
+        { wch: 40 },  // Título
+        { wch: 30 },  // Colaborador
+        { wch: 15 },  // Tipo
+        { wch: 20 },  // Data Início
+        { wch: 20 },  // Data Fim
+        { wch: 50 },  // Observação
+        { wch: 15 },  // Status
+      ];
+      ws['!cols'] = colWidths;
+
+      // Gera o arquivo e faz o download
+      const fileName = `escalas_${format(new Date(), 'dd-MM-yyyy_HH-mm')}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+    } catch (error) {
+      console.error('Erro ao exportar para Excel:', error);
+      alert('Erro ao exportar os dados. Por favor, tente novamente.');
+    }
+  };
+
   return (
     <div className="escalas-container">
       <Sidebar />
       <div className="escalas-content">
         <div className="escalas-header">
           <h1 className="page-title">Escalas</h1>
-          <button className="add-event-btn" onClick={handleAddEvent}>
-            <FontAwesomeIcon icon={faCalendarAlt} /> Adicionar Evento
-          </button>
+          <div className="header-buttons">
+            <button className="export-button" onClick={exportToExcel}>
+              <FontAwesomeIcon icon={faFileExcel} />
+              Exportar para Excel
+            </button>
+            <button className="add-event-btn" onClick={handleAddEvent}>
+              <FontAwesomeIcon icon={faCalendarAlt} /> Adicionar Evento
+            </button>
+          </div>
         </div>
         
         <div className="cards-container">

@@ -15,7 +15,9 @@ import {
 import { db } from './firebaseConfig';
 import Select from 'react-select';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import * as XLSX from 'xlsx';
+import { format } from 'date-fns';
 
 function Colaboradores() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -458,19 +460,70 @@ function Colaboradores() {
     fetchProjetos();
   }, []);
 
+  const exportToExcel = () => {
+    try {
+      // Prepara os dados para exportação
+      const data = colaboradores.map(colaborador => ({
+        'ID': colaborador.id,
+        'Nome': colaborador.nome,
+        'Cargo': colaborador.cargo || 'Não definido',
+        'Status': colaborador.status || 'Não definido',
+        'Projetos': Array.isArray(colaborador.projeto) 
+          ? colaborador.projeto.sort().join(', ') 
+          : 'Nenhum projeto',
+        'Data Criação': colaborador.createdAt 
+          ? format(new Date(colaborador.createdAt), 'dd/MM/yyyy HH:mm')
+          : 'Não definido',
+        'Última Atualização': colaborador.updatedAt
+          ? format(new Date(colaborador.updatedAt), 'dd/MM/yyyy HH:mm')
+          : 'Não definido'
+      }));
+
+      // Cria uma nova planilha
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Colaboradores");
+
+      // Ajusta a largura das colunas
+      const colWidths = [
+        { wch: 10 },  // ID
+        { wch: 30 },  // Nome
+        { wch: 15 },  // Cargo
+        { wch: 15 },  // Status
+        { wch: 50 },  // Projetos
+        { wch: 20 },  // Data Criação
+        { wch: 20 },  // Última Atualização
+      ];
+      ws['!cols'] = colWidths;
+
+      // Gera o arquivo e faz o download
+      const fileName = `colaboradores_${format(new Date(), 'dd-MM-yyyy_HH-mm')}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+    } catch (error) {
+      console.error('Erro ao exportar para Excel:', error);
+      alert('Erro ao exportar os dados. Por favor, tente novamente.');
+    }
+  };
+
   return (
     <div className="colaboradores-container">
       <Sidebar />
       <div className="colaboradores-content">
         <div className="header-with-button">
           <h1 className="page-title">Colaboradores</h1>
-          <button 
-            className="new-colaborador-btn"
-            onClick={handleNewColaborador}
-          >
-            <FontAwesomeIcon icon={faPlus} />
-            Novo Colaborador
-          </button>
+          <div className="header-buttons">
+            <button className="export-button" onClick={exportToExcel}>
+              <FontAwesomeIcon icon={faFileExcel} />
+              Exportar para Excel
+            </button>
+            <button 
+              className="new-colaborador-btn"
+              onClick={handleNewColaborador}
+            >
+              <FontAwesomeIcon icon={faPlus} />
+              Novo Colaborador
+            </button>
+          </div>
         </div>
 
         <div className="filtros-section">

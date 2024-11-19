@@ -14,12 +14,15 @@ import {
   faSearch,
   faTimes,
   faPlus,
+  faFileExcel,
 } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "./Sidebar";
 import "./Projetos.css";
 import { db } from './firebaseConfig';
 import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import Select from 'react-select';
+import * as XLSX from 'xlsx';
+import { format } from 'date-fns';
 
 function Projetos() {
   const navigate = useNavigate();
@@ -506,16 +509,92 @@ function Projetos() {
     aplicarFiltros();
   }, [projetos, filtros]);
 
+  // Adicione esta função antes do return do componente
+  const exportToExcel = () => {
+    try {
+      // Prepara os dados para exportação
+      const data = projetos.map(projeto => ({
+        'ID': projeto.id,
+        'Nome': projeto.nome,
+        'Tipo': projeto.tipo || 'Não definido',
+        'Status': projeto.status || 'Não definido',
+        'Cliente': projeto.cliente || 'Não definido',
+        'Email Cliente': projeto.contatoCliente?.email || 'Não definido',
+        'Telefone Cliente': projeto.contatoCliente?.telefone || 'Não definido',
+        'Analista Principal': projeto.analistaPrincipal?.map(a => a.label).join(', ') || 'Não definido',
+        'Analista Backup': projeto.analistaBackup?.map(a => a.label).join(', ') || 'Não definido',
+        'Desenvolvedor Principal': projeto.desenvolvedorPrincipal?.map(d => d.label).join(', ') || 'Não definido',
+        'Desenvolvedor Backup': projeto.desenvolvedorBackup?.map(d => d.label).join(', ') || 'Não definido',
+        'Supervisor Principal': projeto.supervisorPrincipal?.map(s => s.label).join(', ') || 'Não definido',
+        'Supervisor Backup': projeto.supervisorBackup?.map(s => s.label).join(', ') || 'Não definido',
+        'Data Criação': projeto.dataCriacao ? format(new Date(projeto.dataCriacao), 'dd/MM/yyyy HH:mm') : 'Não definido',
+        'Total Tarefas': Object.values(projeto.kanban || {}).flat().length,
+        'Tarefas A Definir': projeto.kanban?.aDefinir?.length || 0,
+        'Tarefas A Fazer': projeto.kanban?.todo?.length || 0,
+        'Tarefas Em Andamento': projeto.kanban?.inProgress?.length || 0,
+        'Tarefas Em Teste': projeto.kanban?.testing?.length || 0,
+        'Tarefas Pronto Deploy': projeto.kanban?.prontoDeploy?.length || 0,
+        'Tarefas Concluídas': projeto.kanban?.done?.length || 0,
+        'Tarefas Arquivadas': projeto.kanban?.arquivado?.length || 0,
+      }));
+
+      // Cria uma nova planilha
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Projetos");
+
+      // Ajusta a largura das colunas
+      const colWidths = [
+        { wch: 10 },  // ID
+        { wch: 30 },  // Nome
+        { wch: 15 },  // Tipo
+        { wch: 15 },  // Status
+        { wch: 30 },  // Cliente
+        { wch: 30 },  // Email Cliente
+        { wch: 20 },  // Telefone Cliente
+        { wch: 30 },  // Analista Principal
+        { wch: 30 },  // Analista Backup
+        { wch: 30 },  // Desenvolvedor Principal
+        { wch: 30 },  // Desenvolvedor Backup
+        { wch: 30 },  // Supervisor Principal
+        { wch: 30 },  // Supervisor Backup
+        { wch: 20 },  // Data Criação
+        { wch: 15 },  // Total Tarefas
+        { wch: 15 },  // Tarefas A Definir
+        { wch: 15 },  // Tarefas A Fazer
+        { wch: 15 },  // Tarefas Em Andamento
+        { wch: 15 },  // Tarefas Em Teste
+        { wch: 15 },  // Tarefas Pronto Deploy
+        { wch: 15 },  // Tarefas Concluídas
+        { wch: 15 },  // Tarefas Arquivadas
+      ];
+      ws['!cols'] = colWidths;
+
+      // Gera o arquivo e faz o download
+      const fileName = `projetos_${format(new Date(), 'dd-MM-yyyy_HH-mm')}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+    } catch (error) {
+      console.error('Erro ao exportar para Excel:', error);
+      alert('Erro ao exportar os dados. Por favor, tente novamente.');
+    }
+  };
+
   return (
     <div className="projetos-container">
       <Sidebar />
       <div className="projetos-content">
         <div className="header-with-button">
           <h1 className="page-title">Projetos</h1>
-          <button className="new-project-btn" onClick={handleNewProject}>
-            <FontAwesomeIcon icon={faPlus} />
-            Novo Projeto
-          </button>
+          <div className="header-buttons">
+            <button className="export-button" onClick={exportToExcel}>
+              <FontAwesomeIcon icon={faFileExcel} />
+              Exportar para Excel
+            </button>
+            <button className="new-project-btn" onClick={handleNewProject}>
+              <FontAwesomeIcon icon={faPlus} />
+              Novo Projeto
+            </button>
+          </div>
         </div>
 
         {renderFiltros()}
