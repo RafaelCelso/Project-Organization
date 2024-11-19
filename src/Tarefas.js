@@ -2494,9 +2494,9 @@ function Tarefas() {
               <FontAwesomeIcon icon={faFileExcel} />
               Exportar para Excel
             </button>
-            <button className="add-task-btn" onClick={handleAddTask}>
+            <button className="add-project-btn" onClick={handleOpenAddProjectModal}>
               <FontAwesomeIcon icon={faPlus} />
-              Nova Tarefa
+              Adicionar Projeto
             </button>
           </div>
         </div>
