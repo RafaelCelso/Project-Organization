@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "./Sidebar";
 import './Colaboradores.css';
 import { 
   collection, 
@@ -507,7 +506,6 @@ function Colaboradores() {
 
   return (
     <div className="colaboradores-container">
-      <Sidebar />
       <div className="colaboradores-content">
         <div className="header-with-button">
           <h1 className="page-title">Colaboradores</h1>

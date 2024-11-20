@@ -6,7 +6,6 @@ import startOfWeek from 'date-fns/startOfWeek';
 import getDay from 'date-fns/getDay';
 import ptBR from 'date-fns/locale/pt-BR';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import Sidebar from './Sidebar';
 import './Escalas.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faUser, faClock, faStickyNote, faFileExcel } from '@fortawesome/free-solid-svg-icons';
@@ -326,7 +325,6 @@ function Escalas() {
 
   return (
     <div className="escalas-container">
-      <Sidebar />
       <div className="escalas-content">
         <div className="escalas-header">
           <h1 className="page-title">Escalas</h1>

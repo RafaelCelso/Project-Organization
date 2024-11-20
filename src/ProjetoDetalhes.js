@@ -5,7 +5,6 @@ import {
   faArrowLeft, faUsers, faBuilding, faInfoCircle, faEdit,
   faProjectDiagram, faUser, faEnvelope, faPhone, faToggleOn
 } from '@fortawesome/free-solid-svg-icons';
-import Sidebar from './Sidebar';
 import './ProjetoDetalhes.css';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
@@ -119,7 +118,6 @@ function ProjetoDetalhes() {
 
   return (
     <div className="projeto-detalhes-container">
-      <Sidebar />
       <div className="projeto-detalhes-content">
         <div className="projeto-header">
           <button className="voltar-btn" onClick={() => navigate('/projetos')}>

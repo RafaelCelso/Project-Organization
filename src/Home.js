@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "./Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendarAlt,
@@ -3029,7 +3028,6 @@ function Home() {
 
   return (
     <div className="home-container">
-      <Sidebar />
       <div className="home-content">
         <div className="page-header">
           <h1 className="page-title">Início</h1>

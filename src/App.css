@@ -1,5 +1,6 @@
 .App {
-  text-align: center;
+  display: flex;
+  min-height: 100vh;
 }
 
 .App-logo {
@@ -35,4 +36,23 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 200px;
+  transition: margin-left 0.3s ease;
+  width: calc(100% - 200px);
+  background-color: #f0f2f5;
+}
+
+[data-sidebar-collapsed="true"] .main-content {
+  margin-left: 60px;
+  width: calc(100% - 60px);
+}
+
+/* Ajuste para a página de login */
+.login-page {
+  margin-left: 0;
+  width: 100%;
 }

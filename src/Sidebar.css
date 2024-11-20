@@ -1,8 +1,8 @@
 .sidebar {
   width: 200px;
   height: 100vh;
-  background-color: #fff; /* Cor de fundo branca */
-  color: black; /* Cor da fonte preta */
+  background-color: #fff;
+  color: black;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -11,6 +11,7 @@
   top: 0;
   transition: width 0.3s;
   overflow: hidden;
+  z-index: 1000;
 }
 
 .sidebar.collapsed {
@@ -20,25 +21,6 @@
 .sidebar-logo {
   width: 80%;
   margin: 20px 0;
-}
-
-.toggle-btn {
-  position: fixed;
-  left: 200px; /* Ajuste conforme necessário */
-  top: 10px;
-  background: #333;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-  z-index: 1000;
-  transition: left 0.3s;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
-}
-
-.sidebar.collapsed + .toggle-btn {
-  left: 60px; /* Ajuste conforme necessário */
 }
 
 ul {
@@ -55,17 +37,17 @@ li {
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
   box-sizing: border-box;
-  color: black; /* Cor da fonte preta */
+  color: black;
 }
 
 li:hover {
-  background-color: #41B9A0; /* Cor do hover */
-  color: white; /* Cor da fonte no hover */
+  background-color: #41B9A0;
+  color: white;
 }
 
 li.active {
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);; /* Cor do menu ativo */
-  color: white; /* Cor da fonte no menu ativo */
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  color: white;
 }
 
 li span {
@@ -74,5 +56,5 @@ li span {
 }
 
 li svg {
-  color: inherit; /* Herda a cor do texto */
+  color: inherit;
 }

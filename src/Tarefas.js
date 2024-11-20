@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEllipsisV, faClipboardList, faUser, faCalendarAlt, faExclamationTriangle, faSpinner, faCheckCircle, faProjectDiagram, faComment, faImage, faDownload, faSearch, faFilter, faTimes, faTag, faTrash, faHistory, faPen, faExchange, faFileExcel } from '@fortawesome/free-solid-svg-icons';
-import Sidebar from './Sidebar';
 import './Tarefas.css';
 import { format } from 'date-fns';
 import { useLocation } from 'react-router-dom'; // Adicione este import
@@ -2482,10 +2481,8 @@ function Tarefas() {
     }
   };
 
-  // No return do componente, atualize a estrutura do header
   return (
     <div className="tarefas-container">
-      <Sidebar />
       <div className="tarefas-content">
         <div className="header-with-button">
           <h1 className="page-title">Tarefas</h1>

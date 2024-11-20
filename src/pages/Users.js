@@ -1,19 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faFileExcel } from '@fortawesome/free-solid-svg-icons';
+import { 
+  collection, 
+  getDocs, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc,
+  serverTimestamp 
+} from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 import './Users.css';
 
 function Users() {
-  const [users, setUsers] = useState([
-    { id: 1, nome: 'João Silva', email: 'joao@exemplo.com', cargo: 'Desenvolvedor', status: 'Ativo' },
-    { id: 2, nome: 'Maria Santos', email: 'maria@exemplo.com', cargo: 'Designer', status: 'Ativo' },
-    { id: 3, nome: 'Pedro Oliveira', email: 'pedro@exemplo.com', cargo: 'Gerente', status: 'Inativo' },
-  ]);
-
+  const [users, setUsers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [colaboradores, setColaboradores] = useState([]);
   const [formData, setFormData] = useState({
     id: null,
     nome: '',
@@ -21,12 +28,64 @@ function Users() {
     cargo: '',
     status: '',
     senha: '',
-    confirmarSenha: ''
+    confirmarSenha: '',
+    colaboradorId: ''
   });
+
+  // Carregar usuários
+  const loadUsers = async () => {
+    try {
+      setIsLoading(true);
+      const usersRef = collection(db, 'users');
+      const snapshot = await getDocs(usersRef);
+      const usersData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setUsers(usersData);
+    } catch (error) {
+      console.error("Erro ao carregar usuários:", error);
+      // Aqui você pode adicionar uma notificação de erro
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Atualizar função para carregar colaboradores com ordenação
+  const loadColaboradores = async () => {
+    try {
+      const colaboradoresRef = collection(db, 'colaboradores');
+      const snapshot = await getDocs(colaboradoresRef);
+      const colaboradoresData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        nome: doc.data().nome
+      }))
+      .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' })); // Ordenação alfabética
+      
+      setColaboradores(colaboradoresData);
+    } catch (error) {
+      console.error("Erro ao carregar colaboradores:", error);
+    }
+  };
+
+  // Atualizar useEffect para carregar colaboradores junto com usuários
+  useEffect(() => {
+    loadUsers();
+    loadColaboradores();
+  }, []);
 
   const handleEdit = (user) => {
     setIsEditing(true);
-    setFormData(user);
+    setFormData({
+      id: user.id,
+      nome: user.nome,
+      email: user.email,
+      cargo: user.cargo,
+      status: user.status,
+      senha: '',
+      confirmarSenha: '',
+      colaboradorId: user.colaboradorId
+    });
     setIsModalOpen(true);
   };
 
@@ -35,14 +94,63 @@ function Users() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleSubmit = (e) => {
+  const confirmDelete = async () => {
+    try {
+      if (!userToDelete?.id) return;
+      
+      await deleteDoc(doc(db, 'users', userToDelete.id));
+      await loadUsers(); // Recarrega a lista
+      setIsDeleteModalOpen(false);
+      setUserToDelete(null);
+      // Aqui você pode adicionar uma notificação de sucesso
+    } catch (error) {
+      console.error("Erro ao excluir usuário:", error);
+      // Aqui você pode adicionar uma notificação de erro
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Lógica para salvar/editar usuário
-    setIsModalOpen(false);
+
+    // Validação de senha
+    if (!isEditing && formData.senha !== formData.confirmarSenha) {
+      alert("As senhas não coincidem!");
+      return;
+    }
+
+    try {
+      const userData = {
+        nome: formData.nome,
+        email: formData.email,
+        cargo: formData.cargo,
+        status: formData.status,
+        updatedAt: serverTimestamp()
+      };
+
+      if (!isEditing) {
+        // Criando novo usuário
+        userData.senha = formData.senha; // Em produção, use hash
+        userData.createdAt = serverTimestamp();
+        await addDoc(collection(db, 'users'), userData);
+      } else {
+        // Atualizando usuário existente
+        const userRef = doc(db, 'users', formData.id);
+        if (formData.senha) {
+          userData.senha = formData.senha; // Em produção, use hash
+        }
+        await updateDoc(userRef, userData);
+      }
+
+      await loadUsers(); // Recarrega a lista
+      setIsModalOpen(false);
+      // Aqui você pode adicionar uma notificação de sucesso
+    } catch (error) {
+      console.error("Erro ao salvar usuário:", error);
+      // Aqui você pode adicionar uma notificação de erro
+    }
   };
 
   const handleNewUser = () => {
-    // Limpa o formulário e configura para criação
     setFormData({
       id: null,
       nome: '',
@@ -50,9 +158,10 @@ function Users() {
       cargo: '',
       status: '',
       senha: '',
-      confirmarSenha: ''
+      confirmarSenha: '',
+      colaboradorId: ''
     });
-    setIsEditing(false); // Garante que não está em modo de edição
+    setIsEditing(false);
     setIsModalOpen(true);
   };
 
@@ -94,9 +203,9 @@ function Users() {
               <label>Cargo</label>
               <select className="users-select">
                 <option value="">Todos os cargos</option>
+                <option value="Analista">Analista</option>
                 <option value="Desenvolvedor">Desenvolvedor</option>
-                <option value="Designer">Designer</option>
-                <option value="Gerente">Gerente</option>
+                <option value="Supervisor">Supervisor</option>
               </select>
             </div>
 
@@ -117,47 +226,54 @@ function Users() {
         </button>
       </div>
 
-      <div className="users-grid">
-        <table>
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>E-mail</th>
-              <th>Cargo</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map(user => (
-              <tr key={user.id}>
-                <td>{user.nome}</td>
-                <td>{user.email}</td>
-                <td>{user.cargo}</td>
-                <td className={`users-status-${user.status.toLowerCase()}`}>
-                  {user.status}
-                </td>
-                <td className="users-actions">
-                  <button 
-                    className="users-icon-button edit"
-                    onClick={() => handleEdit(user)}
-                    title="Editar"
-                  >
-                    <i className="material-icons">create</i>
-                  </button>
-                  <button 
-                    className="users-icon-button delete"
-                    onClick={() => handleDelete(user)}
-                    title="Excluir"
-                  >
-                    <i className="material-icons">delete_outline</i>
-                  </button>
-                </td>
+      {isLoading ? (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Carregando usuários...</p>
+        </div>
+      ) : (
+        <div className="users-grid">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Cargo</th>
+                <th>Status</th>
+                <th>Ações</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {users.map(user => (
+                <tr key={user.id}>
+                  <td>{user.nome}</td>
+                  <td>{user.email}</td>
+                  <td>{user.cargo}</td>
+                  <td className={`users-status-${user.status.toLowerCase()}`}>
+                    {user.status}
+                  </td>
+                  <td className="users-actions">
+                    <button 
+                      className="users-icon-button edit"
+                      onClick={() => handleEdit(user)}
+                      title="Editar"
+                    >
+                      <i className="material-icons">create</i>
+                    </button>
+                    <button 
+                      className="users-icon-button delete"
+                      onClick={() => handleDelete(user)}
+                      title="Excluir"
+                    >
+                      <i className="material-icons">delete_outline</i>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="users-modal-overlay">
@@ -196,6 +312,24 @@ function Users() {
               </div>
 
               <div className="users-form-group">
+                <label htmlFor="colaborador">Colaborador</label>
+                <select
+                  id="colaborador"
+                  name="colaboradorId"
+                  value={formData.colaboradorId}
+                  onChange={(e) => setFormData({...formData, colaboradorId: e.target.value})}
+                  required
+                >
+                  <option value="">Selecione um colaborador...</option>
+                  {colaboradores.map(colaborador => (
+                    <option key={colaborador.id} value={colaborador.id}>
+                      {colaborador.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="users-form-group">
                 <label htmlFor="cargo">Cargo</label>
                 <select
                   id="cargo"
@@ -205,9 +339,9 @@ function Users() {
                   required
                 >
                   <option value="">Selecione...</option>
+                  <option value="Analista">Analista</option>
                   <option value="Desenvolvedor">Desenvolvedor</option>
-                  <option value="Designer">Designer</option>
-                  <option value="Gerente">Gerente</option>
+                  <option value="Supervisor">Supervisor</option>
                 </select>
               </div>
 
@@ -283,9 +417,7 @@ function Users() {
               <button 
                 className="users-save-btn"
                 onClick={() => {
-                  // Lógica para excluir usuário
-                  setIsDeleteModalOpen(false);
-                  setUserToDelete(null);
+                  confirmDelete();
                 }}
               >
                 Confirmar Exclusão

@@ -1,26 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faProjectDiagram, faUsers, faCalendarAlt, faTasks, faUser, faSignOutAlt, faUserGroup } from '@fortawesome/free-solid-svg-icons';
+import ToggleButton from './components/ToggleButton';
 import './Sidebar.css';
-import logo from './logo.png'; // Importe a imagem
+import logo from './logo.png';
 
-function Sidebar() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+function Sidebar({ isCollapsed, onToggle }) {
   const navigate = useNavigate();
   const location = useLocation();
-
-  useEffect(() => {
-    // Atualiza o atributo no elemento root quando o estado muda
-    document.documentElement.setAttribute(
-      'data-sidebar-collapsed',
-      isCollapsed.toString()
-    );
-  }, [isCollapsed]);
-
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
 
   const handleLogout = () => {
     alert('Logout realizado!');
@@ -58,9 +46,7 @@ function Sidebar() {
           </li>
         </ul>
       </div>
-      <button onClick={toggleSidebar} className="toggle-btn">
-        {isCollapsed ? '>' : '<'}
-      </button>
+      <ToggleButton isCollapsed={isCollapsed} onClick={onToggle} />
     </>
   );
 }

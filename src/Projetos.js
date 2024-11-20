@@ -16,7 +16,6 @@ import {
   faPlus,
   faFileExcel,
 } from "@fortawesome/free-solid-svg-icons";
-import Sidebar from "./Sidebar";
 import "./Projetos.css";
 import { db } from './firebaseConfig';
 import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
@@ -581,7 +580,6 @@ function Projetos() {
 
   return (
     <div className="projetos-container">
-      <Sidebar />
       <div className="projetos-content">
         <div className="header-with-button">
           <h1 className="page-title">Projetos</h1>
