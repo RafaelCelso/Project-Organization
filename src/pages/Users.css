@@ -216,6 +216,8 @@
   display: flex;
   gap: 12px;
   justify-content: center;
+  align-items: center;
+  padding: 0 8px;
 }
 
 .users-icon-button {
@@ -471,4 +473,32 @@
   .users-filters-row {
     flex-direction: column;
   }
+}
+
+/* Ajuste do alinhamento das ações */
+.users-grid th:last-child,
+.users-grid td:last-child {
+  width: 120px; /* Largura fixa para a coluna de ações */
+  text-align: center;
+}
+
+/* Ajuste do tamanho da coluna de cada campo */
+.users-grid th:nth-child(1),
+.users-grid td:nth-child(1) {
+  width: 25%;
+}
+
+.users-grid th:nth-child(2),
+.users-grid td:nth-child(2) {
+  width: 30%;
+}
+
+.users-grid th:nth-child(3),
+.users-grid td:nth-child(3) {
+  width: 20%;
+}
+
+.users-grid th:nth-child(4),
+.users-grid td:nth-child(4) {
+  width: 15%;
 }

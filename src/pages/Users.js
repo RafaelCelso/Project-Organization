@@ -41,6 +41,21 @@ function Users() {
     setIsModalOpen(false);
   };
 
+  const handleNewUser = () => {
+    // Limpa o formulário e configura para criação
+    setFormData({
+      id: null,
+      nome: '',
+      email: '',
+      cargo: '',
+      status: '',
+      senha: '',
+      confirmarSenha: ''
+    });
+    setIsEditing(false); // Garante que não está em modo de edição
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="users-page-container">
       <div className="users-header">
@@ -50,7 +65,7 @@ function Users() {
             <FontAwesomeIcon icon={faFileExcel} />
             Exportar para Excel
           </button>
-          <button className="users-new-btn" onClick={() => setIsModalOpen(true)}>
+          <button className="users-new-btn" onClick={handleNewUser}>
             <FontAwesomeIcon icon={faPlus} />
             Novo Usuário
           </button>
@@ -211,34 +226,31 @@ function Users() {
                 </select>
               </div>
 
-              {isEditing && (
-                <>
-                  <div className="users-form-group">
-                    <label htmlFor="senha">Nova Senha</label>
-                    <input
-                      type="password"
-                      id="senha"
-                      name="senha"
-                      value={formData.senha}
-                      onChange={(e) => setFormData({...formData, senha: e.target.value})}
-                      placeholder="Digite para alterar a senha"
-                    />
-                    <small className="users-form-help">Deixe em branco para manter a senha atual</small>
-                  </div>
+              <div className="users-form-group">
+                <label htmlFor="senha">Senha</label>
+                <input
+                  type="password"
+                  id="senha"
+                  name="senha"
+                  value={formData.senha}
+                  onChange={(e) => setFormData({...formData, senha: e.target.value})}
+                  required={!isEditing} // Senha obrigatória apenas na criação
+                  placeholder="Digite a senha"
+                />
+              </div>
 
-                  <div className="users-form-group">
-                    <label htmlFor="confirmarSenha">Confirmar Nova Senha</label>
-                    <input
-                      type="password"
-                      id="confirmarSenha"
-                      name="confirmarSenha"
-                      value={formData.confirmarSenha}
-                      onChange={(e) => setFormData({...formData, confirmarSenha: e.target.value})}
-                      placeholder="Confirme a nova senha"
-                    />
-                  </div>
-                </>
-              )}
+              <div className="users-form-group">
+                <label htmlFor="confirmarSenha">Confirmar Senha</label>
+                <input
+                  type="password"
+                  id="confirmarSenha"
+                  name="confirmarSenha"
+                  value={formData.confirmarSenha}
+                  onChange={(e) => setFormData({...formData, confirmarSenha: e.target.value})}
+                  required={!isEditing} // Confirmação obrigatória apenas na criação
+                  placeholder="Confirme a senha"
+                />
+              </div>
 
               <div className="users-modal-buttons">
                 <button type="button" className="users-cancel-btn" onClick={() => setIsModalOpen(false)}>
