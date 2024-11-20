@@ -1,21 +1,87 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faKey, faCamera } from '@fortawesome/free-solid-svg-icons';
+import { getAuth, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 import './Perfil.css';
 
 function Perfil() {
   const [avatarUrl, setAvatarUrl] = useState('https://cdn-icons-png.flaticon.com/512/149/149071.png');
+  const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSenhaModalOpen, setIsSenhaModalOpen] = useState(false);
+  const [senhaForm, setSenhaForm] = useState({
+    senhaAtual: '',
+    novaSenha: '',
+    confirmarSenha: ''
+  });
   const fileInputRef = useRef(null);
-  
-  const userData = {
-    nome: 'João Silva',
-    email: 'joao.silva@exemplo.com',
-    cargo: 'Desenvolvedor Senior',
-    status: 'Ativo'
+
+  useEffect(() => {
+    carregarDadosUsuario();
+  }, []);
+
+  const carregarDadosUsuario = async () => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      if (!userInfo?.id) {
+        throw new Error('Informações do usuário não encontradas');
+      }
+
+      const userDoc = await getDoc(doc(db, 'users', userInfo.id));
+      if (userDoc.exists()) {
+        setUserData(userDoc.data());
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados do usuário:', error);
+      alert('Erro ao carregar dados do usuário');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAlterarSenha = () => {
-    alert('Funcionalidade de alteração de senha será implementada!');
+    setIsSenhaModalOpen(true);
+  };
+
+  const handleSenhaSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (senhaForm.novaSenha !== senhaForm.confirmarSenha) {
+      alert('As senhas não coincidem!');
+      return;
+    }
+
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      // Reautenticar o usuário
+      const credential = EmailAuthProvider.credential(
+        user.email,
+        senhaForm.senhaAtual
+      );
+      await reauthenticateWithCredential(user, credential);
+
+      // Atualizar a senha
+      await updatePassword(user, senhaForm.novaSenha);
+
+      alert('Senha alterada com sucesso!');
+      setIsSenhaModalOpen(false);
+      setSenhaForm({
+        senhaAtual: '',
+        novaSenha: '',
+        confirmarSenha: ''
+      });
+    } catch (error) {
+      console.error('Erro ao alterar senha:', error);
+      let mensagem = 'Erro ao alterar senha';
+      if (error.code === 'auth/wrong-password') {
+        mensagem = 'Senha atual incorreta';
+      }
+      alert(mensagem);
+    }
   };
 
   const handleAvatarClick = () => {
@@ -25,13 +91,11 @@ function Perfil() {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      // Verifica se o arquivo é uma imagem
       if (!file.type.startsWith('image/')) {
         alert('Por favor, selecione apenas arquivos de imagem.');
         return;
       }
 
-      // Verifica o tamanho do arquivo (limite de 5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert('A imagem deve ter no máximo 5MB.');
         return;
@@ -44,6 +108,10 @@ function Perfil() {
       reader.readAsDataURL(file);
     }
   };
+
+  if (isLoading) {
+    return <div className="loading">Carregando...</div>;
+  }
 
   return (
     <div className="perfil-container">
@@ -75,24 +143,24 @@ function Perfil() {
 
         <div className="perfil-info">
           <div className="info-group">
-            <label>Nome:</label>
-            <div className="info-value">{userData.nome}</div>
+            <label>Nome</label>
+            <div className="info-value">{userData?.nome}</div>
           </div>
 
           <div className="info-group">
-            <label>E-mail:</label>
-            <div className="info-value">{userData.email}</div>
+            <label>E-mail</label>
+            <div className="info-value">{userData?.email}</div>
           </div>
 
           <div className="info-group">
-            <label>Cargo:</label>
-            <div className="info-value">{userData.cargo}</div>
+            <label>Cargo</label>
+            <div className="info-value">{userData?.cargo}</div>
           </div>
 
           <div className="info-group">
-            <label>Status:</label>
+            <label>Status</label>
             <div className="info-value">
-              <span className="status-badge">{userData.status}</span>
+              <span className="status-badge">{userData?.status}</span>
             </div>
           </div>
 
@@ -107,6 +175,51 @@ function Perfil() {
           </div>
         </div>
       </div>
+
+      {isSenhaModalOpen && (
+        <div className="modal-overlay">
+          <div className="senha-modal-content">
+            <h2>Alterar Senha</h2>
+            <form onSubmit={handleSenhaSubmit}>
+              <div className="form-group">
+                <label>Senha Atual</label>
+                <input
+                  type="password"
+                  value={senhaForm.senhaAtual}
+                  onChange={(e) => setSenhaForm({...senhaForm, senhaAtual: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Nova Senha</label>
+                <input
+                  type="password"
+                  value={senhaForm.novaSenha}
+                  onChange={(e) => setSenhaForm({...senhaForm, novaSenha: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Confirmar Nova Senha</label>
+                <input
+                  type="password"
+                  value={senhaForm.confirmarSenha}
+                  onChange={(e) => setSenhaForm({...senhaForm, confirmarSenha: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="senha-modal-buttons">
+                <button type="button" onClick={() => setIsSenhaModalOpen(false)}>
+                  Cancelar
+                </button>
+                <button type="submit">
+                  Salvar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

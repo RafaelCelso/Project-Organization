@@ -8,10 +8,16 @@ import {
   updateDoc, 
   deleteDoc, 
   doc,
-  serverTimestamp 
+  serverTimestamp,
+  getDoc
 } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import './Users.css';
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword,
+  deleteUser as deleteAuthUser 
+} from 'firebase/auth';
 
 function Users() {
   const [users, setUsers] = useState([]);
@@ -98,14 +104,39 @@ function Users() {
     try {
       if (!userToDelete?.id) return;
       
+      // Buscar o documento do usuário para obter o authUid
+      const userDoc = await getDoc(doc(db, 'users', userToDelete.id));
+      const userData = userDoc.data();
+
+      // Se existir um authUid, deletar o usuário do Authentication
+      if (userData?.authUid) {
+        const auth = getAuth();
+        // Primeiro, precisamos buscar o usuário atual do Authentication
+        const currentUser = auth.currentUser;
+        
+        if (currentUser && currentUser.uid === userData.authUid) {
+          throw new Error("Não é possível excluir o usuário atualmente logado");
+        }
+
+        // Tentar deletar o usuário do Authentication
+        try {
+          // Nota: Isso pode requerer reautenticação em alguns casos
+          await deleteAuthUser(auth.currentUser);
+        } catch (authError) {
+          console.error("Erro ao deletar usuário do Authentication:", authError);
+          // Continue mesmo se falhar no Authentication
+        }
+      }
+
+      // Deletar do Firestore
       await deleteDoc(doc(db, 'users', userToDelete.id));
-      await loadUsers(); // Recarrega a lista
+      await loadUsers();
       setIsDeleteModalOpen(false);
       setUserToDelete(null);
-      // Aqui você pode adicionar uma notificação de sucesso
+      alert('Usuário excluído com sucesso!');
     } catch (error) {
       console.error("Erro ao excluir usuário:", error);
-      // Aqui você pode adicionar uma notificação de erro
+      alert(`Erro ao excluir usuário: ${error.message}`);
     }
   };
 
@@ -124,29 +155,37 @@ function Users() {
         email: formData.email,
         cargo: formData.cargo,
         status: formData.status,
+        colaboradorId: formData.colaboradorId,
         updatedAt: serverTimestamp()
       };
 
       if (!isEditing) {
-        // Criando novo usuário
-        userData.senha = formData.senha; // Em produção, use hash
+        // Criar usuário no Authentication primeiro
+        const auth = getAuth();
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          formData.email,
+          formData.senha
+        );
+
+        // Adicionar o UID do Authentication ao userData
+        userData.authUid = userCredential.user.uid;
         userData.createdAt = serverTimestamp();
+        
+        // Criar documento no Firestore
         await addDoc(collection(db, 'users'), userData);
       } else {
         // Atualizando usuário existente
         const userRef = doc(db, 'users', formData.id);
-        if (formData.senha) {
-          userData.senha = formData.senha; // Em produção, use hash
-        }
         await updateDoc(userRef, userData);
       }
 
-      await loadUsers(); // Recarrega a lista
+      await loadUsers();
       setIsModalOpen(false);
-      // Aqui você pode adicionar uma notificação de sucesso
+      alert(isEditing ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!');
     } catch (error) {
       console.error("Erro ao salvar usuário:", error);
-      // Aqui você pode adicionar uma notificação de erro
+      alert(`Erro ao ${isEditing ? 'atualizar' : 'criar'} usuário: ${error.message}`);
     }
   };
 
