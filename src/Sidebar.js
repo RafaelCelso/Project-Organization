@@ -1,18 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faProjectDiagram, faUsers, faCalendarAlt, faTasks, faUser, faSignOutAlt, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import ToggleButton from './components/ToggleButton';
+import LogoutModal from './components/LogoutModal';
 import './Sidebar.css';
 import logo from './logo.png';
 
 function Sidebar({ isCollapsed, onToggle }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const handleLogout = () => {
-    alert('Logout realizado!');
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    localStorage.removeItem('userInfo'); // Limpa os dados do usuário
+    setShowLogoutModal(false);
     navigate('/login');
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
   };
 
   const menuItems = [
@@ -40,13 +51,18 @@ function Sidebar({ isCollapsed, onToggle }) {
               {!isCollapsed && <span>{item.label}</span>}
             </li>
           ))}
-          <li onClick={handleLogout}>
+          <li onClick={handleLogoutClick}>
             <FontAwesomeIcon icon={faSignOutAlt} />
             {!isCollapsed && <span>Sair</span>}
           </li>
         </ul>
       </div>
       <ToggleButton isCollapsed={isCollapsed} onClick={onToggle} />
+      <LogoutModal 
+        isOpen={showLogoutModal}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
+      />
     </>
   );
 }

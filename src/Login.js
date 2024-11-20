@@ -82,10 +82,9 @@ function Login() {
 
       switch (error.code) {
         case "auth/user-not-found":
-          errorMessage = "Usuário não encontrado.";
-          break;
         case "auth/wrong-password":
-          errorMessage = "Senha incorreta.";
+        case "auth/invalid-credential":
+          errorMessage = "E-mail ou senha incorretos.";
           break;
         case "auth/invalid-email":
           errorMessage = "E-mail inválido.";
@@ -95,7 +94,7 @@ function Login() {
             "Muitas tentativas de login. Tente novamente mais tarde.";
           break;
         default:
-          errorMessage = error.message;
+          errorMessage = "Erro ao fazer login. Tente novamente.";
       }
 
       setError(errorMessage);
