@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faKey, faCamera } from '@fortawesome/free-solid-svg-icons';
 import { getAuth, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import './Perfil.css';
 
@@ -17,9 +17,32 @@ function Perfil() {
     confirmarSenha: ''
   });
   const fileInputRef = useRef(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    document.documentElement.getAttribute('data-sidebar-collapsed') === 'true'
+  );
+  const [senhaError, setSenhaError] = useState('');
+  const [confirmSenhaError, setConfirmSenhaError] = useState('');
 
   useEffect(() => {
     carregarDadosUsuario();
+
+    // Observer para mudanças no atributo data-sidebar-collapsed
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-sidebar-collapsed') {
+          setSidebarCollapsed(
+            document.documentElement.getAttribute('data-sidebar-collapsed') === 'true'
+          );
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-sidebar-collapsed']
+    });
+
+    return () => observer.disconnect();
   }, []);
 
   const carregarDadosUsuario = async () => {
@@ -47,9 +70,11 @@ function Perfil() {
 
   const handleSenhaSubmit = async (e) => {
     e.preventDefault();
+    setSenhaError('');
+    setConfirmSenhaError('');
     
     if (senhaForm.novaSenha !== senhaForm.confirmarSenha) {
-      alert('As senhas não coincidem!');
+      setConfirmSenhaError('As senhas não coincidem');
       return;
     }
 
@@ -57,14 +82,11 @@ function Perfil() {
       const auth = getAuth();
       const user = auth.currentUser;
 
-      // Reautenticar o usuário
       const credential = EmailAuthProvider.credential(
         user.email,
         senhaForm.senhaAtual
       );
       await reauthenticateWithCredential(user, credential);
-
-      // Atualizar a senha
       await updatePassword(user, senhaForm.novaSenha);
 
       alert('Senha alterada com sucesso!');
@@ -76,11 +98,11 @@ function Perfil() {
       });
     } catch (error) {
       console.error('Erro ao alterar senha:', error);
-      let mensagem = 'Erro ao alterar senha';
       if (error.code === 'auth/wrong-password') {
-        mensagem = 'Senha atual incorreta';
+        setSenhaError('Senha atual incorreta');
+      } else {
+        setSenhaError('Erro ao alterar senha. Tente novamente.');
       }
-      alert(mensagem);
     }
   };
 
@@ -114,7 +136,7 @@ function Perfil() {
   }
 
   return (
-    <div className="perfil-container">
+    <div className={`perfil-container ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <div className="perfil-header">
         <h1>Meu Perfil</h1>
       </div>
@@ -186,16 +208,24 @@ function Perfil() {
                 <input
                   type="password"
                   value={senhaForm.senhaAtual}
-                  onChange={(e) => setSenhaForm({...senhaForm, senhaAtual: e.target.value})}
+                  onChange={(e) => {
+                    setSenhaForm({...senhaForm, senhaAtual: e.target.value});
+                    setSenhaError('');
+                  }}
+                  className={senhaError ? 'input-error' : ''}
                   required
                 />
+                {senhaError && <div className="error-message">{senhaError}</div>}
               </div>
               <div className="form-group">
                 <label>Nova Senha</label>
                 <input
                   type="password"
                   value={senhaForm.novaSenha}
-                  onChange={(e) => setSenhaForm({...senhaForm, novaSenha: e.target.value})}
+                  onChange={(e) => {
+                    setSenhaForm({...senhaForm, novaSenha: e.target.value});
+                    setConfirmSenhaError('');
+                  }}
                   required
                 />
               </div>
@@ -204,9 +234,14 @@ function Perfil() {
                 <input
                   type="password"
                   value={senhaForm.confirmarSenha}
-                  onChange={(e) => setSenhaForm({...senhaForm, confirmarSenha: e.target.value})}
+                  onChange={(e) => {
+                    setSenhaForm({...senhaForm, confirmarSenha: e.target.value});
+                    setConfirmSenhaError('');
+                  }}
+                  className={confirmSenhaError ? 'input-error' : ''}
                   required
                 />
+                {confirmSenhaError && <div className="error-message">{confirmSenhaError}</div>}
               </div>
               <div className="senha-modal-buttons">
                 <button type="button" onClick={() => setIsSenhaModalOpen(false)}>

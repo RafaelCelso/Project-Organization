@@ -15,13 +15,16 @@ import './styles/global.css';
 function AppContent() {
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(
+    localStorage.getItem('sidebarCollapsed') === 'true'
+  );
 
   useEffect(() => {
     document.documentElement.setAttribute(
       'data-sidebar-collapsed',
       isCollapsed.toString()
     );
+    localStorage.setItem('sidebarCollapsed', isCollapsed);
   }, [isCollapsed]);
 
   const handleToggleSidebar = () => {
