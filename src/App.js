@@ -9,6 +9,7 @@ import Escalas from './Escalas';
 import Tarefas from './Tarefas';
 import ProjetoDetalhes from './ProjetoDetalhes';
 import Perfil from './pages/Perfil';
+import Users from './pages/Users';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/escalas" element={<Escalas />} />
           <Route path="/tarefas" element={<Tarefas />} />
           <Route path="/perfil" element={<Perfil />} />
+          <Route path="/usuarios" element={<Users />} />
         </Routes>
       </div>
     </Router>

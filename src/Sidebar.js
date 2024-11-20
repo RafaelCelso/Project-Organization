@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faProjectDiagram, faUsers, faCalendarAlt, faTasks, faChartBar, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faProjectDiagram, faUsers, faCalendarAlt, faTasks, faUser, faSignOutAlt, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import './Sidebar.css';
 import logo from './logo.png'; // Importe a imagem
 
@@ -33,7 +33,7 @@ function Sidebar() {
     { icon: faUsers, label: 'Colaboradores', path: '/colaboradores' },
     { icon: faCalendarAlt, label: 'Escalas', path: '/escalas' },
     { icon: faTasks, label: 'Tarefas', path: '/tarefas' },
-    { icon: faChartBar, label: 'Relatórios', path: '/relatorios' },
+    { icon: faUserGroup, label: 'Usuários', path: '/usuarios' },
     { icon: faUser, label: 'Perfil', path: '/perfil' },
   ];
 

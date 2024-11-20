@@ -1,5 +1,5 @@
 /* Importa os estilos base do Projetos.css */
-@import './Projetos.css';
+@import "./Projetos.css";
 
 /* Sobrescreve classes específicas se necessário */
 .colaboradores-container {
@@ -26,7 +26,7 @@
 .colaboradores-grid {
   background-color: white;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   margin-top: 20px;
   overflow-x: auto;
 }
@@ -66,7 +66,7 @@
 
 /* Botão de novo colaborador */
 .new-colaborador-btn {
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
   color: white;
   padding: 12px 24px;
   border: none;
@@ -85,9 +85,7 @@
 
 .new-colaborador-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 
-    0 4px 8px rgba(0, 0, 0, 0.15),
-    0 0 15px rgba(57, 73, 171, 0.3),
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 0 15px rgba(57, 73, 171, 0.3),
     0 0 30px rgba(65, 185, 160, 0.2);
 }
 
@@ -98,7 +96,7 @@
 
 /* Efeito de brilho no hover */
 .new-colaborador-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -130,21 +128,11 @@
 }
 
 .colaboradores-grid .edit-btn {
-  background-color: #2196F3;
-  color: white;
+  color: #2196f3;
 }
 
 .colaboradores-grid .delete-btn {
-  background-color: #f44336;
-  color: white;
-}
-
-.colaboradores-grid .edit-btn:hover {
-  background-color: #1976D2;
-}
-
-.colaboradores-grid .delete-btn:hover {
-  background-color: #D32F2F;
+  color: #f44336;
 }
 
 /* Status do colaborador */
@@ -153,7 +141,7 @@
 }
 
 .status-ativo {
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .status-inativo {
@@ -161,7 +149,7 @@
 }
 
 .status-ferias {
-  color: #FF9800;
+  color: #ff9800;
 }
 
 /* Responsividade */
@@ -181,7 +169,7 @@
   padding: 20px;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .filtros-container {
@@ -306,7 +294,7 @@
   }
 }
 
-/* Estilos para os ícones de ação */
+/* Estilos para os ícones de ação - sem hover */
 .acoes-column {
   display: flex;
   gap: 12px;
@@ -315,7 +303,7 @@
 }
 
 .icon-button {
-  background: none;
+  background: none !important; /* Força o background a permanecer transparente */
   border: none;
   padding: 8px;
   border-radius: 50%;
@@ -323,7 +311,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: none !important; /* Remove qualquer transição */
 }
 
 .icon-button i {
@@ -331,19 +319,22 @@
 }
 
 .edit-btn {
-  color: #2196F3;
-}
-
-.edit-btn:hover {
-  background-color: rgba(33, 150, 243, 0.1);
+  color: #2196f3 !important; /* Força a cor a permanecer constante */
 }
 
 .delete-btn {
-  color: white;
+  color: #f44336 !important; /* Força a cor a permanecer constante */
 }
 
+/* Remove explicitamente qualquer hover */
+.icon-button:hover,
+.edit-btn:hover,
 .delete-btn:hover {
-  background-color: rgba(244, 67, 54, 0.1);
+  background: none !important;
+  color: inherit !important;
+  transform: none !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
 }
 
 /* Remova os estilos anteriores do select-multiple e adicione os novos estilos para checkboxes */
@@ -375,7 +366,7 @@
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #2196F3;
+  accent-color: #2196f3;
 }
 
 /* Estilo para o container dos checkboxes no formulário */
@@ -435,11 +426,11 @@
 }
 
 .react-select__control:hover {
-  border-color: #2196F3 !important;
+  border-color: #2196f3 !important;
 }
 
 .react-select__control--is-focused {
-  border-color: #2196F3 !important;
+  border-color: #2196f3 !important;
   box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1) !important;
 }
 
@@ -450,19 +441,19 @@
 }
 
 .react-select__multi-value__label {
-  color: #2196F3 !important;
+  color: #2196f3 !important;
   font-size: 14px !important;
   padding: 2px 6px !important;
 }
 
 .react-select__multi-value__remove {
-  color: #2196F3 !important;
+  color: #2196f3 !important;
   padding: 0 4px !important;
   border-radius: 0 4px 4px 0 !important;
 }
 
 .react-select__multi-value__remove:hover {
-  background-color: #2196F3 !important;
+  background-color: #2196f3 !important;
   color: white !important;
 }
 
@@ -471,7 +462,7 @@
   border: 1px solid #e0e0e0 !important;
   border-radius: 6px !important;
   margin-top: 4px !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
 .react-select__option {
@@ -484,7 +475,7 @@
 }
 
 .react-select__option--is-selected {
-  background-color: #2196F3 !important;
+  background-color: #2196f3 !important;
   color: white !important;
 }
 
@@ -562,7 +553,7 @@
 }
 
 .feedback-modal.success .feedback-icon {
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .feedback-modal.error .feedback-icon {
@@ -584,7 +575,7 @@
 }
 
 .feedback-modal .ok-btn {
-  background-color: #2196F3;
+  background-color: #2196f3;
   color: white;
   border: none;
   padding: 8px 24px;
@@ -596,11 +587,11 @@
 }
 
 .feedback-modal .ok-btn:hover {
-  background-color: #1976D2;
+  background-color: #1976d2;
 }
 
 .feedback-modal.success .ok-btn {
-  background-color: #4CAF50;
+  background-color: #4caf50;
 }
 
 .feedback-modal.success .ok-btn:hover {
@@ -671,7 +662,7 @@
   padding: 40px;
   background-color: white;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   gap: 16px;
 }
 
@@ -691,8 +682,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Modal de exclusão também mantém tamanho menor */
@@ -714,13 +709,13 @@
 }
 
 .page-title::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(90deg, #41B9A0 0%, #3949ab 100%);
+  background: linear-gradient(90deg, #41b9a0 0%, #3949ab 100%);
   border-radius: 2px;
 }
 
@@ -780,7 +775,7 @@
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .export-button,
   .new-colaborador-btn {
     width: 100%;

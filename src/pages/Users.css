@@ -1,0 +1,474 @@
+/* Estilos específicos para a página de Usuários */
+.users-page-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  margin-left: 200px;
+  background-color: #f0f2f5;
+  min-height: 100vh;
+}
+
+.users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.users-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #737274;
+  margin-bottom: 24px;
+  margin-top: 8px;
+  position: relative;
+  padding-bottom: 12px;
+  display: inline-block;
+}
+
+.users-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #41B9A0 0%, #3949ab 100%);
+  border-radius: 2px;
+}
+
+.users-header-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.users-export-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, #1ab69d 0%, #31b237 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.users-new-btn {
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.users-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 24px 0;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.users-filters-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.users-filters-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.users-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.users-filter-group label {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.users-search-container {
+  position: relative;
+  width: 100%;
+}
+
+.users-search-container input {
+  width: 100%;
+  padding: 8px 16px 8px 40px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  height: 38px;
+}
+
+.users-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 20px;
+}
+
+.users-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  height: 38px;
+}
+
+.users-clear-filters {
+  height: 38px;
+  margin-top: 16px;
+  padding: 8px 16px;
+  background-color: transparent;
+  color: #f44336;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.users-clear-filters:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.users-clear-filters i {
+  font-size: 18px;
+}
+
+.users-grid {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.users-grid table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.users-grid th {
+  background-color: #f5f5f5;
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #ddd;
+}
+
+.users-grid td {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  color: #666;
+}
+
+.users-grid tr:hover {
+  background-color: #f9f9f9;
+}
+
+.users-status-ativo {
+  color: #4CAF50;
+  font-weight: 500;
+}
+
+.users-status-inativo {
+  color: #f44336;
+  font-weight: 500;
+}
+
+.users-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.users-icon-button {
+  background: none !important;
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: none !important;
+}
+
+.users-icon-button i {
+  font-size: 20px;
+}
+
+.users-icon-button.edit {
+  color: #2196F3 !important;
+}
+
+.users-icon-button.delete {
+  color: #f44336 !important;
+}
+
+.users-icon-button:hover,
+.users-icon-button.edit:hover,
+.users-icon-button.delete:hover {
+  background: none !important;
+  color: inherit !important;
+  transform: none !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+.users-icon-button:hover i,
+.users-icon-button.edit:hover i,
+.users-icon-button.delete:hover i {
+  color: inherit !important;
+}
+
+.users-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.users-modal {
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  width: 600px;
+  max-width: 90%;
+  position: relative;
+  opacity: 0;
+  animation: modalFadeIn 0.2s ease-out forwards;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.users-modal h2 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.users-close-btn {
+  position: absolute;
+  right: 24px;
+  top: 24px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.users-close-btn:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.users-form-group {
+  margin-bottom: 20px;
+}
+
+.users-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.users-form-group input,
+.users-form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.2s;
+  background-color: #fff;
+}
+
+.users-form-group input:focus,
+.users-form-group select:focus {
+  border-color: #41B9A0;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(65, 185, 160, 0.1);
+}
+
+.users-form-group input::placeholder {
+  color: #999;
+}
+
+.users-form-help {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+.users-modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.users-cancel-btn {
+  padding: 10px 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: white;
+  color: #666;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.users-cancel-btn:hover {
+  background-color: #f5f5f5;
+  border-color: #d0d0d0;
+}
+
+.users-save-btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.users-save-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.users-save-btn:active {
+  transform: translateY(0);
+}
+
+/* Animações do modal */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilo específico para o modal de exclusão */
+.users-delete-modal {
+  max-width: 400px;
+  text-align: center;
+}
+
+.users-delete-modal p {
+  color: #666;
+  margin-bottom: 24px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .users-modal {
+    padding: 24px;
+    margin: 20px;
+  }
+
+  .users-modal-buttons {
+    flex-direction: column-reverse;
+  }
+
+  .users-cancel-btn,
+  .users-save-btn {
+    width: 100%;
+    padding: 12px;
+  }
+}
+
+[data-sidebar-collapsed="true"] .users-page-container {
+  margin-left: 60px;
+}
+
+@media (max-width: 768px) {
+  .users-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .users-header-buttons {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  .users-filters-row {
+    flex-direction: column;
+  }
+}
