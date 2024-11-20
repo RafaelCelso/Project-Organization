@@ -17,31 +17,6 @@
   overflow-y: auto;
   height: 100vh;
   transition: all 0.3s ease;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
-}
-
-.tarefas-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.tarefas-content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.03);
-  border-radius: 100px;
-  margin: 4px 0;
-}
-
-.tarefas-content::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 100px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-
-.tarefas-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.25);
-  border: 2px solid transparent;
-  background-clip: padding-box;
 }
 
 .kanban-board {

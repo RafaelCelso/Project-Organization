@@ -1,0 +1,26 @@
+/* Estilo global para barras de rolagem */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #41B9A0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3949ab;
+}
+
+/* Estilo base para todos os containers principais */
+.tarefas-container,
+.colaboradores-container,
+.projeto-detalhes-container,
+.perfil-container {
+  overflow-y: auto;
+  height: 100vh;
+} 

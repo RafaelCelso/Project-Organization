@@ -9,27 +9,6 @@
   z-index: 1;
 }
 
-.perfil-container::-webkit-scrollbar {
-  width: 8px;
-}
-
-.perfil-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.perfil-container::-webkit-scrollbar-thumb {
-  background: #41B9A0;
-  border-radius: 4px;
-}
-
-.perfil-container::-webkit-scrollbar-thumb:hover {
-  background: #3949ab;
-}
-
-[data-sidebar-collapsed="true"] .perfil-container {
-  margin-left: 60px;
-}
-
 .perfil-header {
   display: flex;
   justify-content: space-between;

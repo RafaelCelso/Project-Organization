@@ -10,6 +10,7 @@ import Tarefas from './Tarefas';
 import ProjetoDetalhes from './ProjetoDetalhes';
 import Perfil from './pages/Perfil';
 import Users from './pages/Users';
+import './styles/global.css';
 
 function AppContent() {
   const location = useLocation();
