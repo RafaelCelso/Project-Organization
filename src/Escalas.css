@@ -171,7 +171,10 @@
 }
 
 .cards-container {
-  margin-bottom: 24px; /* Adiciona espaçamento entre o card e o calendário */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
 .card {
@@ -180,6 +183,7 @@
   padding: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
+  height: fit-content;
 }
 
 .card:hover {
@@ -204,16 +208,55 @@
 }
 
 .card ul li {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
+  padding: 12px 0;
   border-bottom: 1px solid #eee;
-  font-size: 14px;
-  color: #555;
 }
 
-.card ul li:last-child {
-  border-bottom: none;
+.evento-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.evento-titulo {
+  font-weight: 500;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.evento-datas {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #666;
+}
+
+.evento-datas span {
+  display: flex;
+  align-items: center;
+}
+
+/* Ajuste para o hover do card */
+.card:hover .evento-titulo {
+  color: white;
+}
+
+.card:hover .evento-datas {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Ajuste a altura mínima da lista para comportar 3 eventos */
+.card ul {
+  min-height: 200px;
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+  .evento-datas {
+    font-size: 11px;
+  }
 }
 
 .modal-content form {
@@ -368,4 +411,84 @@
 
 .add-event-btn svg {
   font-size: 16px;
+}
+
+/* Estilo específico para eventos vencidos */
+.card:nth-child(2) li {
+  color: #666; /* Cor mais suave para eventos vencidos */
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Adicione estes estilos ao arquivo CSS */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.pagination-btn {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  color: #333;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #f5f5f5;
+  border-color: #ccc;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Ajuste o espaçamento da lista para acomodar a paginação */
+.card ul {
+  min-height: 200px; /* Altura mínima para evitar "pulos" ao mudar de página */
+}
+
+/* Ajuste os estilos da paginação para mudar a cor no hover do card */
+.card:hover .pagination-btn {
+  color: white;
+  border-color: white;
+  background-color: transparent;
+}
+
+.card:hover .pagination-btn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.card:hover .pagination-btn:disabled {
+  color: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.card:hover .pagination-info {
+  color: white;
+}
+
+/* Ajuste a transição para ser mais suave */
+.pagination-btn,
+.pagination-info {
+  transition: all 0.2s ease;
 } 

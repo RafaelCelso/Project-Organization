@@ -80,6 +80,9 @@ function Escalas() {
   ]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [eventoToDelete, setEventoToDelete] = useState(null);
+  const [currentPageProximos, setCurrentPageProximos] = useState(1);
+  const [currentPageVencidos, setCurrentPageVencidos] = useState(1);
+  const eventsPerPage = 3;
 
   const handleSelect = ({ start, end }) => {
     const selectedStartDate = new Date(start);
@@ -323,6 +326,11 @@ function Escalas() {
     }
   };
 
+  const paginateEvents = (eventos, currentPage) => {
+    const startIndex = (currentPage - 1) * eventsPerPage;
+    return eventos.slice(startIndex, startIndex + eventsPerPage);
+  };
+
   return (
     <div className="escalas-container">
       <div className="escalas-content">
@@ -343,24 +351,113 @@ function Escalas() {
           <div className="card">
             <h2><FontAwesomeIcon icon={faCalendarAlt} /> Próximos Eventos</h2>
             <ul>
-              {eventos
-                .filter(evento => {
+              {paginateEvents(
+                eventos
+                  .filter(evento => {
+                    const hoje = new Date();
+                    const eventoData = new Date(evento.start);
+                    
+                    const mesmoMes = eventoData.getMonth() === hoje.getMonth();
+                    const mesmoAno = eventoData.getFullYear() === hoje.getFullYear();
+                    
+                    hoje.setHours(0, 0, 0, 0);
+                    eventoData.setHours(0, 0, 0, 0);
+                    
+                    return mesmoMes && mesmoAno && eventoData >= hoje;
+                  })
+                  .sort((a, b) => new Date(a.start) - new Date(b.start)),
+                currentPageProximos
+              ).map(evento => (
+                <li key={evento.id}>
+                  <div className="evento-info">
+                    <span className="evento-titulo">{evento.title}</span>
+                    <div className="evento-datas">
+                      <span>Início: {format(new Date(evento.start), 'dd/MM/yyyy HH:mm')}</span>
+                      <span>Fim: {format(new Date(evento.end), 'dd/MM/yyyy HH:mm')}</span>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div className="pagination">
+              <button 
+                onClick={() => setCurrentPageProximos(prev => Math.max(prev - 1, 1))}
+                disabled={currentPageProximos === 1}
+                className="pagination-btn"
+              >
+                Anterior
+              </button>
+              <span className="pagination-info">Página {currentPageProximos}</span>
+              <button 
+                onClick={() => setCurrentPageProximos(prev => prev + 1)}
+                disabled={paginateEvents(eventos.filter(evento => {
                   const hoje = new Date();
                   const eventoData = new Date(evento.start);
-                  return (
-                    eventoData.getMonth() === hoje.getMonth() &&
-                    eventoData.getFullYear() === hoje.getFullYear() &&
-                    eventoData >= hoje
-                  );
-                })
-                .sort((a, b) => new Date(a.start) - new Date(b.start))
-                .map(evento => (
-                  <li key={evento.id}>
-                    <span>{evento.title}</span>
-                    <span>{new Date(evento.start).toLocaleDateString('pt-BR')}</span>
-                  </li>
-                ))}
+                  return eventoData.getMonth() === hoje.getMonth() && 
+                         eventoData.getFullYear() === hoje.getFullYear() && 
+                         eventoData >= hoje;
+                }), currentPageProximos + 1).length === 0}
+                className="pagination-btn"
+              >
+                Próxima
+              </button>
+            </div>
+          </div>
+
+          <div className="card">
+            <h2><FontAwesomeIcon icon={faCalendarAlt} /> Eventos Vencidos</h2>
+            <ul>
+              {paginateEvents(
+                eventos
+                  .filter(evento => {
+                    const hoje = new Date();
+                    const eventoData = new Date(evento.start);
+                    
+                    const mesmoMes = eventoData.getMonth() === hoje.getMonth();
+                    const mesmoAno = eventoData.getFullYear() === hoje.getFullYear();
+                    
+                    hoje.setHours(0, 0, 0, 0);
+                    eventoData.setHours(0, 0, 0, 0);
+                    
+                    return mesmoMes && mesmoAno && eventoData < hoje;
+                  })
+                  .sort((a, b) => new Date(b.start) - new Date(a.start)),
+                currentPageVencidos
+              ).map(evento => (
+                <li key={evento.id}>
+                  <div className="evento-info">
+                    <span className="evento-titulo">{evento.title}</span>
+                    <div className="evento-datas">
+                      <span>Início: {format(new Date(evento.start), 'dd/MM/yyyy HH:mm')}</span>
+                      <span>Fim: {format(new Date(evento.end), 'dd/MM/yyyy HH:mm')}</span>
+                    </div>
+                  </div>
+                </li>
+              ))}
             </ul>
+            <div className="pagination">
+              <button 
+                onClick={() => setCurrentPageVencidos(prev => Math.max(prev - 1, 1))}
+                disabled={currentPageVencidos === 1}
+                className="pagination-btn"
+              >
+                Anterior
+              </button>
+              <span className="pagination-info">Página {currentPageVencidos}</span>
+              <button 
+                onClick={() => setCurrentPageVencidos(prev => prev + 1)}
+                disabled={paginateEvents(eventos.filter(evento => {
+                  const hoje = new Date();
+                  const eventoData = new Date(evento.start);
+                  return eventoData.getMonth() === hoje.getMonth() && 
+                         eventoData.getFullYear() === hoje.getFullYear() && 
+                         eventoData < hoje;
+                }), currentPageVencidos + 1).length === 0}
+                className="pagination-btn"
+              >
+                Próxima
+              </button>
+            </div>
           </div>
         </div>
 
