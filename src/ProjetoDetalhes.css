@@ -289,11 +289,9 @@
 /* Ajuste o background no hover */
 .projeto-card:hover {
   transform: translateY(-2px);
-  box-shadow: 
-    0 8px 16px rgba(0, 0, 0, 0.1),
-    0 0 15px rgba(57, 73, 171, 0.3),
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 0 15px rgba(57, 73, 171, 0.3),
     0 0 30px rgba(65, 185, 160, 0.2);
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
 }
 
 /* Ajuste para manter a legibilidade de elementos específicos */
@@ -326,4 +324,100 @@
 .projeto-card:hover .membro h3,
 .projeto-card:hover .membro p {
   color: white !important;
-} 
+}
+
+/* Remova os estilos anteriores de hover genéricos */
+.info-card:hover .info-item span:last-child,
+.info-card:hover .info-value {
+  color: #000;
+}
+
+/* Adicione estilos específicos para a página de detalhes */
+.projeto-detalhes-content .projeto-card:hover .info-value,
+.projeto-detalhes-content .projeto-card:hover .info-row span:last-child {
+  color: #1a1a1a !important;
+}
+
+/* Mantenha os labels com a cor original */
+.projeto-detalhes-content .projeto-card:hover .info-label,
+.projeto-detalhes-content .projeto-card:hover .info-row span:first-child {
+  color: #666 !important;
+}
+
+/* Adicione os novos estilos específicos para a página de detalhes */
+.projeto-detalhes-content .projeto-card:hover .info-value,
+.projeto-detalhes-content .projeto-card:hover .info-row span:last-child,
+.projeto-detalhes-content .projeto-card:hover .info-label,
+.projeto-detalhes-content .projeto-card:hover .info-row span:first-child {
+  color: white !important;
+}
+
+/* Mantenha os outros estilos de hover do card */
+.projeto-detalhes-content .projeto-card:hover {
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+}
+
+/* Remova os estilos anteriores conflitantes */
+.projeto-detalhes-content .projeto-card:hover .info-value,
+.projeto-detalhes-content .projeto-card:hover .info-row span:last-child,
+.projeto-detalhes-content .projeto-card:hover .info-label,
+.projeto-detalhes-content .projeto-card:hover .info-row span:first-child {
+  color: white !important;
+}
+
+/* Adicione os novos estilos específicos */
+/* Estilo para o label no hover */
+.projeto-detalhes-content .projeto-card:hover .info-label {
+  color: white !important;
+}
+
+/* Mantenha a cor original do value mesmo no hover */
+.projeto-detalhes-content .projeto-card .info-value,
+.projeto-detalhes-content .projeto-card:hover .info-value {
+  color: #1a1a1a !important;
+}
+
+/* Mantenha os outros estilos de hover do card */
+.projeto-detalhes-content .projeto-card:hover {
+  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+}
+
+/* Remova os estilos anteriores do botão Editar */
+
+/* Adicione os novos estilos específicos para o botão Editar */
+.projeto-detalhes-container .edit-btn {
+  background-color: #2196F3;
+  color: white !important;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+/* Estilo do hover */
+.projeto-detalhes-container .edit-btn:hover {
+  background-color: #666666 !important;
+  transform: translateY(-1px);
+}
+
+/* Garante que o ícone e texto fiquem brancos */
+.projeto-detalhes-container .edit-btn *,
+.projeto-detalhes-container .edit-btn:hover * {
+  color: white !important;
+}

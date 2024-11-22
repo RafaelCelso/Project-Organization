@@ -890,3 +890,10 @@
     justify-content: center;
   }
 }
+
+/* Atualize os estilos do hover do card para incluir a cor branca no status */
+.project-card:hover .status-badge,
+.project-card:hover .status-inativo {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
