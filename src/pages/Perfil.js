@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faKey, faCamera } from '@fortawesome/free-solid-svg-icons';
 import { getAuth, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import './Perfil.css';
 
@@ -24,47 +24,75 @@ function Perfil() {
   const [confirmSenhaError, setConfirmSenhaError] = useState('');
 
   useEffect(() => {
-    carregarDadosUsuario();
-
-    // Observer para mudanças no atributo data-sidebar-collapsed
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'data-sidebar-collapsed') {
-          setSidebarCollapsed(
-            document.documentElement.getAttribute('data-sidebar-collapsed') === 'true'
-          );
+    const auth = getAuth();
+    
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      try {
+        if (!user) {
+          console.log('Usuário não autenticado');
+          window.location.href = '/login';
+          return;
         }
-      });
+        
+        // Buscar dados do usuário usando query como no Login.js
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("authUid", "==", user.uid));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          console.log('Criando novo documento para usuário:', user.uid);
+          // Se não existir documento para o usuário, criar um
+          const userData = {
+            nome: user.displayName || '',
+            email: user.email,
+            cargo: '',
+            status: 'Ativo',
+            createdAt: new Date().toISOString(),
+            authUid: user.uid // Usar authUid em vez de uid para manter consistência
+          };
+          
+          try {
+            const newUserRef = doc(collection(db, "users"));
+            await setDoc(newUserRef, userData);
+            setUserData(userData);
+          } catch (error) {
+            console.error('Erro ao criar documento do usuário:', error);
+            alert('Erro ao criar perfil do usuário. Por favor, tente novamente.');
+          }
+        } else {
+          console.log('Documento do usuário encontrado');
+          setUserData(querySnapshot.docs[0].data());
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        if (error.code === 'permission-denied') {
+          alert('Você não tem permissão para acessar estes dados.');
+        } else {
+          alert('Erro ao carregar dados do usuário. Por favor, tente novamente.');
+        }
+      } finally {
+        setIsLoading(false);
+      }
     });
 
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-sidebar-collapsed']
-    });
-
-    return () => observer.disconnect();
+    return () => unsubscribe();
   }, []);
 
-  const carregarDadosUsuario = async () => {
-    try {
-      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-      if (!userInfo?.id) {
-        throw new Error('Informações do usuário não encontradas');
-      }
-
-      const userDoc = await getDoc(doc(db, 'users', userInfo.id));
-      if (userDoc.exists()) {
-        setUserData(userDoc.data());
-      }
-    } catch (error) {
-      console.error('Erro ao carregar dados do usuário:', error);
-      alert('Erro ao carregar dados do usuário');
-    } finally {
-      setIsLoading(false);
+  // Adicione esta função para verificar se o usuário está autenticado antes de qualquer operação
+  const checkAuth = () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) {
+      alert('Sua sessão expirou. Por favor, faça login novamente.');
+      window.location.href = '/login';
+      return false;
     }
+    return true;
   };
 
+  // Use checkAuth antes de operações que requerem autenticação
   const handleAlterarSenha = () => {
+    if (!checkAuth()) return;
     setIsSenhaModalOpen(true);
   };
 
@@ -130,6 +158,25 @@ function Perfil() {
       reader.readAsDataURL(file);
     }
   };
+
+  // Atualiza o estado do sidebar quando ele mudar
+  useEffect(() => {
+    const handleSidebarChange = () => {
+      setSidebarCollapsed(
+        document.documentElement.getAttribute('data-sidebar-collapsed') === 'true'
+      );
+    };
+
+    // Adiciona listener para mudanças no atributo data-sidebar-collapsed
+    const observer = new MutationObserver(handleSidebarChange);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-sidebar-collapsed']
+    });
+
+    // Cleanup do observer quando o componente for desmontado
+    return () => observer.disconnect();
+  }, []);
 
   if (isLoading) {
     return <div className="loading">Carregando...</div>;
