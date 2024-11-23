@@ -318,9 +318,7 @@
   font-size: 20px;
 }
 
-.edit-btn {
-  color: #2196f3 !important; /* Força a cor a permanecer constante */
-}
+
 
 .delete-btn {
   color: #f44336 !important; /* Força a cor a permanecer constante */

@@ -3614,7 +3614,7 @@ function Tarefas() {
                     </button>
                     <button 
                       type="button" 
-                      className="edit-btn" 
+                      className="edit-btn-no-hover" // Mude a classe aqui
                       onClick={handleEditFromView}
                     >
                       Editar

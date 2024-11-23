@@ -149,7 +149,7 @@
 }
 
 .task-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -168,7 +168,7 @@
 
 /* Adiciona uma camada de blur por trás do card */
 .task-card::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: inherit;
@@ -180,11 +180,9 @@
 
 .task-card:hover {
   transform: translateY(-2px);
-  box-shadow: 
-    0 8px 16px rgba(0, 0, 0, 0.1),
-    0 0 15px rgba(57, 73, 171, 0.3),
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 0 15px rgba(57, 73, 171, 0.3),
     0 0 30px rgba(65, 185, 160, 0.2);
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -197,10 +195,8 @@
 
 /* Adiciona um efeito de brilho ao redor do card */
 .task-card:hover {
-  box-shadow: 
-    0 8px 16px rgba(0, 0, 0, 0.1),
-    0 0 15px rgba(57, 73, 171, 0.3),  /* Cor do início do gradiente */
-    0 0 30px rgba(65, 185, 160, 0.2); /* Cor do fim do gradiente */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 0 15px rgba(57, 73, 171, 0.3),
+    /* Cor do início do gradiente */ 0 0 30px rgba(65, 185, 160, 0.2); /* Cor do fim do gradiente */
 }
 
 /* Ajuste específico para cada elemento */
@@ -272,7 +268,7 @@
 
 /* Mantenha o efeito especial para quando estiver arrastando */
 .task-card.dragging {
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
   transform: scale(1.02);
 }
@@ -399,7 +395,7 @@
 }
 
 .add-task-btn {
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
   color: white;
   padding: 8px 16px; /* Reduzido de 12px 24px para 8px 16px */
   border: none;
@@ -418,9 +414,7 @@
 
 .add-task-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 
-    0 4px 8px rgba(0, 0, 0, 0.15),
-    0 0 15px rgba(57, 73, 171, 0.3),
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 0 15px rgba(57, 73, 171, 0.3),
     0 0 30px rgba(65, 185, 160, 0.2);
 }
 
@@ -431,7 +425,7 @@
 
 /* Efeito de brilho no hover */
 .add-task-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -510,7 +504,10 @@
 
 .project-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Reduzido de 240px para 200px */
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(200px, 1fr)
+  ); /* Reduzido de 240px para 200px */
   gap: 12px; /* Reduzido de 16px para 12px */
   padding: 4px;
   margin-bottom: 20px; /* Reduzido de 24px para 20px */
@@ -531,7 +528,7 @@
 }
 
 .project-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -2484,7 +2481,6 @@
 }
 
 .delete-btn {
-  
   color: white;
   border: none;
   padding: 10px 20px;
@@ -2578,7 +2574,7 @@
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .export-button,
   .add-task-btn {
     width: 100%;
@@ -2587,7 +2583,7 @@
 }
 
 .add-project-btn {
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
   color: white;
   padding: 12px 24px;
   border: none;
@@ -2606,9 +2602,7 @@
 
 .add-project-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 
-    0 4px 8px rgba(0, 0, 0, 0.15),
-    0 0 15px rgba(57, 73, 171, 0.3),
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 0 15px rgba(57, 73, 171, 0.3),
     0 0 30px rgba(65, 185, 160, 0.2);
 }
 
@@ -2619,7 +2613,7 @@
 
 /* Efeito de brilho no hover */
 .add-project-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -2907,7 +2901,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  
+
   color: white;
   padding: 10px 20px;
   border: none;
@@ -3103,7 +3097,8 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(229, 231, 235, 0.5);
   border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .filtros-container .react-select__option {
@@ -3151,7 +3146,7 @@
   padding: 20px;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .filtros-container {
@@ -3643,7 +3638,7 @@
 }
 
 #chat-icon {
-  color: #6E7583;
+  color: #6e7583;
 }
 
 .section-header h3 {
@@ -3963,7 +3958,7 @@
 }
 
 .add-comment-btn:hover {
-  background-color: #2563EB;
+  background-color: #2563eb;
 }
 
 .add-comment-btn i {
@@ -4509,7 +4504,9 @@
 
 /* Ajuste o estilo quando a tarefa estiver arquivada */
 .teste-topicos.view-only .teste-topico[style*="not-allowed"] .topico-content,
-.teste-topicos.view-only .teste-topico[style*="not-allowed"] .topico-label-container,
+.teste-topicos.view-only
+  .teste-topico[style*="not-allowed"]
+  .topico-label-container,
 .teste-topicos.view-only .teste-topico[style*="not-allowed"] label {
   cursor: not-allowed;
   opacity: 0.7;
@@ -4525,7 +4522,8 @@
 .task-card {
   /* Mantenha as propriedades existentes */
   background-color: #fff;
-  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .task-card:hover {
@@ -4537,7 +4535,7 @@
 
 /* Adicione também um efeito especial para quando estiver arrastando */
 .task-card.dragging {
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
   transform: scale(1.02);
 }
@@ -4705,7 +4703,7 @@
 }
 
 .topico-content input[type="checkbox"]:checked::after {
-  content: '✓'; /* Ícone de check */
+  content: "✓"; /* Ícone de check */
   position: absolute;
   top: 50%;
   left: 50%;
@@ -4738,7 +4736,7 @@
 
 /* Efeito de ripple ao clicar */
 .topico-content input[type="checkbox"]:active::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -4921,7 +4919,7 @@
 
 /* Efeito de confete ao marcar o checkbox */
 .topico-content input[type="checkbox"]:checked::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -4940,7 +4938,7 @@
 
 /* Múltiplas partículas de confete */
 .topico-content input[type="checkbox"]:checked::after {
-  content: '✓';
+  content: "✓";
 }
 
 .topico-content input[type="checkbox"]:checked ~ .confetti-particles {
@@ -4958,7 +4956,10 @@
 }
 
 /* Gerar 12 partículas com cores e direções diferentes */
-.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(1) {
+.topico-content
+  input[type="checkbox"]:checked
+  ~ .confetti-particles
+  i:nth-child(1) {
   left: 50%;
   top: 50%;
   background: #22c55e;
@@ -4967,7 +4968,10 @@
   --r: -45deg;
 }
 
-.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(2) {
+.topico-content
+  input[type="checkbox"]:checked
+  ~ .confetti-particles
+  i:nth-child(2) {
   left: 50%;
   top: 50%;
   background: #3b82f6;
@@ -4976,7 +4980,10 @@
   --r: 45deg;
 }
 
-.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(3) {
+.topico-content
+  input[type="checkbox"]:checked
+  ~ .confetti-particles
+  i:nth-child(3) {
   left: 50%;
   top: 50%;
   background: #eab308;
@@ -4985,7 +4992,10 @@
   --r: 135deg;
 }
 
-.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(4) {
+.topico-content
+  input[type="checkbox"]:checked
+  ~ .confetti-particles
+  i:nth-child(4) {
   left: 50%;
   top: 50%;
   background: #ec4899;
@@ -4995,7 +5005,10 @@
 }
 
 /* Adicione mais partículas com diferentes direções */
-.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(5) {
+.topico-content
+  input[type="checkbox"]:checked
+  ~ .confetti-particles
+  i:nth-child(5) {
   left: 50%;
   top: 50%;
   background: #22c55e;
@@ -5004,7 +5017,10 @@
   --r: 0deg;
 }
 
-.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(6) {
+.topico-content
+  input[type="checkbox"]:checked
+  ~ .confetti-particles
+  i:nth-child(6) {
   left: 50%;
   top: 50%;
   background: #3b82f6;
@@ -5013,7 +5029,10 @@
   --r: 180deg;
 }
 
-.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(7) {
+.topico-content
+  input[type="checkbox"]:checked
+  ~ .confetti-particles
+  i:nth-child(7) {
   left: 50%;
   top: 50%;
   background: #eab308;
@@ -5022,7 +5041,10 @@
   --r: -90deg;
 }
 
-.topico-content input[type="checkbox"]:checked ~ .confetti-particles i:nth-child(8) {
+.topico-content
+  input[type="checkbox"]:checked
+  ~ .confetti-particles
+  i:nth-child(8) {
   left: 50%;
   top: 50%;
   background: #ec4899;
@@ -5069,7 +5091,7 @@
 
 /* Ajuste na animação do confete central */
 .topico-content input[type="checkbox"]:checked::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -5079,7 +5101,11 @@
   pointer-events: none;
   animation: confetti 0.6s ease-out forwards;
   z-index: 1;
-  background: radial-gradient(circle, transparent 30%, rgba(34, 197, 94, 0.2) 30%);
+  background: radial-gradient(
+    circle,
+    transparent 30%,
+    rgba(34, 197, 94, 0.2) 30%
+  );
   mix-blend-mode: overlay;
 }
 
@@ -5310,7 +5336,7 @@
 
 /* Efeito de brilho */
 .available-project-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -5331,11 +5357,9 @@
 .available-project-card:hover,
 .available-project-card.selected {
   transform: translateY(-2px);
-  box-shadow: 
-    0 8px 16px rgba(0, 0, 0, 0.1),
-    0 0 15px rgba(57, 73, 171, 0.3),
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 0 15px rgba(57, 73, 171, 0.3),
     0 0 30px rgba(65, 185, 160, 0.2);
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
 }
 
 /* Cores do texto no hover e selecionado */
@@ -5397,7 +5421,7 @@
 
 /* Efeito de brilho */
 .tarefas-project-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -5418,11 +5442,9 @@
 .tarefas-project-card:hover,
 .tarefas-project-card.selected {
   transform: translateY(-2px);
-  box-shadow: 
-    0 8px 16px rgba(0, 0, 0, 0.1),
-    0 0 15px rgba(57, 73, 171, 0.3),
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 0 15px rgba(57, 73, 171, 0.3),
     0 0 30px rgba(65, 185, 160, 0.2);
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
 }
 
 /* Cores do texto no hover e selecionado */
@@ -5555,7 +5577,7 @@
 
 /* Estilos para os botões do modal de Adicionar Projetos */
 .modal-buttons .save-btn {
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
   color: white;
   padding: 12px 24px;
   border: none;
@@ -5574,9 +5596,7 @@
 
 .modal-buttons .save-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 
-    0 4px 8px rgba(0, 0, 0, 0.15),
-    0 0 15px rgba(57, 73, 171, 0.3),
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 0 15px rgba(57, 73, 171, 0.3),
     0 0 30px rgba(65, 185, 160, 0.2);
 }
 
@@ -5587,7 +5607,7 @@
 
 /* Efeito de brilho no hover */
 .modal-buttons .save-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -5684,7 +5704,7 @@
 }
 
 .add-project-btn {
-  background: linear-gradient(90deg, #3949ab 0%, #41B9A0 65%);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
   color: white;
   padding: 8px 16px;
   border: none;
@@ -5703,9 +5723,7 @@
 
 .add-project-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 
-    0 4px 8px rgba(0, 0, 0, 0.15),
-    0 0 15px rgba(57, 73, 171, 0.3),
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 0 15px rgba(57, 73, 171, 0.3),
     0 0 30px rgba(65, 185, 160, 0.2);
 }
 
@@ -5716,7 +5734,7 @@
 
 /* Efeito de brilho no hover */
 .add-project-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -5748,11 +5766,163 @@
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .export-button,
   .add-project-btn,
   .add-task-btn {
     width: 100%;
     justify-content: center;
   }
+}
+
+/* Remova ou comente estes estilos de hover do modal */
+.task-card:hover {
+  /* Remova todas as propriedades de hover aqui */
+}
+
+.task-card:hover .task-title,
+.task-card:hover .task-content,
+.task-card:hover .task-date,
+.task-card:hover .task-assignee {
+  /* Remova todas as propriedades de hover aqui */
+}
+
+.task-card:hover .task-chamado {
+  /* Remova todas as propriedades de hover aqui */
+}
+
+.task-card:hover .chamado-label {
+  /* Remova todas as propriedades de hover aqui */
+}
+
+.task-card:hover .chamado-number {
+  /* Remova todas as propriedades de hover aqui */
+}
+
+.task-card:hover .task-priority {
+  /* Remova todas as propriedades de hover aqui */
+}
+
+/* Adicione estes novos estilos para manter o visual sem hover no modal */
+.modal-content .task-card {
+  background: white;
+  transform: none;
+  box-shadow: none;
+  cursor: default;
+}
+
+.modal-content .task-card:hover {
+  transform: none;
+  box-shadow: none;
+  background: white;
+}
+
+.modal-content .task-card .task-title,
+.modal-content .task-card .task-content,
+.modal-content .task-card .task-date,
+.modal-content .task-card .task-assignee,
+.modal-content .task-card .task-chamado,
+.modal-content .task-card .chamado-label,
+.modal-content .task-card .chamado-number,
+.modal-content .task-card .task-priority {
+  color: inherit;
+}
+
+.modal-content .task-card:hover .task-title,
+.modal-content .task-card:hover .task-content,
+.modal-content .task-card:hover .task-date,
+.modal-content .task-card:hover .task-assignee,
+.modal-content .task-card:hover .task-chamado,
+.modal-content .task-card:hover .chamado-label,
+.modal-content .task-card:hover .chamado-number,
+.modal-content .task-card:hover .task-priority {
+  color: inherit;
+  background-color: inherit;
+}
+
+/* Mantenha as cores originais das prioridades no modal */
+.modal-content .task-card .priority-baixa,
+.modal-content .task-card:hover .priority-baixa {
+  color: #166534;
+  background-color: #dcfce7;
+}
+
+.modal-content .task-card .priority-media,
+.modal-content .task-card:hover .priority-media {
+  color: #854d0e;
+  background-color: #fef9c3;
+}
+
+.modal-content .task-card .priority-alta,
+.modal-content .task-card:hover .priority-alta {
+  color: #991b1b;
+  background-color: #fee2e2;
+}
+
+.modal-content .task-card .priority-urgente,
+.modal-content .task-card:hover .priority-urgente {
+  color: #7f1d1d;
+  background-color: #fef2f2;
+}
+
+/* Remova o efeito de brilho no modal */
+.modal-content .task-card::before {
+  display: none;
+}
+
+/* Remova a animação de shimmer no modal */
+.modal-content .task-card:hover::before {
+  animation: none;
+}
+
+/* Adicione estes estilos para o botão de edição no modal */
+.modal-content .edit-btn {
+  background-color: #2196f3;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: none; /* Remove a transição */
+}
+
+.modal-content .edit-btn:hover {
+  background-color: #2196f3; /* Mantém a mesma cor */
+  transform: none; /* Remove transformação */
+  box-shadow: none; /* Remove sombra */
+}
+
+/* Remova qualquer outro efeito de hover */
+.modal-content .edit-btn::before,
+.modal-content .edit-btn::after {
+  display: none;
+}
+
+/* Garanta que o botão mantenha seu estilo mesmo quando pressionado */
+.modal-content .edit-btn:active {
+  transform: none;
+  box-shadow: none;
+  background-color: #2196f3;
+}
+
+/* Adicione estes estilos para o novo botão sem hover */
+.edit-btn-no-hover {
+  background-color: #2196f3;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Garanta que não haja efeitos de hover ou transições */
+.edit-btn-no-hover:hover,
+.edit-btn-no-hover:active,
+.edit-btn-no-hover:focus {
+  background-color: #2196f3;
+  color: white;
+  transform: none;
+  box-shadow: none;
 }
