@@ -782,3 +782,21 @@
     justify-content: center;
   }
 }
+
+/* Adicione estes estilos específicos para o botão de confirmar exclusão */
+.delete-modal .delete-btn {
+  color: white !important;
+  background-color: red !important;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Remove explicitamente qualquer hover do botão de confirmar exclusão */
+.delete-modal .delete-btn:hover {
+  background-color: red !important;
+  color: white !important;
+}
