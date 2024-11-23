@@ -491,4 +491,38 @@
 .pagination-btn,
 .pagination-info {
   transition: all 0.2s ease;
+}
+
+/* Estilo para o botão de excluir no modal de edição */
+.modal-content .modal-buttons .delete-btn {
+  color: white !important;
+  background-color: #f44336 !important;
+  border: none !important;
+  padding: 8px 24px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+/* Adiciona hover effect */
+.modal-content .modal-buttons .delete-btn:hover {
+  background-color: #D32F2F !important;
+}
+
+/* Estilo para o botão de excluir no modal de confirmação de exclusão */
+.delete-modal .modal-buttons .delete-btn {
+  color: white !important;
+  background-color: #f44336 !important;
+  border: none !important;
+  padding: 8px 24px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+/* Adiciona hover effect para o modal de confirmação */
+.delete-modal .modal-buttons .delete-btn:hover {
+  background-color: #D32F2F !important;
 } 
