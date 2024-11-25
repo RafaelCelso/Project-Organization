@@ -22,6 +22,7 @@ import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase
 import Select from 'react-select';
 import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
+import NotificationButton from './components/NotificationButton';
 
 function Projetos() {
   const navigate = useNavigate();
@@ -581,9 +582,10 @@ function Projetos() {
   return (
     <div className="projetos-container">
       <div className="projetos-content">
-        <div className="header-with-button">
+        <div className="page-header">
           <h1 className="page-title">Projetos</h1>
-          <div className="header-buttons">
+          <div className="header-actions">
+            <NotificationButton />
             <button className="export-button" onClick={exportToExcel}>
               <FontAwesomeIcon icon={faFileExcel} />
               Exportar para Excel

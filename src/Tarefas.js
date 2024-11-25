@@ -9,6 +9,7 @@ import { db } from './firebaseConfig'; // Ao invés de '../firebase'
 import { collection, getDocs, addDoc, query, where, deleteDoc, doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import Select from 'react-select';
 import * as XLSX from 'xlsx';
+import NotificationButton from './components/NotificationButton';
 
 const initialTasks = {
   todo: [
@@ -2484,9 +2485,10 @@ function Tarefas() {
   return (
     <div className="tarefas-container">
       <div className="tarefas-content">
-        <div className="header-with-button">
+        <div className="page-header">
           <h1 className="page-title">Tarefas</h1>
-          <div className="header-buttons">
+          <div className="header-actions">
+            <NotificationButton />
             <button className="export-button" onClick={exportToExcel}>
               <FontAwesomeIcon icon={faFileExcel} />
               Exportar para Excel
@@ -3376,7 +3378,7 @@ function Tarefas() {
                     </div>
                     <div className="info-card-content">
                       {selectedTask.dataConclusao ? 
-                        format(new Date(selectedTask.dataConclusao + 'T00:00:00'), 'dd/MM/yyyy') 
+                        format(new Date(selectedTask.dataConclusao + 'T00:00:00'), 'dd/MM/yyyy')
                         : 'Não definida'}
                     </div>
                   </div>

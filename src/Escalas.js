@@ -12,6 +12,7 @@ import { faCalendarAlt, faUser, faClock, faStickyNote, faFileExcel } from '@fort
 import { addDoc, collection, getDocs, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import * as XLSX from 'xlsx';
+import NotificationButton from './components/NotificationButton';
 
 const locales = {
   'pt-BR': ptBR,
@@ -334,9 +335,10 @@ function Escalas() {
   return (
     <div className="escalas-container">
       <div className="escalas-content">
-        <div className="escalas-header">
+        <div className="page-header">
           <h1 className="page-title">Escalas</h1>
-          <div className="header-buttons">
+          <div className="header-actions">
+            <NotificationButton />
             <button className="export-button" onClick={exportToExcel}>
               <FontAwesomeIcon icon={faFileExcel} />
               Exportar para Excel

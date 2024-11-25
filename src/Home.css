@@ -2197,46 +2197,77 @@
   margin-bottom: 24px;
 }
 
-.export-button {
+.header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: linear-gradient(90deg, #1ab69d 0%, #31b237 100%);
-  color: white;
+  gap: 16px;
+}
+
+/* Adicione os estilos para o botão de notificação */
+.notification-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: white;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
+  border-radius: 50%;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.export-button:hover {
+.notification-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  background: linear-gradient(90deg, #18a38c 0%, #2a9e31 100%);
+  background: #f8f9fa;
 }
 
-.export-button:active {
+.notification-button:active {
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.export-button svg {
-  font-size: 16px;
+.notification-button svg {
+  font-size: 18px;
+  color: #4b5563;
 }
 
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  border: 2px solid white;
+}
+
+/* Ajuste o responsivo */
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
   }
-  
-  .export-button {
+
+  .header-actions {
     width: 100%;
+    justify-content: space-between;
+  }
+  
+  .notification-button {
+    flex: 1;
     justify-content: center;
   }
 }

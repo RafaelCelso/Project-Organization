@@ -16,6 +16,7 @@ import {
   faExchange,
   faArchive,
   faFileExcel,
+  faBell,
 } from "@fortawesome/free-solid-svg-icons";
 import "./Home.css";
 import { db } from "./firebaseConfig";
@@ -46,6 +47,7 @@ import {
 } from "chart.js";
 import { Pie, Bar, Line, Radar } from "react-chartjs-2";
 import * as XLSX from 'xlsx';
+import NotificationButton from './components/NotificationButton';
 
 // Atualize o registro do ChartJS
 ChartJS.register(
@@ -3031,10 +3033,13 @@ function Home() {
       <div className="home-content">
         <div className="page-header">
           <h1 className="page-title">Início</h1>
-          <button className="export-button" onClick={exportToExcel}>
-            <FontAwesomeIcon icon={faFileExcel} />
-            Exportar para Excel
-          </button>
+          <div className="header-actions">
+            <NotificationButton />
+            <button className="export-button" onClick={exportToExcel}>
+              <FontAwesomeIcon icon={faFileExcel} />
+              Exportar para Excel
+            </button>
+          </div>
         </div>
 
         <div className="cards-container">
