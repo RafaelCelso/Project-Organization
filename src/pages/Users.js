@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faFileExcel } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faFileExcel, faShieldAlt, faCheckCircle, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { 
   collection, 
   getDocs, 
@@ -35,7 +35,13 @@ function Users() {
     status: '',
     senha: '',
     confirmarSenha: '',
+    permissao: '',
     colaboradorId: ''
+  });
+  const [confirmacao, setConfirmacao] = useState({
+    show: false,
+    mensagem: '',
+    tipo: '' // 'sucesso' ou 'erro'
   });
 
   // Carregar usuários
@@ -90,6 +96,7 @@ function Users() {
       status: user.status,
       senha: '',
       confirmarSenha: '',
+      permissao: user.permissao,
       colaboradorId: user.colaboradorId
     });
     setIsModalOpen(true);
@@ -150,6 +157,7 @@ function Users() {
         cargo: formData.cargo || 'USER',
         status: formData.status,
         colaboradorId: formData.colaboradorId,
+        permissao: formData.permissao,
         updatedAt: serverTimestamp()
       };
 
@@ -176,10 +184,18 @@ function Users() {
 
       await loadUsers();
       setIsModalOpen(false);
-      alert(isEditing ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!');
+      setConfirmacao({
+        show: true,
+        mensagem: isEditing ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!',
+        tipo: 'sucesso'
+      });
     } catch (error) {
       console.error("Erro ao salvar usuário:", error);
-      alert(`Erro ao ${isEditing ? 'atualizar' : 'criar'} usuário: ${error.message}`);
+      setConfirmacao({
+        show: true,
+        mensagem: `Erro ao ${isEditing ? 'atualizar' : 'criar'} usuário: ${error.message}`,
+        tipo: 'erro'
+      });
     }
   };
 
@@ -192,6 +208,7 @@ function Users() {
       status: '',
       senha: '',
       confirmarSenha: '',
+      permissao: '',
       colaboradorId: ''
     });
     setIsEditing(false);
@@ -273,6 +290,7 @@ function Users() {
                 <th>E-mail</th>
                 <th>Cargo</th>
                 <th>Status</th>
+                <th>Permissão</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -284,6 +302,11 @@ function Users() {
                   <td>{user.cargo}</td>
                   <td className={`users-status-${user.status.toLowerCase()}`}>
                     {user.status}
+                  </td>
+                  <td>
+                    <span className={`users-permissao ${user.permissao?.toLowerCase()}`}>
+                      {user.permissao || 'Não definida'}
+                    </span>
                   </td>
                   <td className="users-actions">
                     <button 
@@ -419,6 +442,26 @@ function Users() {
                 />
               </div>
 
+              <div className="users-form-group">
+                <label htmlFor="permissao">
+                  <FontAwesomeIcon icon={faShieldAlt} className="form-icon" />
+                  Permissão
+                </label>
+                <select
+                  id="permissao"
+                  name="permissao"
+                  value={formData.permissao}
+                  onChange={(e) => setFormData({...formData, permissao: e.target.value})}
+                  required
+                >
+                  <option value="">Selecione uma permissão...</option>
+                  <option value="Administrador">Administrador</option>
+                  <option value="Supervisor">Supervisor</option>
+                  <option value="Analista">Analista</option>
+                  <option value="Desenvolvedor">Desenvolvedor</option>
+                </select>
+              </div>
+
               <div className="users-modal-buttons">
                 <button type="button" className="users-cancel-btn" onClick={() => setIsModalOpen(false)}>
                   Cancelar
@@ -454,6 +497,29 @@ function Users() {
                 }}
               >
                 Confirmar Exclusão
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação */}
+      {confirmacao.show && (
+        <div className="users-modal-overlay">
+          <div className="users-modal confirmacao-modal">
+            <div className={`confirmacao-icon ${confirmacao.tipo}`}>
+              <FontAwesomeIcon 
+                icon={confirmacao.tipo === 'sucesso' ? faCheckCircle : faExclamationCircle} 
+              />
+            </div>
+            <h2>{confirmacao.tipo === 'sucesso' ? 'Sucesso!' : 'Erro!'}</h2>
+            <p>{confirmacao.mensagem}</p>
+            <div className="users-modal-buttons">
+              <button 
+                className="users-confirm-btn"
+                onClick={() => setConfirmacao({ show: false, mensagem: '', tipo: '' })}
+              >
+                OK
               </button>
             </div>
           </div>
