@@ -3,29 +3,24 @@ import { usePermissions } from '../hooks/usePermissions';
 function Projetos() {
   const { can } = usePermissions();
 
-  // ... código existente ...
-
   return (
-    <div className="projects-page-container">
-      <div className="projects-header">
+    <div className="projetos-container">
+      <div className="projetos-header">
         <h1>Projetos</h1>
-        {can('create') && (
+        {can('criar', 'projetos') && (
           <button onClick={handleNewProject}>
-            <FontAwesomeIcon icon={faPlus} />
             Novo Projeto
           </button>
         )}
       </div>
 
-      {/* ... resto do código ... */}
-
-      {projeto.map(projeto => (
+      {projetos.map(projeto => (
         <div key={projeto.id}>
-          {/* ... código do projeto ... */}
-          {can('update') && (
+          <h3>{projeto.nome}</h3>
+          {can('editar', 'projetos') && (
             <button onClick={() => handleEdit(projeto)}>Editar</button>
           )}
-          {can('delete') && (
+          {can('excluir', 'projetos') && (
             <button onClick={() => handleDelete(projeto)}>Excluir</button>
           )}
         </div>

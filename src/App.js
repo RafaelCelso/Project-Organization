@@ -11,7 +11,9 @@ import ProjetoDetalhes from './ProjetoDetalhes';
 import Perfil from './pages/Perfil';
 import Users from './pages/Users';
 import Permissoes from './pages/Permissoes';
+import AcessoNegado from './pages/AcessoNegado';
 import './styles/global.css';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 function AppContent() {
   const location = useLocation();
@@ -44,14 +46,36 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/projetos" element={<Projetos />} />
+          <Route 
+            path="/projetos" 
+            element={
+              <ProtectedRoute menu="projetos">
+                <Projetos />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/projetos/:id" element={<ProjetoDetalhes />} />
           <Route path="/colaboradores" element={<Colaboradores />} />
           <Route path="/escalas" element={<Escalas />} />
           <Route path="/tarefas" element={<Tarefas />} />
           <Route path="/perfil" element={<Perfil />} />
-          <Route path="/usuarios" element={<Users />} />
-          <Route path="/permissoes" element={<Permissoes />} />
+          <Route 
+            path="/usuarios" 
+            element={
+              <ProtectedRoute menu="usuarios">
+                <Users />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/permissoes" 
+            element={
+              <ProtectedRoute menu="permissoes">
+                <Permissoes />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/acesso-negado" element={<AcessoNegado />} />
         </Routes>
       </div>
     </div>
