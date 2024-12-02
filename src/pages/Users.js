@@ -143,17 +143,11 @@ function Users() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validação de senha
-    if (!isEditing && formData.senha !== formData.confirmarSenha) {
-      alert("As senhas não coincidem!");
-      return;
-    }
-
     try {
       const userData = {
         nome: formData.nome,
         email: formData.email,
-        cargo: formData.cargo,
+        cargo: formData.cargo || 'USER',
         status: formData.status,
         colaboradorId: formData.colaboradorId,
         updatedAt: serverTimestamp()
@@ -168,7 +162,7 @@ function Users() {
           formData.senha
         );
 
-        // Adicionar o UID do Authentication ao userData
+        // Adicionar o UID do Authentication e cargo ao userData
         userData.authUid = userCredential.user.uid;
         userData.createdAt = serverTimestamp();
         

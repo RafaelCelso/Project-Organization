@@ -10,6 +10,7 @@ import Tarefas from './Tarefas';
 import ProjetoDetalhes from './ProjetoDetalhes';
 import Perfil from './pages/Perfil';
 import Users from './pages/Users';
+import Permissoes from './pages/Permissoes';
 import './styles/global.css';
 
 function AppContent() {
@@ -50,6 +51,7 @@ function AppContent() {
           <Route path="/tarefas" element={<Tarefas />} />
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/usuarios" element={<Users />} />
+          <Route path="/permissoes" element={<Permissoes />} />
         </Routes>
       </div>
     </div>
