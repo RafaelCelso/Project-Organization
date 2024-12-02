@@ -8,7 +8,13 @@ import './Perfil.css';
 
 function Perfil() {
   const [avatarUrl, setAvatarUrl] = useState('https://cdn-icons-png.flaticon.com/512/149/149071.png');
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState({
+    nome: '',
+    email: '',
+    cargo: '',
+    status: '',
+    permissao: ''
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [isSenhaModalOpen, setIsSenhaModalOpen] = useState(false);
   const [senhaForm, setSenhaForm] = useState({
@@ -34,21 +40,20 @@ function Perfil() {
           return;
         }
         
-        // Buscar dados do usuário usando query como no Login.js
         const usersRef = collection(db, "users");
         const q = query(usersRef, where("authUid", "==", user.uid));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
           console.log('Criando novo documento para usuário:', user.uid);
-          // Se não existir documento para o usuário, criar um
           const userData = {
             nome: user.displayName || '',
             email: user.email,
             cargo: '',
             status: 'Ativo',
             createdAt: new Date().toISOString(),
-            authUid: user.uid // Usar authUid em vez de uid para manter consistência
+            authUid: user.uid,
+            permissao: ''
           };
           
           try {
@@ -230,6 +235,19 @@ function Perfil() {
             <label>Status</label>
             <div className="info-value">
               <span className="status-badge">{userData?.status}</span>
+            </div>
+          </div>
+
+          <div className="info-group">
+            <label>Permissão</label>
+            <div className="info-value permissoes-list">
+              {userData?.permissao ? (
+                <span className="permissao-badge">
+                  {userData.permissao}
+                </span>
+              ) : (
+                <span className="no-permissoes">Nenhuma permissão atribuída</span>
+              )}
             </div>
           </div>
 

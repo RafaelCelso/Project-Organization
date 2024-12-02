@@ -400,3 +400,27 @@
 .input-error:focus {
   box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
 }
+
+.permissoes-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px !important;
+}
+
+.permissao-badge {
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(65, 185, 160, 0.2);
+}
+
+.no-permissoes {
+  color: #666;
+  font-style: italic;
+  font-size: 0.9rem;
+}
