@@ -14,6 +14,7 @@ import Permissoes from './pages/Permissoes';
 import AcessoNegado from './pages/AcessoNegado';
 import './styles/global.css';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { syncPermissions, updateDesenvolvedorPermissions } from './services/permissionsService';
 
 function AppContent() {
   const location = useLocation();
@@ -83,6 +84,20 @@ function AppContent() {
 }
 
 function App() {
+  useEffect(() => {
+    const initializePermissions = async () => {
+      try {
+        await syncPermissions();
+        await updateDesenvolvedorPermissions();
+        console.log('Permissões inicializadas com sucesso');
+      } catch (error) {
+        console.error('Erro ao inicializar permissões:', error);
+      }
+    };
+
+    initializePermissions();
+  }, []);
+
   return (
     <Router>
       <AppContent />

@@ -72,26 +72,54 @@ function Permissoes() {
     try {
       setStatus({ role, state: 'saving' });
       
-      // Verifica se há alterações para salvar
       if (!permissoesEditadas[role]) {
         setMensagem({ tipo: 'info', texto: 'Nenhuma alteração para salvar.' });
         return;
       }
 
-      // Referência para a coleção de permissões
       const permissoesRef = collection(db, 'permissoes');
       const permissaoDoc = doc(permissoesRef, role.toLowerCase());
-
-      // Verifica se o documento existe
       const docSnap = await getDoc(permissaoDoc);
+
+      const permissoesCompletas = permissoes[role].permissoes;
+
+      let permissoesAtuais = docSnap.exists() 
+        ? docSnap.data().permissoes 
+        : permissoesCompletas;
+
+      let permissoesAtualizadas = JSON.parse(JSON.stringify(permissoesAtuais));
+
+      Object.entries(permissoesEditadas[role]).forEach(([categoria, valores]) => {
+        if (categoria === 'menus') {
+          permissoesAtualizadas.menus = {
+            ...permissoesAtualizadas.menus,
+            ...valores
+          };
+        } else {
+          permissoesAtualizadas[categoria] = {
+            ...permissoesAtualizadas[categoria],
+            ...valores
+          };
+        }
+      });
+
+      const todosMenus = {
+        inicio: permissoesAtualizadas.menus?.inicio ?? permissoesCompletas.menus.inicio,
+        projetos: permissoesAtualizadas.menus?.projetos ?? permissoesCompletas.menus.projetos,
+        colaboradores: permissoesAtualizadas.menus?.colaboradores ?? permissoesCompletas.menus.colaboradores,
+        escalas: permissoesAtualizadas.menus?.escalas ?? permissoesCompletas.menus.escalas,
+        tarefas: permissoesAtualizadas.menus?.tarefas ?? permissoesCompletas.menus.tarefas,
+        usuarios: permissoesAtualizadas.menus?.usuarios ?? permissoesCompletas.menus.usuarios,
+        permissoes: permissoesAtualizadas.menus?.permissoes ?? permissoesCompletas.menus.permissoes,
+        perfil: permissoesAtualizadas.menus?.perfil ?? permissoesCompletas.menus.perfil
+      };
+
+      permissoesAtualizadas.menus = todosMenus;
 
       const permissoesData = {
         nome: permissoes[role].nome,
         descricao: permissoes[role].descricao,
-        permissoes: {
-          ...permissoes[role].permissoes,
-          ...permissoesEditadas[role]
-        },
+        permissoes: permissoesAtualizadas,
         atualizadoEm: new Date().toISOString()
       };
 
@@ -106,10 +134,9 @@ function Permissoes() {
 
       setPermissoesSalvas(prev => ({
         ...prev,
-        [role.toLowerCase()]: permissoesData.permissoes
+        [role.toLowerCase()]: permissoesAtualizadas
       }));
 
-      // Limpa as permissões editadas para este perfil
       setPermissoesEditadas(prev => {
         const newSet = { ...prev };
         delete newSet[role];
@@ -119,7 +146,6 @@ function Permissoes() {
       setMensagem({ tipo: 'sucesso', texto: 'Permissões atualizadas com sucesso!' });
       setStatus({ role, state: 'success' });
       
-      // Remove o ícone de sucesso após 2 segundos
       setTimeout(() => {
         setStatus({ role: '', state: '' });
       }, 2000);
@@ -469,7 +495,6 @@ function Permissoes() {
                             newSet.delete(role);
                             return newSet;
                           });
-                          // Limpa as alterações não salvas
                           setPermissoesEditadas(prev => {
                             const newState = { ...prev };
                             delete newState[role];
