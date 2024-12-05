@@ -525,4 +525,395 @@
 /* Adiciona hover effect para o modal de confirmação */
 .delete-modal .modal-buttons .delete-btn:hover {
   background-color: #D32F2F !important;
+}
+
+/* Ajuste o grid para acomodar 3 cards */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+/* Adicione uma cor específica para o card de férias quando hover */
+.card:nth-child(1):hover {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+}
+
+/* Ajustar o grid para 2 cards */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+/* Ajustar a responsividade */
+@media (max-width: 992px) {
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Adicione uma cor específica para o card de feriados quando hover */
+.card:nth-child(2):hover {
+  background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+  color: white;
+}
+
+/* Ajustar a responsividade */
+@media (max-width: 992px) {
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Estilos para a Timeline */
+.timeline-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding-bottom: 10px;
+}
+
+.timeline-header:hover {
+  opacity: 0.8;
+}
+
+.timeline-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.toggle-icon {
+  font-size: 18px;
+  transition: transform 0.3s ease;
+}
+
+.toggle-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.timeline {
+  position: relative;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.timeline.expanded {
+  max-height: 460px;
+  opacity: 1;
+}
+
+/* Criar um wrapper para o conteúdo rolável */
+.timeline-scroll-container {
+  overflow-y: auto;
+  max-height: 460px;
+  padding-right: 16px;
+  position: relative;
+}
+
+/* Ajustar o fade out */
+.timeline-container::after {
+  content: '';
+  position: absolute;
+  left: 20px; /* Alinha com o padding do container */
+  right: 20px;
+  bottom: 20px; /* Alinha com o padding do container */
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+.timeline.expanded + .timeline-container::after {
+  opacity: 1;
+}
+
+/* Ajustar responsividade */
+@media (max-width: 768px) {
+  .timeline-scroll-container {
+    max-height: 420px;
+  }
+}
+
+/* Estilizar a barra de rolagem */
+.timeline::-webkit-scrollbar {
+  width: 8px;
+}
+
+.timeline::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.timeline::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.timeline::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* Ajustar a linha vertical considerando a rolagem */
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 50px;
+  top: 20px;
+  bottom: 20px;
+  width: 2px;
+  background: #e0e0e0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+/* Ajustar o fade out no final da timeline */
+.timeline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 16px;
+  bottom: 0;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+.timeline.expanded::after {
+  opacity: 1;
+  width: calc(100% - 36px);
+  margin-left: 20px;
+  bottom: 0;
+}
+
+/* Ajustar responsividade */
+@media (max-width: 768px) {
+  .timeline.expanded {
+    max-height: 420px;
+  }
+  
+  .timeline.expanded::after {
+    width: calc(100% - 32px);
+    margin-left: 16px;
+  }
+}
+
+/* Ajustar Firefox scrollbar */
+.timeline {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+/* Ajustar a animação dos itens */
+.timeline-item {
+  position: relative;
+  margin-left: 70px;
+  padding: 20px 24px;
+  border-radius: 8px;
+  color: white;
+  transition: all 0.3s ease;
+  margin-bottom: 8px;
+}
+
+.timeline.expanded .timeline-item {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Adicionar delay progressivo na animação dos itens */
+.timeline.expanded .timeline-item:nth-child(1) { transition-delay: 0.1s; }
+.timeline.expanded .timeline-item:nth-child(2) { transition-delay: 0.2s; }
+.timeline.expanded .timeline-item:nth-child(3) { transition-delay: 0.3s; }
+.timeline.expanded .timeline-item:nth-child(4) { transition-delay: 0.4s; }
+.timeline.expanded .timeline-item:nth-child(5) { transition-delay: 0.5s; }
+/* ... adicione mais se necessário */
+
+/* Estilo do cabeçalho quando expandido */
+.timeline-header {
+  border-bottom: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.timeline-container .timeline.expanded + .timeline-header {
+  border-bottom-color: #eee;
+}
+
+/* Ajustar o ícone de toggle */
+.timeline-toggle:hover {
+  color: #333;
+  background-color: #f5f5f5;
+  border-radius: 50%;
+}
+
+.timeline-toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -35px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: currentColor;
+  border: 3px solid white;
+  box-shadow: 0 0 0 3px currentColor;
+  z-index: 1;
+}
+
+.timeline-date {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.timeline-date .date-range {
+  flex: 1;
+  min-width: 200px;
+}
+
+.timeline-date .date {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.timeline-date .days-until {
+  font-size: 12px;
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+/* Ajustar responsividade */
+@media (max-width: 768px) {
+  .timeline-date {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .timeline-date .date-range {
+    min-width: unset;
+    width: 100%;
+  }
+}
+
+.timeline-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.timeline-obs {
+  margin: 12px 0 4px;
+  font-size: 13px;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.timeline-item.feriado {
+  background-color: #FF9800;
+}
+
+/* Responsividade da timeline */
+@media (max-width: 768px) {
+  .timeline::before {
+    left: 30px;
+  }
+  
+  .timeline-item {
+    margin-left: 50px;
+    padding: 16px 20px;
+  }
+  
+  .timeline-item::before {
+    left: -25px;
+  }
+  
+  .timeline-date {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+/* Animação de entrada para os itens da timeline */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.timeline-item {
+  animation: slideIn 0.3s ease forwards;
+}
+
+/* Atualizar os estilos do header da timeline */
+.timeline-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.timeline-title h2 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+}
+
+.expand-hint {
+  font-size: 12px;
+  color: #666;
+  font-weight: normal;
+  opacity: 0.8;
+}
+
+/* Ajuste o hover para manter a legibilidade do texto */
+.timeline-header:hover .expand-hint {
+  opacity: 1;
 } 

@@ -13,6 +13,8 @@ import { addDoc, collection, getDocs, updateDoc, doc, deleteDoc } from 'firebase
 import { db } from './firebaseConfig';
 import * as XLSX from 'xlsx';
 import NotificationButton from './components/NotificationButton';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { addDays } from 'date-fns';
 
 const locales = {
   'pt-BR': ptBR,
@@ -62,6 +64,83 @@ const formats = {
     `${format(start, "d 'de' MMMM", { locale: ptBR })} - ${format(end, "d 'de' MMMM", { locale: ptBR })}`,
 };
 
+const getFeriadosNacionais = (ano) => {
+  const feriados = [
+    { data: `${ano}-01-01`, nome: 'Confraternização Universal' },
+    { data: `${ano}-04-21`, nome: 'Tiradentes' },
+    { data: `${ano}-05-01`, nome: 'Dia do Trabalho' },
+    { data: `${ano}-09-07`, nome: 'Independência do Brasil' },
+    { data: `${ano}-10-12`, nome: 'Nossa Senhora Aparecida' },
+    { data: `${ano}-11-02`, nome: 'Finados' },
+    { data: `${ano}-11-15`, nome: 'Proclamação da República' },
+    { data: `${ano}-12-25`, nome: 'Natal' }
+  ];
+
+  // Se for 2025, adiciona feriados específicos daquele ano
+  if (ano === 2025) {
+    feriados.push(
+      { data: '2025-03-04', nome: 'Carnaval' },        // Terça de Carnaval
+      { data: '2025-03-05', nome: 'Quarta de Cinzas' }, // Quarta de Cinzas
+      { data: '2025-04-18', nome: 'Sexta-feira Santa' },
+      { data: '2025-04-20', nome: 'Páscoa' },
+      { data: '2025-06-19', nome: 'Corpus Christi' }
+    );
+  } else {
+    // Calcula a Páscoa (Algoritmo de Meeus/Jones/Butcher)
+    const calcularPascoa = (ano) => {
+      const a = ano % 19;
+      const b = Math.floor(ano / 100);
+      const c = ano % 100;
+      const d = Math.floor(b / 4);
+      const e = b % 4;
+      const f = Math.floor((b + 8) / 25);
+      const g = Math.floor((b - f + 1) / 3);
+      const h = (19 * a + b - d - g + 15) % 30;
+      const i = Math.floor(c / 4);
+      const k = c % 4;
+      const l = (32 + 2 * e + 2 * i - h - k) % 7;
+      const m = Math.floor((a + 11 * h + 22 * l) / 451);
+      const mes = Math.floor((h + l - 7 * m + 114) / 31);
+      const dia = ((h + l - 7 * m + 114) % 31) + 1;
+      return new Date(ano, mes - 1, dia);
+    };
+
+    // Adiciona feriados móveis baseados na Páscoa
+    const pascoa = calcularPascoa(ano);
+    const sextaSanta = addDays(pascoa, -2);
+    const carnaval = addDays(pascoa, -47);
+    const corpusChristi = addDays(pascoa, 60);
+
+    feriados.push(
+      { 
+        data: format(carnaval, 'yyyy-MM-dd'), 
+        nome: 'Carnaval' 
+      },
+      { 
+        data: format(sextaSanta, 'yyyy-MM-dd'), 
+        nome: 'Sexta-feira Santa' 
+      },
+      { 
+        data: format(corpusChristi, 'yyyy-MM-dd'), 
+        nome: 'Corpus Christi' 
+      }
+    );
+  }
+
+  // Converte as datas para objetos Date e adiciona propriedades necessárias
+  return feriados.map(feriado => ({
+    id: `feriado-${feriado.data}`,
+    title: `Feriado: ${feriado.nome}`,
+    start: new Date(`${feriado.data}T00:00:00`),
+    end: new Date(`${feriado.data}T23:59:59`),
+    tipo: '4', // ID do tipo "Feriado"
+    backgroundColor: '#FF9800', // Cor do tipo "Feriado"
+    allDay: true,
+    isFeriadoNacional: true, // Flag para identificar feriados nacionais
+    ano: parseInt(feriado.data.split('-')[0]) // Adiciona o ano para referência
+  }));
+};
+
 function Escalas() {
   const [eventos, setEventos] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -81,9 +160,12 @@ function Escalas() {
   ]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [eventoToDelete, setEventoToDelete] = useState(null);
-  const [currentPageProximos, setCurrentPageProximos] = useState(1);
-  const [currentPageVencidos, setCurrentPageVencidos] = useState(1);
+  const [currentPageFerias, setCurrentPageFerias] = useState(1);
+  const [currentPageFeriados, setCurrentPageFeriados] = useState(1);
   const eventsPerPage = 3;
+  const auth = getAuth();
+  const [feriadosNacionais, setFeriadosNacionais] = useState([]);
+  const [isTimelineExpanded, setIsTimelineExpanded] = useState(false);
 
   const handleSelect = ({ start, end }) => {
     const selectedStartDate = new Date(start);
@@ -141,10 +223,13 @@ function Escalas() {
     };
 
     try {
+      let eventoId; // Variável para armazenar o ID do evento
+
       if (formData.id) {
         // Atualiza evento existente
         const eventoRef = doc(db, 'eventos', formData.id);
         await updateDoc(eventoRef, eventoAtualizado);
+        eventoId = formData.id; // Guarda o ID do evento existente
         
         // Atualiza o estado local
         setEventos(eventos.map(evento => 
@@ -160,15 +245,52 @@ function Escalas() {
       } else {
         // Cria novo evento
         const docRef = await addDoc(collection(db, 'eventos'), eventoAtualizado);
+        eventoId = docRef.id; // Guarda o ID do novo evento
         
         const eventoComId = { 
           ...eventoAtualizado, 
-          id: docRef.id,
+          id: eventoId,
           start: new Date(eventoAtualizado.start),
           end: new Date(eventoAtualizado.end)
         };
         
         setEventos([...eventos, eventoComId]);
+      }
+
+      // Criar notificação se houver um colaborador selecionado
+      if (formData.colaborador) {
+        const colaboradorSelecionado = colaboradores.find(c => c.id === formData.colaborador);
+        console.log('Dados do colaborador para notificação:', {
+          colaboradorId: colaboradorSelecionado?.id,
+          nome: colaboradorSelecionado?.nome,
+          formDataColaborador: formData.colaborador
+        });
+        
+        if (colaboradorSelecionado) {
+          try {
+            const notificationData = {
+              userId: colaboradorSelecionado.id, // ID do documento do colaborador
+              message: formData.id 
+                ? `Um evento foi atualizado: ${tipoEvento.nome} - ${format(new Date(formData.start), 'dd/MM/yyyy')}`
+                : `Um novo evento foi criado para você: ${tipoEvento.nome} - ${format(new Date(formData.start), 'dd/MM/yyyy')}`,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              read: false,
+              referenceId: eventoId,
+              type: 'event',
+              createdBy: auth.currentUser?.uid || null
+            };
+
+            console.log('Criando notificação:', notificationData);
+            
+            const docRef = await addDoc(collection(db, 'notifications'), notificationData);
+            console.log('Notificação criada com sucesso. ID:', docRef.id);
+          } catch (error) {
+            console.error('Erro ao criar notificação:', error);
+          }
+        } else {
+          console.warn('Colaborador não encontrado:', formData.colaborador);
+        }
       }
 
       setIsModalOpen(false);
@@ -236,7 +358,7 @@ function Escalas() {
           id: doc.id,
           ...doc.data()
         }));
-        console.log('Colaboradores carregados:', colaboradoresData); // Para debug
+        console.log('Colaboradores carregados:', colaboradoresData);
         setColaboradores(colaboradoresData);
       } catch (error) {
         console.error('Erro ao buscar colaboradores:', error);
@@ -266,6 +388,15 @@ function Escalas() {
 
     fetchEventos();
   }, []); // Array vazio significa que será executado apenas uma vez ao montar o componente
+
+  useEffect(() => {
+    const anoAtual = new Date().getFullYear();
+    const feriadosAnoAtual = getFeriadosNacionais(anoAtual);
+    const feriados2025 = getFeriadosNacionais(2025);
+    
+    // Combina os feriados dos dois anos
+    setFeriadosNacionais([...feriadosAnoAtual, ...feriados2025]);
+  }, []);
 
   const handleAddEvent = () => {
     const hoje = new Date();
@@ -351,24 +482,17 @@ function Escalas() {
         
         <div className="cards-container">
           <div className="card">
-            <h2><FontAwesomeIcon icon={faCalendarAlt} /> Próximos Eventos</h2>
+            <h2><FontAwesomeIcon icon={faCalendarAlt} /> Eventos de Férias</h2>
             <ul>
               {paginateEvents(
                 eventos
                   .filter(evento => {
                     const hoje = new Date();
                     const eventoData = new Date(evento.start);
-                    
-                    const mesmoMes = eventoData.getMonth() === hoje.getMonth();
-                    const mesmoAno = eventoData.getFullYear() === hoje.getFullYear();
-                    
-                    hoje.setHours(0, 0, 0, 0);
-                    eventoData.setHours(0, 0, 0, 0);
-                    
-                    return mesmoMes && mesmoAno && eventoData >= hoje;
+                    return parseInt(evento.tipo) === 1; // Filtra apenas eventos do tipo Férias (id: 1)
                   })
                   .sort((a, b) => new Date(a.start) - new Date(b.start)),
-                currentPageProximos
+                currentPageFerias
               ).map(evento => (
                 <li key={evento.id}>
                   <div className="evento-info">
@@ -383,22 +507,18 @@ function Escalas() {
             </ul>
             <div className="pagination">
               <button 
-                onClick={() => setCurrentPageProximos(prev => Math.max(prev - 1, 1))}
-                disabled={currentPageProximos === 1}
+                onClick={() => setCurrentPageFerias(prev => Math.max(prev - 1, 1))}
+                disabled={currentPageFerias === 1}
                 className="pagination-btn"
               >
                 Anterior
               </button>
-              <span className="pagination-info">Página {currentPageProximos}</span>
+              <span className="pagination-info">Página {currentPageFerias}</span>
               <button 
-                onClick={() => setCurrentPageProximos(prev => prev + 1)}
-                disabled={paginateEvents(eventos.filter(evento => {
-                  const hoje = new Date();
-                  const eventoData = new Date(evento.start);
-                  return eventoData.getMonth() === hoje.getMonth() && 
-                         eventoData.getFullYear() === hoje.getFullYear() && 
-                         eventoData >= hoje;
-                }), currentPageProximos + 1).length === 0}
+                onClick={() => setCurrentPageFerias(prev => prev + 1)}
+                disabled={paginateEvents(eventos.filter(evento => 
+                  parseInt(evento.tipo) === 1
+                ), currentPageFerias + 1).length === 0}
                 className="pagination-btn"
               >
                 Próxima
@@ -407,31 +527,23 @@ function Escalas() {
           </div>
 
           <div className="card">
-            <h2><FontAwesomeIcon icon={faCalendarAlt} /> Eventos Vencidos</h2>
+            <h2><FontAwesomeIcon icon={faCalendarAlt} /> Feriados</h2>
             <ul>
               {paginateEvents(
-                eventos
-                  .filter(evento => {
+                feriadosNacionais
+                  .filter(feriado => {
                     const hoje = new Date();
-                    const eventoData = new Date(evento.start);
-                    
-                    const mesmoMes = eventoData.getMonth() === hoje.getMonth();
-                    const mesmoAno = eventoData.getFullYear() === hoje.getFullYear();
-                    
-                    hoje.setHours(0, 0, 0, 0);
-                    eventoData.setHours(0, 0, 0, 0);
-                    
-                    return mesmoMes && mesmoAno && eventoData < hoje;
+                    const feriadoData = new Date(feriado.start);
+                    return feriadoData >= hoje;
                   })
-                  .sort((a, b) => new Date(b.start) - new Date(a.start)),
-                currentPageVencidos
-              ).map(evento => (
-                <li key={evento.id}>
+                  .sort((a, b) => new Date(a.start) - new Date(b.start)),
+                currentPageFeriados
+              ).map(feriado => (
+                <li key={feriado.id}>
                   <div className="evento-info">
-                    <span className="evento-titulo">{evento.title}</span>
+                    <span className="evento-titulo">{feriado.title}</span>
                     <div className="evento-datas">
-                      <span>Início: {format(new Date(evento.start), 'dd/MM/yyyy HH:mm')}</span>
-                      <span>Fim: {format(new Date(evento.end), 'dd/MM/yyyy HH:mm')}</span>
+                      <span>{format(new Date(feriado.start), 'dd/MM/yyyy')}</span>
                     </div>
                   </div>
                 </li>
@@ -439,22 +551,20 @@ function Escalas() {
             </ul>
             <div className="pagination">
               <button 
-                onClick={() => setCurrentPageVencidos(prev => Math.max(prev - 1, 1))}
-                disabled={currentPageVencidos === 1}
+                onClick={() => setCurrentPageFeriados(prev => Math.max(prev - 1, 1))}
+                disabled={currentPageFeriados === 1}
                 className="pagination-btn"
               >
                 Anterior
               </button>
-              <span className="pagination-info">Página {currentPageVencidos}</span>
+              <span className="pagination-info">Página {currentPageFeriados}</span>
               <button 
-                onClick={() => setCurrentPageVencidos(prev => prev + 1)}
-                disabled={paginateEvents(eventos.filter(evento => {
+                onClick={() => setCurrentPageFeriados(prev => prev + 1)}
+                disabled={paginateEvents(feriadosNacionais.filter(feriado => {
                   const hoje = new Date();
-                  const eventoData = new Date(evento.start);
-                  return eventoData.getMonth() === hoje.getMonth() && 
-                         eventoData.getFullYear() === hoje.getFullYear() && 
-                         eventoData < hoje;
-                }), currentPageVencidos + 1).length === 0}
+                  const feriadoData = new Date(feriado.start);
+                  return feriadoData >= hoje;
+                }), currentPageFeriados + 1).length === 0}
                 className="pagination-btn"
               >
                 Próxima
@@ -463,16 +573,95 @@ function Escalas() {
           </div>
         </div>
 
+        <div className="timeline-container">
+          <div 
+            className="timeline-header" 
+            onClick={() => setIsTimelineExpanded(!isTimelineExpanded)}
+          >
+            <div className="timeline-title">
+              <h2>
+                <FontAwesomeIcon icon={faCalendarAlt} /> 
+                Linha do Tempo
+              </h2>
+              {!isTimelineExpanded && (
+                <span className="expand-hint">Clique para expandir</span>
+              )}
+            </div>
+            <button className="timeline-toggle">
+              <FontAwesomeIcon 
+                icon={isTimelineExpanded ? 'fa-chevron-up' : 'fa-chevron-down'} 
+                className={`toggle-icon ${isTimelineExpanded ? 'expanded' : ''}`}
+              />
+            </button>
+          </div>
+          
+          <div className={`timeline ${isTimelineExpanded ? 'expanded' : ''}`}>
+            <div className="timeline-scroll-container">
+              {isTimelineExpanded && (
+                [...eventos, ...feriadosNacionais]
+                  .sort((a, b) => new Date(a.start) - new Date(b.start))
+                  .filter(evento => {
+                    const hoje = new Date();
+                    const eventoData = new Date(evento.start);
+                    const tresMesesDepois = new Date();
+                    tresMesesDepois.setMonth(hoje.getMonth() + 3);
+                    return eventoData >= hoje && eventoData <= tresMesesDepois;
+                  })
+                  .map((evento, index) => {
+                    const eventoData = new Date(evento.start);
+                    const hoje = new Date();
+                    const diasAteEvento = Math.ceil((eventoData - hoje) / (1000 * 60 * 60 * 24));
+                    
+                    return (
+                      <div 
+                        key={evento.id} 
+                        className={`timeline-item ${evento.isFeriadoNacional ? 'feriado' : ''}`}
+                        style={{
+                          backgroundColor: evento.backgroundColor || '#4CAF50'
+                        }}
+                      >
+                        <div className="timeline-date">
+                          <div className="date-range">
+                            <span className="date">
+                              {format(eventoData, 'dd/MM/yyyy')} - {format(new Date(evento.end), 'dd/MM/yyyy')}
+                            </span>
+                          </div>
+                          <span className="days-until">
+                            {diasAteEvento === 0 
+                              ? 'Hoje'
+                              : diasAteEvento === 1
+                                ? 'Amanhã'
+                                : `Em ${diasAteEvento} dias`}
+                          </span>
+                        </div>
+                        <div className="timeline-content">
+                          <h3>{evento.title}</h3>
+                          {!evento.isFeriadoNacional && evento.observacao && (
+                            <p className="timeline-obs">{evento.observacao}</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className="calendar-container">
           <Calendar
             localizer={localizer}
-            events={eventos}
+            events={[...eventos, ...feriadosNacionais]}
             startAccessor="start"
             endAccessor="end"
             style={{ height: 'calc(100vh - 75px)' }}
             selectable
             onSelectSlot={handleSelect}
-            onSelectEvent={handleEventClick}
+            onSelectEvent={(event) => {
+              if (!event.isFeriadoNacional) {
+                handleEventClick(event);
+              }
+            }}
             messages={messages}
             formats={formats}
             culture="pt-BR"
@@ -480,7 +669,9 @@ function Escalas() {
             defaultView="month"
             eventPropGetter={(event) => ({
               style: {
-                backgroundColor: event.backgroundColor
+                backgroundColor: event.backgroundColor,
+                cursor: event.isFeriadoNacional ? 'default' : 'pointer',
+                opacity: event.isFeriadoNacional ? 0.8 : 1
               }
             })}
             showAllEvents
