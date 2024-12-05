@@ -187,8 +187,17 @@
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
+}
+
+.card.expanded {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 0 15px rgba(57, 73, 171, 0.3),
+    0 0 30px rgba(65, 185, 160, 0.2);
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
 }
 
 .card h2 {
@@ -537,8 +546,7 @@
 
 /* Adicione uma cor específica para o card de férias quando hover */
 .card:nth-child(1):hover {
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-  color: white;
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
 }
 
 /* Ajustar o grid para 2 cards */
@@ -558,8 +566,7 @@
 
 /* Adicione uma cor específica para o card de feriados quando hover */
 .card:nth-child(2):hover {
-  background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
-  color: white;
+  background: linear-gradient(90deg, #3949ab 0%, #41b9a0 65%);
 }
 
 /* Ajustar a responsividade */
