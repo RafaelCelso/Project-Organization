@@ -12,6 +12,7 @@ import Perfil from './pages/Perfil';
 import Users from './pages/Users';
 import Permissoes from './pages/Permissoes';
 import AcessoNegado from './pages/AcessoNegado';
+import Documentacao from './pages/Documentacao';
 import './styles/global.css';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { syncPermissions, updateDesenvolvedorPermissions } from './services/permissionsService';
@@ -77,6 +78,14 @@ function AppContent() {
             } 
           />
           <Route path="/acesso-negado" element={<AcessoNegado />} />
+          <Route 
+            path="/documentacao" 
+            element={
+              <ProtectedRoute>
+                <Documentacao />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </div>
     </div>

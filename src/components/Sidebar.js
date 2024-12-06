@@ -1,5 +1,6 @@
 import React from 'react';
 import { usePermissions } from '../hooks/usePermissions';
+import { faBook } from 'react-icons/fa';
 
 const Sidebar = () => {
   const { hasAccess } = usePermissions();
@@ -16,6 +17,11 @@ const Sidebar = () => {
       path: '/colaboradores',
       icon: <i className="material-icons">people</i>,
       permission: 'colaboradores'
+    },
+    {
+      icon: faBook,
+      label: 'Documentação',
+      path: '/documentacao'
     },
     // ... outros itens de menu ...
   ];

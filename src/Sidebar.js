@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faProjectDiagram, faUsers, faCalendarAlt, faTasks, faUser, faSignOutAlt, faUserGroup, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faProjectDiagram, faUsers, faCalendarAlt, faTasks, faUser, faSignOutAlt, faUserGroup, faShieldAlt, faBook } from '@fortawesome/free-solid-svg-icons';
 import ToggleButton from './components/ToggleButton';
 import LogoutModal from './components/LogoutModal';
 import './Sidebar.css';
@@ -35,6 +35,7 @@ function Sidebar({ isCollapsed, onToggle }) {
     { icon: faUserGroup, label: 'Usuários', path: '/usuarios' },
     { icon: faShieldAlt, label: 'Permissões', path: '/permissoes' },
     { icon: faUser, label: 'Perfil', path: '/perfil' },
+    { icon: faBook, label: 'Documentação', path: '/documentacao' },
   ];
 
   return (
