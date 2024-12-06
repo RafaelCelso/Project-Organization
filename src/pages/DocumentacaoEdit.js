@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faArrowLeft, 
@@ -11,20 +11,12 @@ import {
   faChartLine 
 } from '@fortawesome/free-solid-svg-icons';
 import { db } from '../firebaseConfig';
-import { doc, getDoc, addDoc, collection } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import './DocumentacaoForm.css';
 
-const TOPICOS = [
-  { id: 'manual', nome: 'Manual', icon: faBook },
-  { id: 'especificacao', nome: 'Especificação', icon: faFileContract },
-  { id: 'tutorial', nome: 'Tutorial', icon: faVideo },
-  { id: 'procedimento', nome: 'Procedimento', icon: faListCheck },
-  { id: 'relatorio', nome: 'Relatório', icon: faChartLine }
-];
-
-// Templates para cada tipo de documento
 const TEMPLATES = {
   manual: {
+    label: 'Manual',
     sections: [
       { id: 'objetivo', label: 'Objetivo', type: 'text' },
       { id: 'escopo', label: 'Escopo', type: 'text' },
@@ -35,6 +27,7 @@ const TEMPLATES = {
     ]
   },
   especificacao: {
+    label: 'Especificação',
     sections: [
       { id: 'introducao', label: 'Introdução', type: 'text' },
       { id: 'objetivos', label: 'Objetivos', type: 'text' },
@@ -46,6 +39,7 @@ const TEMPLATES = {
     ]
   },
   tutorial: {
+    label: 'Tutorial',
     sections: [
       { id: 'introducao', label: 'Introdução', type: 'text' },
       { id: 'pre_requisitos', label: 'Pré-requisitos', type: 'text' },
@@ -56,6 +50,7 @@ const TEMPLATES = {
     ]
   },
   procedimento: {
+    label: 'Procedimento',
     sections: [
       { id: 'objetivo', label: 'Objetivo', type: 'text' },
       { id: 'responsabilidades', label: 'Responsabilidades', type: 'text' },
@@ -67,6 +62,7 @@ const TEMPLATES = {
     ]
   },
   relatorio: {
+    label: 'Relatório',
     sections: [
       { id: 'sumario_executivo', label: 'Sumário Executivo', type: 'text' },
       { id: 'introducao', label: 'Introdução', type: 'text' },
@@ -79,61 +75,64 @@ const TEMPLATES = {
   }
 };
 
-const DocumentacaoForm = () => {
+const DocumentacaoEdit = () => {
   const navigate = useNavigate();
-  const { projetoId } = useParams();
-  const [searchParams] = useSearchParams();
-  const tipoDoc = searchParams.get('tipo');
+  const { projetoId, documentoId } = useParams();
   const [projeto, setProjeto] = useState(null);
+  const [documento, setDocumento] = useState(null);
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
-    const fetchProjeto = async () => {
+    const fetchData = async () => {
       try {
+        // Buscar documento
+        const documentoDoc = await getDoc(doc(db, 'documentos', documentoId));
+        if (documentoDoc.exists()) {
+          const documentoData = documentoDoc.data();
+          setDocumento(documentoData);
+          
+          // Parse do conteúdo e setup do formData
+          const conteudoObj = JSON.parse(documentoData.conteudo);
+          setFormData({
+            titulo: documentoData.titulo,
+            ...conteudoObj
+          });
+        }
+
+        // Buscar projeto
         const projetoDoc = await getDoc(doc(db, 'projetos', projetoId));
         if (projetoDoc.exists()) {
           setProjeto({ id: projetoDoc.id, ...projetoDoc.data() });
         }
       } catch (error) {
-        console.error('Erro ao buscar projeto:', error);
+        console.error('Erro ao buscar dados:', error);
       }
     };
 
-    fetchProjeto();
-
-    // Inicializar formData com seções vazias do template
-    if (tipoDoc && TEMPLATES[tipoDoc]) {
-      const initialData = TEMPLATES[tipoDoc].sections.reduce((acc, section) => {
-        acc[section.id] = '';
-        return acc;
-      }, {});
-      setFormData(initialData);
-    }
-  }, [projetoId, tipoDoc]);
+    fetchData();
+  }, [projetoId, documentoId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const docData = {
-        projetoId,
-        tipo: tipoDoc,
-        titulo: formData.titulo || 'Sem título',
-        conteudo: JSON.stringify(formData),
-        dataCriacao: new Date().toISOString(),
-        autor: 'Usuário Atual', // Você deve pegar o usuário logado aqui
-        status: 'ativo'
-      };
-
-      await addDoc(collection(db, 'documentos'), docData);
+      const { titulo, ...conteudo } = formData;
+      const docRef = doc(db, 'documentos', documentoId);
+      await updateDoc(docRef, {
+        titulo,
+        conteudo: JSON.stringify(conteudo),
+        dataAtualizacao: new Date().toISOString()
+      });
       navigate(`/documentacao/${projetoId}`);
     } catch (error) {
-      console.error('Erro ao salvar documento:', error);
+      console.error('Erro ao atualizar documento:', error);
     }
   };
 
-  if (!tipoDoc || !TEMPLATES[tipoDoc]) {
-    return <div>Tipo de documento inválido</div>;
+  if (!documento || !projeto) {
+    return <div>Carregando...</div>;
   }
+
+  const template = TEMPLATES[documento.tipo.toLowerCase()];
 
   return (
     <div className="home-container">
@@ -147,7 +146,7 @@ const DocumentacaoForm = () => {
               <FontAwesomeIcon icon={faArrowLeft} />
             </button>
             <h1 className="page-title">
-              Novo {TEMPLATES[tipoDoc].label} - {projeto?.nome}
+              Editar {template.label} - {projeto.nome}
             </h1>
           </div>
         </div>
@@ -168,11 +167,11 @@ const DocumentacaoForm = () => {
 
             <div className="form-section">
               <div className="form-section-title">
-                <FontAwesomeIcon icon={TOPICOS.find(t => t.id === tipoDoc)?.icon} />
+                <FontAwesomeIcon icon={TEMPLATES[documento.tipo.toLowerCase()].icon} />
                 Conteúdo do Documento
               </div>
               
-              {TEMPLATES[tipoDoc].sections.map(section => (
+              {template.sections.map(section => (
                 <div key={section.id} className="form-group">
                   <label htmlFor={section.id}>{section.label}</label>
                   {section.type === 'textarea' ? (
@@ -208,7 +207,7 @@ const DocumentacaoForm = () => {
               </button>
               <button type="submit" className="save-btn">
                 <FontAwesomeIcon icon={faSave} />
-                Salvar Documento
+                Salvar Alterações
               </button>
             </div>
           </form>
@@ -218,4 +217,4 @@ const DocumentacaoForm = () => {
   );
 };
 
-export default DocumentacaoForm;
+export default DocumentacaoEdit; 

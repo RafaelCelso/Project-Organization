@@ -16,6 +16,7 @@ import Documentacao from './pages/Documentacao';
 import DocumentacaoProjeto from './pages/DocumentacaoProjeto';
 import DocumentacaoForm from './pages/DocumentacaoForm';
 import DocumentacaoView from './pages/DocumentacaoView';
+import DocumentacaoEdit from './pages/DocumentacaoEdit';
 import './styles/global.css';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { syncPermissions, updateDesenvolvedorPermissions } from './services/permissionsService';
@@ -110,6 +111,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <DocumentacaoView />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/documentacao/:projetoId/editar/:documentoId" 
+            element={
+              <ProtectedRoute>
+                <DocumentacaoEdit />
               </ProtectedRoute>
             } 
           />

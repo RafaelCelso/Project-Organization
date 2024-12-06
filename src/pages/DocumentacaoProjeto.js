@@ -11,11 +11,13 @@ import {
   faFileContract,
   faVideo,
   faListCheck,
-  faChartLine
+  faChartLine,
+  faDownload
 } from '@fortawesome/free-solid-svg-icons';
 import { db } from '../firebaseConfig';
 import { collection, query, where, getDocs, doc, getDoc, deleteDoc } from 'firebase/firestore';
 import './DocumentacaoProjeto.css';
+import { generatePDF } from '../utils/pdfGenerator';
 
 const TOPICOS = [
   { id: 'manual', nome: 'Manual', icon: faBook },
@@ -120,6 +122,23 @@ const DocumentacaoProjeto = () => {
     }
   };
 
+  const handleDownloadPDF = async (e, documento) => {
+    e.stopPropagation();
+    try {
+      const pdfBlob = await generatePDF(documento);
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${documento.titulo}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+    }
+  };
+
   useEffect(() => {
     return () => {
       // Não limpar ao desmontar para manter o estado
@@ -139,7 +158,7 @@ const DocumentacaoProjeto = () => {
               <FontAwesomeIcon icon={faArrowLeft} />
             </button>
             <h1 className="page-title">
-              {projeto?.nome} - Documentaão
+              {projeto?.nome} - Documentação
             </h1>
           </div>
         </div>
@@ -215,6 +234,12 @@ const DocumentacaoProjeto = () => {
                           onClick={(e) => handleEditClick(e, documento)}
                         >
                           <FontAwesomeIcon icon={faEdit} />
+                        </button>
+                        <button 
+                          className="action-btn download"
+                          onClick={(e) => handleDownloadPDF(e, documento)}
+                        >
+                          <FontAwesomeIcon icon={faDownload} />
                         </button>
                         <button 
                           className="action-btn delete"
