@@ -668,7 +668,7 @@ function Projetos() {
         {/* Modal de Cadastro/Edição */}
         {isModalOpen && (
           <div className="modal-overlay">
-            <div className="modal-content">
+            <div className="modal-content projeto-modal">
               <h2>{isEditing ? "Editar Projeto" : "Novo Projeto"}</h2>
               <form onSubmit={handleSubmit}>
                 <div className="form-group full-width">

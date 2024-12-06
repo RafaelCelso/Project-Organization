@@ -55,17 +55,6 @@ const Documentacao = () => {
       <div className="home-content">
         <div className="page-header">
           <h1 className="page-title">Documentação dos Projetos</h1>
-          {hasAccess('criar', 'documentacao') && (
-            <div className="header-actions">
-              <button
-                className="new-doc-btn"
-                onClick={handleNovoDocumento}
-              >
-                <FontAwesomeIcon icon={faPlus} />
-                Novo Documento
-              </button>
-            </div>
-          )}
         </div>
 
         <div className="projects-grid">
