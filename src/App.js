@@ -13,6 +13,9 @@ import Users from './pages/Users';
 import Permissoes from './pages/Permissoes';
 import AcessoNegado from './pages/AcessoNegado';
 import Documentacao from './pages/Documentacao';
+import DocumentacaoProjeto from './pages/DocumentacaoProjeto';
+import DocumentacaoForm from './pages/DocumentacaoForm';
+import DocumentacaoView from './pages/DocumentacaoView';
 import './styles/global.css';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { syncPermissions, updateDesenvolvedorPermissions } from './services/permissionsService';
@@ -83,6 +86,30 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <Documentacao />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/documentacao/:projetoId" 
+            element={
+              <ProtectedRoute>
+                <DocumentacaoProjeto />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/documentacao/:projetoId/novo" 
+            element={
+              <ProtectedRoute>
+                <DocumentacaoForm />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/documentacao/:projetoId/documento/:documentoId" 
+            element={
+              <ProtectedRoute>
+                <DocumentacaoView />
               </ProtectedRoute>
             } 
           />

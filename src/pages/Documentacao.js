@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 import { usePermissions } from '../hooks/usePermissions';
@@ -7,6 +8,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import './Documentacao.css';
 
 const Documentacao = () => {
+  const navigate = useNavigate();
   const { hasAccess } = usePermissions();
   const [projetos, setProjetos] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,6 +46,10 @@ const Documentacao = () => {
     setIsModalOpen(false);
   };
 
+  const handleProjetoClick = (projetoId) => {
+    navigate(`/documentacao/${projetoId}`);
+  };
+
   return (
     <div className="home-container">
       <div className="home-content">
@@ -64,7 +70,11 @@ const Documentacao = () => {
 
         <div className="projects-grid">
           {projetos.map((projeto) => (
-            <div key={projeto.id} className="project-card simple">
+            <div 
+              key={projeto.id} 
+              className="project-card simple"
+              onClick={() => handleProjetoClick(projeto.id)}
+            >
               <div className="project-card-header">
                 <FontAwesomeIcon icon={faFileAlt} className="project-icon" />
                 <h3>{projeto.nome}</h3>
