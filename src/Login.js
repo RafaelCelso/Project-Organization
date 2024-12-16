@@ -5,6 +5,7 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { db } from "./firebaseConfig";
 import "./Login.css";
 import logo from "./logo.png";
+import { setToken } from './services/auth';
 
 function Login() {
   const navigate = useNavigate();
@@ -71,6 +72,7 @@ function Login() {
         colaboradorId: userData.colaboradorId,
       };
       localStorage.setItem("userInfo", JSON.stringify(userInfo));
+      setToken(userCredential.user.accessToken); // Salva o token de autenticação
 
       // Redireciona para a página inicial
       navigate("/");

@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowLeft, faUsers, faBuilding, faInfoCircle, faEdit,
-  faProjectDiagram, faUser, faEnvelope, faPhone, faToggleOn
+  faProjectDiagram, faUser, faEnvelope, faPhone, faToggleOn, faLink
 } from '@fortawesome/free-solid-svg-icons';
 import './ProjetoDetalhes.css';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
@@ -105,8 +105,14 @@ function ProjetoDetalhes() {
     
     try {
       const projetoRef = doc(db, 'projetos', id);
-      await updateDoc(projetoRef, formData);
-      setProjeto(formData);
+      const projetoData = {
+        ...formData,
+        productionUrl: formData.productionUrl || null,
+        stagingUrl: formData.stagingUrl || null
+      };
+      
+      await updateDoc(projetoRef, projetoData);
+      setProjeto(projetoData);
       setIsModalOpen(false);
     } catch (error) {
       console.error('Erro ao atualizar projeto:', error);
@@ -171,6 +177,40 @@ function ProjetoDetalhes() {
               <div className="info-row">
                 <span className="info-label">Status:</span>
                 <span className="info-value status-tag">{projeto.status}</span>
+              </div>
+              <div className="info-row">
+                <span className="info-label">URL de Produção:</span>
+                <span className="info-value">
+                  {projeto.productionUrl ? (
+                    <a 
+                      href={projeto.productionUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      {projeto.productionUrl}
+                    </a>
+                  ) : (
+                    <span className="text-gray-500">Não definido</span>
+                  )}
+                </span>
+              </div>
+              <div className="info-row">
+                <span className="info-label">URL de Homologação:</span>
+                <span className="info-value">
+                  {projeto.stagingUrl ? (
+                    <a 
+                      href={projeto.stagingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      {projeto.stagingUrl}
+                    </a>
+                  ) : (
+                    <span className="text-gray-500">Não definido</span>
+                  )}
+                </span>
               </div>
             </div>
           </div>
@@ -421,6 +461,34 @@ function ProjetoDetalhes() {
                       }
                     })}
                     required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="productionUrl">
+                    <FontAwesomeIcon icon={faLink} className="form-icon" /> 
+                    URL de Produção
+                  </label>
+                  <input
+                    type="url"
+                    id="productionUrl"
+                    value={formData.productionUrl || ''}
+                    onChange={(e) => setFormData({...formData, productionUrl: e.target.value})}
+                    placeholder="https://exemplo.com"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="stagingUrl">
+                    <FontAwesomeIcon icon={faLink} className="form-icon" /> 
+                    URL de Homologação
+                  </label>
+                  <input
+                    type="url"
+                    id="stagingUrl"
+                    value={formData.stagingUrl || ''}
+                    onChange={(e) => setFormData({...formData, stagingUrl: e.target.value})}
+                    placeholder="https://staging.exemplo.com"
                   />
                 </div>
 
